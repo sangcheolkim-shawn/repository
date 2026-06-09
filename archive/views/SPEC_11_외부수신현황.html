@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>SPEC 11 외부수신현황 — CMS v8.5</title>
+<style>
+body { margin:0; overflow:hidden; }
+iframe { width:1440px; height:900px; border:none; display:block; }
+</style>
+</head>
+<body>
+<iframe id="proto" src="../cms_stg_prd_v8.5.html"></iframe>
+<script>
+document.getElementById('proto').addEventListener('load', function() {
+  var w = this.contentWindow;
+  try { w.switchView('batch-receive'); } catch(e) {
+    setTimeout(function(){ w.switchView('batch-receive'); }, 300);
+  }
+});
+</script>
+</body>
+</html>

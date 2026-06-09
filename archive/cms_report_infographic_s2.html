@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS 고도화 — 섹션 2. 새로운 CMS가 필요한 이유</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #FFFFFF;
+    color: #1D1D1F;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #0055B8 0%, #003D82 50%, #1B2A4A 100%);
+    color: #fff;
+    padding: 44px 40px 38px;
+    text-align: center;
+  }
+  .hero .section-num {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px;
+    padding: 3px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 14px;
+    opacity: 0.75;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ── Container ── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── Section Divider ── */
+  .section-block {
+    padding: 32px 0 28px;
+    border-bottom: 1px solid #E5E5EA;
+  }
+  .section-block:last-child {
+    border-bottom: none;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .section-header .sub {
+    font-size: 13px;
+    color: #86868B;
+    font-weight: 400;
+  }
+
+  /* ── 2-1: System Limitation ── */
+  .limitation-diagram {
+    background: #FAFAFA;
+    border: 1px solid #E5E5EA;
+    border-radius: 14px;
+    padding: 28px;
+  }
+  .stack-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .stack-tower {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 260px;
+  }
+  .stack-layer {
+    width: 100%;
+    padding: 11px 16px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+  }
+  .stack-layer.broken {
+    background: #FFF0F0;
+    border: 2px dashed #E53935;
+    color: #B71C1C;
+    border-radius: 8px 8px 0 0;
+  }
+  .stack-layer.broken::after {
+    content: 'X 중단';
+    position: absolute;
+    top: -9px;
+    right: -8px;
+    background: #E53935;
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .stack-layer.patched {
+    background: #FFF8E1;
+    border: 1px solid #FFB74D;
+    color: #E65100;
+  }
+  .stack-layer.current {
+    background: #E3F2FD;
+    border: 1px solid #90CAF9;
+    color: #1565C0;
+    border-radius: 0 0 8px 8px;
+  }
+  .stack-label {
+    font-size: 11px;
+    color: #86868B;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .arrow-right {
+    font-size: 28px;
+    color: #0055B8;
+    font-weight: 300;
+  }
+  .result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 300px;
+  }
+  .result-item {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .result-item .rlabel {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  /* ── 2-2: Comparison ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 44px 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .compare-card {
+    background: #FAFAFA;
+    border: 1px solid #E5E5EA;
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .compare-card.as-is { border-top: 3px solid #E53935; }
+  .compare-card.to-be { border-top: 3px solid #2E7D32; }
+  .compare-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-card h3 .tag {
+    font-size: 11px;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .compare-card.as-is h3 .tag { background: #FFEBEE; color: #C62828; }
+  .compare-card.to-be h3 .tag { background: #E8F5E9; color: #2E7D32; }
+  .compare-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .compare-vs span {
+    background: #1D1D1F;
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Binding table */
+  .bd-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .bd-table td {
+    padding: 4px 0;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .bd-table .col-left { width: 46%; text-align: right; padding-right: 8px; }
+  .bd-table .col-arrow { width: 8%; text-align: center; }
+  .bd-table .col-right { width: 46%; text-align: left; padding-left: 8px; }
+  .bd-node {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .bd-node.code { background: #E3F2FD; color: #1565C0; }
+  .bd-node.content-dup { background: #FFF3E0; color: #E65100; border: 1px dashed #FFB74D; }
+  .bd-node.curriculum { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+  .bd-arrow { color: #BDBDBD; font-size: 14px; }
+  .bd-multi-arrow { color: #2E7D32; font-size: 14px; font-weight: 700; }
+
+  .formula-box {
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    margin-top: 14px;
+  }
+  .formula-box.negative { background: #FFF5F5; }
+  .formula-box.positive { background: #F1F8E9; }
+  .formula-box .formula {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .formula-box.negative .formula { color: #C62828; }
+  .formula-box.positive .formula { color: #2E7D32; }
+  .formula-box .desc {
+    font-size: 12px;
+    color: #757575;
+  }
+
+  /* ── 2-3: Cost Cards ── */
+  .cost-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .cost-card {
+    background: #FAFAFA;
+    border: 1px solid #E5E5EA;
+    border-radius: 14px;
+    padding: 22px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cost-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .cost-card:nth-child(1)::before { background: #EF6C00; }
+  .cost-card:nth-child(2)::before { background: #C62828; }
+  .cost-card:nth-child(3)::before { background: #7B1FA2; }
+  .cost-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cost-stat {
+    font-size: 26px;
+    font-weight: 900;
+    margin: 8px 0 4px;
+  }
+  .cost-card:nth-child(1) .cost-stat { color: #EF6C00; }
+  .cost-card:nth-child(2) .cost-stat { color: #C62828; }
+  .cost-card:nth-child(3) .cost-stat { color: #7B1FA2; }
+  .cost-desc {
+    font-size: 12px;
+    color: #757575;
+    line-height: 1.45;
+  }
+  .cost-highlight {
+    background: #FFF5F5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #B71C1C;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  /* ── 2-4: Tech Debt ── */
+  .debt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .debt-card {
+    background: #FAFAFA;
+    border: 1px solid #E5E5EA;
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .debt-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .debt-card .subtitle {
+    font-size: 12px;
+    color: #757575;
+    margin-bottom: 12px;
+  }
+  .debt-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .debt-bar-label {
+    width: 52px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: right;
+    color: #757575;
+  }
+  .debt-bar-track {
+    flex: 1;
+    height: 20px;
+    background: #F0F0F0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .debt-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .debt-footnote {
+    font-size: 11px;
+    color: #C62828;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* Scale diagram */
+  .scale-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .scale-box {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    background: #FFEBEE;
+    color: #B71C1C;
+    border: 1px solid #FFCDD2;
+  }
+  .scale-arrow {
+    font-size: 16px;
+    color: #C62828;
+  }
+  .scale-result {
+    text-align: center;
+    margin-top: 12px;
+  }
+  .scale-result .label {
+    font-size: 11px;
+    color: #757575;
+    margin-bottom: 4px;
+  }
+  .scale-result .value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #B71C1C;
+    line-height: 1.4;
+  }
+
+  /* ── Service Comparison ── */
+  .full-card {
+    background: #FAFAFA;
+    border: 1px solid #E5E5EA;
+    border-radius: 14px;
+    padding: 22px;
+    margin-top: 16px;
+  }
+  .full-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .svc-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .svc-box {
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .svc-box.old {
+    background: #FFF5F5;
+    border: 1px solid #FFCDD2;
+  }
+  .svc-box.new {
+    background: #F1F8E9;
+    border: 1px solid #C5E1A5;
+  }
+  .svc-box .svc-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .svc-box.old .svc-title { color: #B71C1C; }
+  .svc-box.new .svc-title { color: #2E7D32; }
+  .svc-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 3px 0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .svc-step .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .svc-box.old .chip { background: #FFCDD2; color: #B71C1C; }
+  .svc-box.new .chip { background: #C8E6C9; color: #2E7D32; }
+  .svc-result {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 900;
+  }
+  .svc-box.old .svc-result { color: #B71C1C; }
+  .svc-box.new .svc-result { color: #2E7D32; }
+
+  /* ── Summary Banner ── */
+  .summary-banner {
+    background: #1D1D1F;
+    color: #fff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin: 32px 0 24px;
+    text-align: center;
+  }
+  .summary-banner h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .summary-pills {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+  }
+  .summary-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 22px;
+    min-width: 180px;
+  }
+  .summary-pill .num {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 2px;
+  }
+  .summary-pill:nth-child(1) .num { color: #FFB74D; }
+  .summary-pill:nth-child(2) .num { color: #EF5350; }
+  .summary-pill:nth-child(3) .num { color: #64B5F6; }
+  .summary-pill .txt {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: #BDBDBD;
+    border-top: 1px solid #E5E5EA;
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="section-num">SECTION 02</div>
+  <h1>새로운 CMS가 필요한 이유</h1>
+  <p>현행 시스템의 구조적 한계와 비용 누적을 정리합니다</p>
+</div>
+
+<div class="container">
+
+<!-- 2-1 -->
+<div class="section-block">
+  <div class="section-header">
+    <div class="section-badge" style="background:#E53935;">2-1</div>
+    <div>
+      <h2>현재 CMS의 시스템적 한계</h2>
+      <div class="sub">중단된 솔루션 위에 쌓아올린 구조</div>
+    </div>
+  </div>
+
+  <div class="limitation-diagram">
+    <div class="stack-visual">
+      <div class="stack-tower">
+        <div class="stack-layer broken">도입 예정 솔루션 (커스터마이징 중단)</div>
+        <div class="stack-layer patched">부분 잔존 코드 + 급조된 패치</div>
+        <div class="stack-layer current">뉴드림스 오픈 목적 운영 시스템</div>
+        <div class="stack-label">현행 CMS 구조</div>
+      </div>
+      <div class="arrow-right">→</div>
+      <div class="result-list">
+        <div class="result-item" style="background:#FFF8E1; border:1px solid #FFE082;">
+          <div class="rlabel" style="color:#F57F17;">편의성 개선</div>
+          제한적으로만 가능
+        </div>
+        <div class="result-item" style="background:#FFF3E0; border:1px solid #FFB74D;">
+          <div class="rlabel" style="color:#EF6C00;">요구사항 반영</div>
+          구조적으로 느릴 수밖에 없음
+        </div>
+        <div class="result-item" style="background:#FFEBEE; border:1px solid #EF9A9A;">
+          <div class="rlabel" style="color:#C62828;">중단 솔루션 잔재</div>
+          100% 제거 불가 — 복잡도를 높임
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2-2 -->
+<div class="section-block">
+  <div class="section-header">
+    <div class="section-badge" style="background:#EF6C00;">2-2</div>
+    <div>
+      <h2>콘텐츠 관리 구조의 비효율성</h2>
+      <div class="sub">과목코드 x 콘텐츠 1:1 바인딩의 한계</div>
+    </div>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card as-is">
+      <h3><span class="tag">AS-IS</span> 현행: 1:1 구조</h3>
+      <table class="bd-table" style="margin-bottom:12px;">
+        <tr>
+          <td class="col-left"><span class="bd-node code">과목코드 AM</span></td>
+          <td class="col-arrow"><span class="bd-arrow">—</span></td>
+          <td class="col-right"><span class="bd-node content-dup">콘텐츠 A 복제</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"><span class="bd-node code">과목코드 AM2</span></td>
+          <td class="col-arrow"><span class="bd-arrow">—</span></td>
+          <td class="col-right"><span class="bd-node content-dup">콘텐츠 A 복제</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"><span class="bd-node code">과목코드 AM3</span></td>
+          <td class="col-arrow"><span class="bd-arrow">—</span></td>
+          <td class="col-right"><span class="bd-node content-dup">콘텐츠 A 복제</span></td>
+        </tr>
+        <tr>
+          <td colspan="3" style="text-align:center; padding-top:6px;">
+            <span style="font-size:12px; color:#999; letter-spacing:1px;">... AM4, AM5, AMA, AMA2, AMB ...</span>
+          </td>
+        </tr>
+      </table>
+      <div class="formula-box negative">
+        <div class="formula">681코드 x 4~5시스템 = 곱셈 증가</div>
+        <div class="desc">동일 데이터가 코드 수만큼 복제, 관리 부담 기하급수적 증가</div>
+      </div>
+    </div>
+
+    <div class="compare-vs"><span>VS</span></div>
+
+    <div class="compare-card to-be">
+      <h3><span class="tag">TO-BE</span> 신규: 1:N 구조</h3>
+      <table class="bd-table" style="margin-bottom:12px;">
+        <tr>
+          <td class="col-left"><span class="bd-node curriculum">스피드수학 커리큘럼</span></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AM 써밋스피드수학</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AM2 써밋스피드수학2</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AM3 써밋스피드수학3</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AM4 써밋스피드수학4</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AM5 써밋스피드수학5</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AMA 써밋스피드수학A</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AMA2 써밋스피드수학A2</span></td>
+        </tr>
+        <tr>
+          <td class="col-left"></td>
+          <td class="col-arrow"><span class="bd-multi-arrow">-></span></td>
+          <td class="col-right"><span class="bd-node code">AMB 써밋스피드수학B</span></td>
+        </tr>
+      </table>
+      <div class="formula-box positive">
+        <div class="formula">1 커리큘럼 → N 과목코드 바인딩</div>
+        <div class="desc">콘텐츠는 하나, 바인딩 설정만으로 8개 과목코드에 연결</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2-3 -->
+<div class="section-block">
+  <div class="section-header">
+    <div class="section-badge" style="background:#7B1FA2;">2-3</div>
+    <div>
+      <h2>현행 유지 시 발생하는 비용 — 운영 관점</h2>
+      <div class="sub">시간이 지날수록 가속되는 관리 비용</div>
+    </div>
+  </div>
+
+  <div class="cost-cards">
+    <div class="cost-card">
+      <h4>반복 등록 비용</h4>
+      <div class="cost-stat">4~5배</div>
+      <div class="cost-desc">과목코드 1건당 평균 4~5개 시스템에 개별 등록 필요</div>
+      <div class="cost-highlight">
+        새 시스템 추가 / 과목 증가 시<br>
+        <strong>선형이 아닌 곱셈으로 증가</strong>
+      </div>
+    </div>
+    <div class="cost-card">
+      <h4>소통 비용의 구조적 증가</h4>
+      <div class="cost-stat">681+</div>
+      <div class="cost-desc">시스템마다 다른 이름과 체계로 운영되는 과목코드 수</div>
+      <div class="cost-highlight">
+        신규 담당자 온보딩 시 5개 시스템<br>
+        <strong>코드 체계를 별도로 학습</strong>
+      </div>
+    </div>
+    <div class="cost-card">
+      <h4>데이터 불일치 리스크</h4>
+      <div class="cost-stat">발견됨</div>
+      <div class="cost-desc">종료된 제품 코드가 일부 시스템에 활성 상태로 잔존</div>
+      <div class="cost-highlight">
+        불일치 축적 → 서비스 품질 이슈<br>
+        <strong>사후 정리 비용 > 사전 예방 비용</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2-4 -->
+<div class="section-block">
+  <div class="section-header">
+    <div class="section-badge" style="background:#1565C0;">2-4</div>
+    <div>
+      <h2>현행 유지 시 발생하는 비용 — 개발 관점</h2>
+      <div class="sub">기술 부채와 확장 한계</div>
+    </div>
+  </div>
+
+  <div class="debt-grid">
+    <div class="debt-card">
+      <h4>기술 부채의 누적</h4>
+      <div class="subtitle">요구사항 1건 반영에 소요되는 시간 추이</div>
+      <div>
+        <div class="debt-bar-row">
+          <div class="debt-bar-label">초기</div>
+          <div class="debt-bar-track">
+            <div class="debt-bar-fill" style="width:25%; background:#43A047;">빠름</div>
+          </div>
+        </div>
+        <div class="debt-bar-row">
+          <div class="debt-bar-label">현재</div>
+          <div class="debt-bar-track">
+            <div class="debt-bar-fill" style="width:55%; background:#EF6C00;">보통</div>
+          </div>
+        </div>
+        <div class="debt-bar-row">
+          <div class="debt-bar-label">1년 후</div>
+          <div class="debt-bar-track">
+            <div class="debt-bar-fill" style="width:80%; background:#E53935;">느림</div>
+          </div>
+        </div>
+        <div class="debt-bar-row">
+          <div class="debt-bar-label">2년 후</div>
+          <div class="debt-bar-track">
+            <div class="debt-bar-fill" style="width:96%; background:#B71C1C;">매우 느림</div>
+          </div>
+        </div>
+      </div>
+      <div class="debt-footnote">중단 솔루션 위에 쌓을수록 복잡도 가속</div>
+    </div>
+
+    <div class="debt-card">
+      <h4>1:1 구조의 확장 한계</h4>
+      <div class="subtitle">"하나의 콘텐츠를 여러 서비스에 제공" 요구 해결 불가</div>
+      <div class="scale-diagram">
+        <div class="scale-box">코드 복제</div>
+        <span class="scale-arrow">→</span>
+        <div class="scale-box">부모-자녀 연결</div>
+        <span class="scale-arrow">→</span>
+        <div class="scale-box">정합성 부담 증가</div>
+      </div>
+      <div class="scale-result">
+        <div class="label">현재의 우회 방식</div>
+        <div class="value">우회할수록 데이터 정합성 관리 부담이<br>지속적으로 증가</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="full-card">
+    <h4>새 서비스 대응 비용 비교</h4>
+    <div class="svc-compare">
+      <div class="svc-box old">
+        <div class="svc-title">현행 — 서비스 추가 시</div>
+        <div class="svc-step"><span class="chip">1</span> 전용 개발 착수</div>
+        <div class="svc-step"><span class="chip">2</span> 코드 복제 + 매핑</div>
+        <div class="svc-step"><span class="chip">3</span> 시스템별 테스트</div>
+        <div class="svc-step"><span class="chip">4</span> 유지보수 추가</div>
+        <div class="svc-result">매번 전용 개발 필요</div>
+      </div>
+      <div class="svc-box new">
+        <div class="svc-title">신규 CMS — 서비스 추가 시</div>
+        <div class="svc-step"><span class="chip">1</span> 바인딩 설정</div>
+        <div class="svc-step" style="opacity:0.3;">완료</div>
+        <div style="height:40px;"></div>
+        <div class="svc-result">연결 설정만으로 완료</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- Summary -->
+<div class="container">
+  <div class="summary-banner">
+    <h3>현행 유지의 총 비용 요약</h3>
+    <div class="summary-pills">
+      <div class="summary-pill">
+        <div class="num">x 4~5</div>
+        <div class="txt">반복 등록 곱셈 비용</div>
+      </div>
+      <div class="summary-pill">
+        <div class="num">681+</div>
+        <div class="txt">시스템별 이종 코드 관리</div>
+      </div>
+      <div class="summary-pill">
+        <div class="num">누적 증가</div>
+        <div class="txt">기술 부채 + 우회 비용</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  CMS 고도화 프로젝트 — 섹션 2 인포그래픽 | 2026-04-20
+</div>
+
+</body>
+</html>

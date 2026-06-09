@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-05-22T09:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram id="system-map" name="CMS 시스템 연결 구조도">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Background Title -->
+        <mxCell id="title-1" value="CMS 2.0 시스템 연결 구조도" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;fontColor=#1A1A2E;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="500" y="30" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle-1" value="콘텐츠 관리 시스템 중심의 외부 서비스 연결 아키텍처" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;fontColor=#666666;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="500" y="65" width="600" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CMS 중앙 허브 ===== -->
+        <mxCell id="cms-hub" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=3;arcSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="280" width="400" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="cms-title" value="CMS 2.0" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;fontColor=#1B5E20;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="700" y="295" width="200" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="cms-subtitle" value="콘텐츠 관리 시스템" style="text;html=1;fontSize=12;align=center;verticalAlign=middle;fontColor=#388E3C;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="700" y="325" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- CMS 내부 모듈 -->
+        <mxCell id="mod-1" value="&lt;b&gt;커리큘럼 관리&lt;/b&gt;&lt;br&gt;단계 구조 설계" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#43A047;fontSize=11;fontFamily=Pretendard;align=center;" vertex="1" parent="1">
+          <mxGeometry x="620" y="360" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mod-2" value="&lt;b&gt;입력 양식 관리&lt;/b&gt;&lt;br&gt;필드 풀 + 양식 정의" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#43A047;fontSize=11;fontFamily=Pretendard;align=center;" vertex="1" parent="1">
+          <mxGeometry x="810" y="360" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mod-3" value="&lt;b&gt;콘텐츠 등록&lt;/b&gt;&lt;br&gt;작업 배정 + 입력" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#43A047;fontSize=11;fontFamily=Pretendard;align=center;" vertex="1" parent="1">
+          <mxGeometry x="620" y="425" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mod-4" value="&lt;b&gt;검수 &amp; 배포&lt;/b&gt;&lt;br&gt;품질 확인 + 릴리즈" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#43A047;fontSize=11;fontFamily=Pretendard;align=center;" vertex="1" parent="1">
+          <mxGeometry x="810" y="425" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="mod-5" value="&lt;b&gt;과목코드 연결&lt;/b&gt;&lt;br&gt;콘텐츠 ↔ 서비스 매핑" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#43A047;fontSize=11;fontFamily=Pretendard;align=center;" vertex="1" parent="1">
+          <mxGeometry x="715" y="490" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 외부 시스템 4개 ===== -->
+
+        <!-- 뉴드림스 (좌상) -->
+        <mxCell id="nd-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F2FF;strokeColor=#0055B8;strokeWidth=2;arcSize=15;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nd-icon" value="ND" style="ellipse;whiteSpace=wrap;html=1;fillColor=#0055B8;fontColor=#FFFFFF;fontSize=14;fontStyle=1;strokeColor=none;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="100" y="180" width="45" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="nd-title" value="뉴드림스" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;fontColor=#0055B8;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="155" y="180" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="nd-desc" value="자사 학습 플랫폼&lt;br&gt;수학·국어·영어 콘텐츠 서비스" style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="155" y="205" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 눈높이 (우상) -->
+        <mxCell id="nh-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F9F0FF;strokeColor=#8944AB;strokeWidth=2;arcSize=15;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="160" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nh-icon" value="NH" style="ellipse;whiteSpace=wrap;html=1;fillColor=#8944AB;fontColor=#FFFFFF;fontSize=14;fontStyle=1;strokeColor=none;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="180" width="45" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="nh-title" value="눈높이" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;fontColor=#8944AB;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1335" y="180" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="nh-desc" value="자사 학습 브랜드&lt;br&gt;1:1 맞춤 학습 콘텐츠" style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1335" y="205" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 성장판 (좌하) -->
+        <mxCell id="sj-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FFF4;strokeColor=#1B8A3E;strokeWidth=2;arcSize=15;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="560" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sj-icon" value="SJ" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1B8A3E;fontColor=#FFFFFF;fontSize=14;fontStyle=1;strokeColor=none;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="100" y="580" width="45" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sj-title" value="성장판" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;fontColor=#1B8A3E;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="155" y="580" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="sj-desc" value="성장 진단 플랫폼&lt;br&gt;자동채점·핵심점검 콘텐츠" style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="155" y="605" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 눈높이365 (우하) -->
+        <mxCell id="nh365-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#B35C00;strokeWidth=2;arcSize=15;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="560" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nh365-icon" value="365" style="ellipse;whiteSpace=wrap;html=1;fillColor=#B35C00;fontColor=#FFFFFF;fontSize=12;fontStyle=1;strokeColor=none;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="580" width="45" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="nh365-title" value="눈높이365" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=middle;fontColor=#B35C00;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1335" y="580" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="nh365-desc" value="구독형 학습 서비스&lt;br&gt;AI 기반 맞춤 학습 경로" style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="1335" y="605" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 연결선 ===== -->
+
+        <!-- CMS → 뉴드림스 -->
+        <mxCell id="edge-nd" value="" style="endArrow=blockThin;endFill=1;html=1;strokeWidth=3;strokeColor=#0055B8;curved=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.2;exitDx=0;exitDy=0;" edge="1" parent="1" source="cms-hub" target="nd-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-nd-label" value="해답지·문항 콘텐츠" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#0055B8;fontStyle=1;fontFamily=Pretendard;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="edge-nd">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CMS → 눈높이 -->
+        <mxCell id="edge-nh" value="" style="endArrow=blockThin;endFill=1;html=1;strokeWidth=3;strokeColor=#8944AB;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.2;exitDx=0;exitDy=0;" edge="1" parent="1" source="cms-hub" target="nh-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-nh-label" value="1:1 맞춤 학습 콘텐츠" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#8944AB;fontStyle=1;fontFamily=Pretendard;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="edge-nh">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CMS → 성장판 -->
+        <mxCell id="edge-sj" value="" style="endArrow=blockThin;endFill=1;html=1;strokeWidth=3;strokeColor=#1B8A3E;curved=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="cms-hub" target="sj-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-sj-label" value="자동채점·핵심점검" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#1B8A3E;fontStyle=1;fontFamily=Pretendard;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="edge-sj">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CMS → 눈높이365 -->
+        <mxCell id="edge-nh365" value="" style="endArrow=blockThin;endFill=1;html=1;strokeWidth=3;strokeColor=#B35C00;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="cms-hub" target="nh365-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-nh365-label" value="AI 학습 경로 콘텐츠" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#B35C00;fontStyle=1;fontFamily=Pretendard;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="edge-nh365">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 하단 범례 ===== -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#E0E0E0;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="480" y="790" width="640" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="&lt;b&gt;핵심 포인트&lt;/b&gt;: 콘텐츠는 CMS에서 &lt;b&gt;한 번만&lt;/b&gt; 등록하고, 과목코드 연결을 통해 &lt;b&gt;여러 시스템에 동시 배포&lt;/b&gt;됩니다." style="text;html=1;fontSize=12;align=center;verticalAlign=middle;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="490" y="800" width="620" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 외부 데이터 수신 -->
+        <mxCell id="batch-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;strokeWidth=2;arcSize=15;shadow=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="650" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="batch-title" value="외부 수신 데이터" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;fontColor=#E65100;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="720" y="660" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="batch-desc" value="JiniWorks 등 레거시 시스템에서&lt;br&gt;과목·과정·세트 데이터 자동 수신" style="text;html=1;fontSize=11;align=center;verticalAlign=top;fontColor=#333333;fontFamily=Pretendard;" vertex="1" parent="1">
+          <mxGeometry x="690" y="688" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 외부수신 → CMS -->
+        <mxCell id="edge-batch" value="" style="endArrow=blockThin;endFill=1;html=1;strokeWidth=2;strokeColor=#E65100;dashed=1;dashPattern=8 4;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="batch-box" target="cms-hub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-batch-label" value="Batch 수신" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#E65100;fontFamily=Pretendard;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="edge-batch">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

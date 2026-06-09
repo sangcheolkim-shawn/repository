@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon CMS Concept</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f3;color:#1d1d1f;font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+.app{max-width:1280px;margin:0 auto;min-height:100vh;background:#fff;border-left:0.5px solid #e5e5e5;border-right:0.5px solid #e5e5e5}
+
+.topbar{display:flex;align-items:center;padding:0 24px;height:52px;border-bottom:0.5px solid #e5e5e5;position:sticky;top:0;background:#fff;z-index:100}
+.logo{font-weight:600;font-size:15px;color:#1d1d1f;letter-spacing:-0.5px;min-width:80px}
+.logo span{font-weight:400;color:#86868b;font-size:12px;margin-left:6px}
+.nav-tabs{display:flex;flex:1;justify-content:center;height:100%;gap:0}
+.nav-tab{background:none;border:none;outline:none;padding:0 18px;font-size:13px;font-family:inherit;color:#86868b;cursor:pointer;height:100%;display:flex;align-items:center;position:relative;transition:color 0.15s}
+.nav-tab:hover{color:#1d1d1f}
+.nav-tab.active{color:#1d1d1f;font-weight:500}
+.nav-tab.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;border-radius:1px}
+.nav-tab[data-phase="home"].active::after{background:#86868b}
+.nav-tab[data-phase="design"].active::after{background:#534AB7}
+.nav-tab[data-phase="make"].active::after{background:#0F6E56}
+.nav-tab[data-phase="review"].active::after{background:#BA7517}
+.nav-tab[data-phase="deploy"].active::after{background:#185FA5}
+.nav-tab[data-phase="service"].active::after{background:#639922}
+.topbar-right{display:flex;align-items:center;gap:10px;min-width:160px;justify-content:flex-end}
+.cmd-k{font-size:12px;color:#86868b;padding:4px 10px;border:0.5px solid #e5e5e5;border-radius:6px;cursor:pointer;transition:background 0.15s}
+.cmd-k:hover{background:#f5f5f3}
+.avatar{width:30px;height:30px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489}
+
+.view{display:none;padding:32px 40px;min-height:calc(100vh - 52px)}
+.view.active{display:block}
+
+.section-title{font-size:15px;font-weight:500;color:#1d1d1f;margin-bottom:16px}
+.section-sub{font-size:12px;color:#86868b;margin-left:8px;font-weight:400}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.metric-card{background:#f9f9f7;border-radius:10px;padding:18px 20px}
+.metric-label{font-size:12px;color:#86868b;margin-bottom:4px}
+.metric-value{font-size:28px;font-weight:500;letter-spacing:-0.5px}
+
+.task-list{border:0.5px solid #e5e5e5;border-radius:10px;overflow:hidden}
+.task-row{display:flex;align-items:center;padding:14px 18px;border-bottom:0.5px solid #e5e5e5;transition:background 0.1s}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{background:#fafaf8}
+.task-dot{width:8px;height:8px;border-radius:50%;margin-right:14px;flex-shrink:0}
+.task-info{flex:1;min-width:0}
+.task-title{font-size:13px;font-weight:500;color:#1d1d1f}
+.task-meta{font-size:12px;color:#86868b;margin-top:3px}
+.task-badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:500;white-space:nowrap}
+
+.phase-header{border-left:3px solid;padding-left:14px;margin-bottom:24px;border-radius:0}
+.phase-title{font-size:16px;font-weight:500;color:#1d1d1f}
+.phase-desc{font-size:12px;color:#86868b;margin-left:10px}
+
+.sub-tabs{display:flex;gap:20px;margin-bottom:20px;border-bottom:0.5px solid #e5e5e5;padding-bottom:0}
+.sub-tab{font-size:13px;color:#86868b;cursor:pointer;padding-bottom:10px;position:relative;border:none;background:none;font-family:inherit}
+.sub-tab.active{color:#1d1d1f;font-weight:500}
+.sub-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;border-radius:1px}
+
+.card{background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:18px 20px;margin-bottom:12px;transition:border-color 0.15s}
+.card:hover{border-color:#c5c5c5}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.card-title{font-size:14px;font-weight:500;color:#1d1d1f}
+
+.badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+.badge-nd{background:#E6F1FB;color:#0C447C}
+.badge-nh{background:#EEEDFE;color:#3C3489}
+.badge-sj{background:#E1F5EE;color:#085041}
+.badge-nh365{background:#FAEEDA;color:#633806}
+.badge-active{background:#EAF3DE;color:#27500A}
+.badge-draft{background:#FAEEDA;color:#633806}
+.badge-urgent{background:#FCEBEB;color:#791F1F}
+.badge-done{background:#EAF3DE;color:#27500A}
+.badge-pending{background:#FAEEDA;color:#633806}
+.badge-ready{background:#E6F1FB;color:#0C447C}
+.badge-inprog{background:#E1F5EE;color:#085041}
+
+.depth-flow{display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:12px;color:#86868b}
+.depth-pill{padding:3px 8px;background:#f5f5f3;border-radius:5px;font-size:11px}
+.depth-arrow{color:#c5c5c5}
+
+.form-tags{display:flex;gap:5px;flex-wrap:wrap}
+.form-tag{font-size:11px;padding:3px 10px;border-radius:12px}
+.bind-tag{font-size:11px;padding:3px 10px;border-radius:12px;border:0.5px dashed #c5c5c5;color:#86868b}
+
+.progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.progress-bar{flex:1;height:6px;background:#f0f0ee;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.3s}
+.progress-text{font-size:12px;color:#86868b;min-width:80px;text-align:right}
+
+.review-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.btn-reject{font-size:12px;padding:6px 18px;border-radius:8px;border:0.5px solid #e5e5e5;background:none;color:#A32D2D;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-reject:hover{background:#FCEBEB;border-color:#F09595}
+.btn-approve{font-size:12px;padding:6px 18px;border-radius:8px;border:none;background:#0F6E56;color:#fff;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-approve:hover{background:#085041}
+
+.schedule-table{border:0.5px solid #e5e5e5;border-radius:10px;overflow:hidden}
+.schedule-header{display:grid;grid-template-columns:2.5fr 1fr 0.8fr 0.8fr 1fr;padding:10px 18px;font-size:11px;color:#86868b;background:#f9f9f7;border-bottom:0.5px solid #e5e5e5}
+.schedule-row{display:grid;grid-template-columns:2.5fr 1fr 0.8fr 0.8fr 1fr;padding:12px 18px;font-size:13px;border-bottom:0.5px solid #e5e5e5;align-items:center;transition:background 0.1s}
+.schedule-row:last-child{border-bottom:none}
+.schedule-row:hover{background:#fafaf8}
+
+.svc-status-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot-live{background:#3B6D11}
+.dot-checking{background:#BA7517}
+.dot-pending{background:#86868b}
+
+.cmd-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;justify-content:center;padding-top:15vh}
+.cmd-modal.open{display:flex}
+.cmd-box{background:#fff;border-radius:12px;width:520px;max-height:400px;overflow:hidden}
+.cmd-input{width:100%;border:none;outline:none;padding:16px 20px;font-size:15px;font-family:inherit;border-bottom:0.5px solid #e5e5e5}
+.cmd-input::placeholder{color:#c5c5c5}
+.cmd-results{padding:8px}
+.cmd-item{padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;color:#1d1d1f;transition:background 0.1s}
+.cmd-item:hover{background:#f5f5f3}
+.cmd-item-icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:500}
+
+.empty-state{text-align:center;padding:40px 20px;color:#86868b}
+.empty-state p{font-size:14px;margin-bottom:8px}
+
+.card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+.assignee{font-size:12px;color:#86868b}
+.sys-badge{font-size:11px;padding:2px 7px;border-radius:6px;font-weight:500;margin-right:4px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">Horizon <span>CMS</span></div>
+    <div class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-phase="home">홈</button>
+      <button class="nav-tab" data-phase="design">설계</button>
+      <button class="nav-tab" data-phase="make">제작</button>
+      <button class="nav-tab" data-phase="review">검수</button>
+      <button class="nav-tab" data-phase="deploy">배포</button>
+      <button class="nav-tab" data-phase="service">서비스</button>
+    </div>
+    <div class="topbar-right">
+      <div class="cmd-k" id="cmdTrigger">
+        <span style="color:#c5c5c5;margin-right:4px">&#9906;</span> 검색
+        <span style="margin-left:12px;font-size:11px;opacity:0.6">Ctrl+K</span>
+      </div>
+      <div class="avatar">SC</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="v-home">
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">내 할당 작업</div>
+        <div class="metric-value" style="color:#1d1d1f">12</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">진행 중</div>
+        <div class="metric-value" style="color:#0F6E56">5</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">검수 대기</div>
+        <div class="metric-value" style="color:#BA7517">3</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">이번 주 배포</div>
+        <div class="metric-value" style="color:#185FA5">2</div>
+      </div>
+    </div>
+
+    <div class="section-title">오늘의 할 일</div>
+    <div class="task-list">
+      <div class="task-row">
+        <div class="task-dot" style="background:#0F6E56"></div>
+        <div class="task-info">
+          <div class="task-title">정답 해설 1~40세트</div>
+          <div class="task-meta">수학 기초 과정 / 홍길동 / 세트 28/40</div>
+        </div>
+        <span class="task-badge badge-inprog">제작 중</span>
+      </div>
+      <div class="task-row">
+        <div class="task-dot" style="background:#BA7517"></div>
+        <div class="task-info">
+          <div class="task-title">플래시카드 전체</div>
+          <div class="task-meta">영어 회화 과정 / 김영희 / 세트 60/60</div>
+        </div>
+        <span class="task-badge badge-pending">검수 대기</span>
+      </div>
+      <div class="task-row">
+        <div class="task-dot" style="background:#378ADD"></div>
+        <div class="task-info">
+          <div class="task-title">자동채점 1~30세트</div>
+          <div class="task-meta">국어 독해 과정 / 박민수 / 세트 30/30</div>
+        </div>
+        <span class="task-badge badge-ready">배포 준비</span>
+      </div>
+      <div class="task-row">
+        <div class="task-dot" style="background:#A32D2D"></div>
+        <div class="task-info">
+          <div class="task-title">핵심점검 CBT 전체</div>
+          <div class="task-meta">수학 기초 과정 / 이지은 / 세트 12/50</div>
+        </div>
+        <span class="task-badge badge-urgent">긴급</span>
+      </div>
+      <div class="task-row">
+        <div class="task-dot" style="background:#0F6E56"></div>
+        <div class="task-info">
+          <div class="task-title">웹콘텐츠 HTML 전체</div>
+          <div class="task-meta">과학 탐구 과정 / 최유나 / 세트 15/40</div>
+        </div>
+        <span class="task-badge badge-inprog">제작 중</span>
+      </div>
+    </div>
+
+    <div style="margin-top:32px">
+      <div class="section-title">최근 활동</div>
+      <div style="font-size:12px;color:#86868b;line-height:2">
+        <div><span style="color:#1d1d1f;font-weight:500">김철수</span>가 정답 해설 41~80세트를 <span style="color:#0F6E56">검수 제출</span>했습니다. <span style="opacity:0.6">2시간 전</span></div>
+        <div><span style="color:#1d1d1f;font-weight:500">이영희</span>가 자동채점 과정을 <span style="color:#185FA5">배포 요청</span>했습니다. <span style="opacity:0.6">4시간 전</span></div>
+        <div><span style="color:#1d1d1f;font-weight:500">박민수</span>가 국어 독해 커리큘럼을 <span style="color:#534AB7">생성</span>했습니다. <span style="opacity:0.6">어제</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN -->
+  <div class="view" id="v-design">
+    <div class="phase-header" style="border-color:#534AB7">
+      <span class="phase-title">설계</span>
+      <span class="phase-desc">커리큘럼 구조와 입력 양식을 정의합니다</span>
+    </div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="cur" style="--sub-color:#534AB7">커리큘럼</button>
+      <button class="sub-tab" data-sub="form" style="--sub-color:#534AB7">입력 양식</button>
+    </div>
+
+    <div class="sub-view active" data-sub-view="cur">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:12px;color:#86868b">총 4개 커리큘럼</div>
+        <button style="font-size:12px;padding:6px 16px;border-radius:8px;border:0.5px solid #e5e5e5;background:none;cursor:pointer;font-family:inherit;color:#1d1d1f">+ 새 커리큘럼</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">수학 기초 과정</div>
+          <span class="badge badge-active">활성</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">수학 / 중등 1학년</div>
+        <div class="depth-flow">
+          <span class="depth-pill">커리큘럼명(1)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">과정(8)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill" style="background:#EEEDFE;color:#3C3489">세트(80)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">콘텐츠</span>
+        </div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd">정답 해설 → 뉴드림스</span>
+          <span class="form-tag badge-nh">정답 해설 → 눈높이</span>
+          <span class="form-tag badge-nd">자동채점 → 뉴드림스</span>
+          <span class="form-tag badge-sj">자동채점 → 성장판</span>
+          <span class="form-tag badge-nd">핵심점검 → 뉴드림스</span>
+          <span class="form-tag" style="background:#E1F5EE;color:#085041">M 수학</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">영어 회화 과정</div>
+          <span class="badge badge-draft">설정 필요</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">영어 / 초등 4학년</div>
+        <div class="depth-flow">
+          <span class="depth-pill">커리큘럼명(1)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">과정(6)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill" style="background:#EEEDFE;color:#3C3489">세트(60)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">콘텐츠</span>
+        </div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd">플래시카드 → 뉴드림스</span>
+          <span class="form-tag badge-nh">웹콘텐츠 → 눈높이</span>
+          <span class="bind-tag">미바인딩</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">국어 독해 과정</div>
+          <span class="badge badge-active">활성</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">국어 / 중등 2학년</div>
+        <div class="depth-flow">
+          <span class="depth-pill">커리큘럼명(1)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">과정(5)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill" style="background:#EEEDFE;color:#3C3489">세트(50)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">콘텐츠</span>
+        </div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd">자동채점 → 뉴드림스</span>
+          <span class="form-tag" style="background:#E1F5EE;color:#085041">K 국어</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">과학 탐구 과정</div>
+          <span class="badge badge-draft">설정 필요</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">과학 / 초등 5학년</div>
+        <div class="depth-flow">
+          <span class="depth-pill">커리큘럼명(1)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">과정(4)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill" style="background:#EEEDFE;color:#3C3489">세트(40)</span><span class="depth-arrow">→</span>
+          <span class="depth-pill">콘텐츠</span>
+        </div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd">웹콘텐츠 → 뉴드림스</span>
+          <span class="bind-tag">미바인딩</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-view" data-sub-view="form" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:12px;color:#86868b">총 8개 양식</div>
+        <button style="font-size:12px;padding:6px 16px;border-radius:8px;border:0.5px solid #e5e5e5;background:none;cursor:pointer;font-family:inherit;color:#1d1d1f">+ 새 양식</button>
+      </div>
+      <div class="task-list">
+        <div class="task-row"><div class="task-info"><div class="task-title">정답 해설 입력 양식</div><div class="task-meta">필드 5개 / 2개 커리큘럼에서 사용 중</div></div><span class="badge badge-active">활성</span></div>
+        <div class="task-row"><div class="task-info"><div class="task-title">자동채점 입력 양식</div><div class="task-meta">필드 4개 / 2개 커리큘럼에서 사용 중</div></div><span class="badge badge-active">활성</span></div>
+        <div class="task-row"><div class="task-info"><div class="task-title">핵심점검 CBT 양식</div><div class="task-meta">필드 6개 / 1개 커리큘럼에서 사용 중</div></div><span class="badge badge-active">활성</span></div>
+        <div class="task-row"><div class="task-info"><div class="task-title">플래시카드 양식</div><div class="task-meta">필드 3개 / 1개 커리큘럼에서 사용 중</div></div><span class="badge badge-active">활성</span></div>
+        <div class="task-row"><div class="task-info"><div class="task-title">웹콘텐츠 HTML 양식</div><div class="task-meta">필드 7개 / 2개 커리큘럼에서 사용 중</div></div><span class="badge badge-active">활성</span></div>
+        <div class="task-row"><div class="task-info"><div class="task-title">영상강의 양식</div><div class="task-meta">필드 8개 / 미사용</div></div><span class="badge badge-draft">초안</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAKE -->
+  <div class="view" id="v-make">
+    <div class="phase-header" style="border-color:#0F6E56">
+      <span class="phase-title">제작</span>
+      <span class="phase-desc">작업을 배정하고 콘텐츠를 등록합니다</span>
+    </div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="config" style="--sub-color:#0F6E56">작업 현황</button>
+      <button class="sub-tab" data-sub="register" style="--sub-color:#0F6E56">콘텐츠 등록</button>
+    </div>
+
+    <div class="sub-view active" data-sub-view="config">
+      <div style="display:flex;gap:12px;margin-bottom:20px">
+        <input type="text" placeholder="작업 검색..." style="flex:1;padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+        <select style="padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;color:#1d1d1f">
+          <option>전체 상태</option>
+          <option>진행 중</option>
+          <option>완료</option>
+          <option>미배정</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sys-badge badge-nd">ND</span>
+            <span class="card-title">정답 해설</span>
+          </div>
+          <span class="assignee">홍길동</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:10px">수학 기초 과정 / 1~40세트</div>
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" style="width:70%;background:#0F6E56"></div></div>
+          <span class="progress-text">28/40 (70%)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sys-badge badge-nd">ND</span>
+            <span class="card-title">정답 해설</span>
+          </div>
+          <span class="assignee">김철수</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:10px">수학 기초 과정 / 41~80세트</div>
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#3B6D11"></div></div>
+          <span class="progress-text">80/80 (100%)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sys-badge badge-nh">NH</span>
+            <span class="card-title">자동채점</span>
+          </div>
+          <span class="assignee">이영희</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:10px">영어 회화 과정 / 전체</div>
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" style="width:35%;background:#0F6E56"></div></div>
+          <span class="progress-text">21/60 (35%)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sys-badge badge-nd">ND</span>
+            <span class="card-title">핵심점검 CBT</span>
+          </div>
+          <span class="assignee">이지은</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:10px">수학 기초 과정 / 전체</div>
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" style="width:24%;background:#A32D2D"></div></div>
+          <span class="progress-text">12/50 (24%)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="sys-badge badge-nd">ND</span>
+            <span class="card-title">웹콘텐츠 HTML</span>
+          </div>
+          <span class="assignee">최유나</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:10px">과학 탐구 과정 / 전체</div>
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" style="width:38%;background:#0F6E56"></div></div>
+          <span class="progress-text">15/40 (38%)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-view" data-sub-view="register" style="display:none">
+      <div style="display:flex;gap:12px;margin-bottom:20px">
+        <input type="text" placeholder="콘텐츠 검색..." style="flex:1;padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+        <select style="padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;color:#1d1d1f">
+          <option>내 작업</option>
+          <option>전체</option>
+          <option>팀 콘텐츠</option>
+        </select>
+      </div>
+      <div class="schedule-table">
+        <div class="schedule-header">
+          <span>콘텐츠</span><span>커리큘럼</span><span>세트</span><span>상태</span><span>최종 수정</span>
+        </div>
+        <div class="schedule-row">
+          <span style="font-weight:500;color:#1d1d1f">수학 1과정 1세트</span><span style="color:#86868b">수학 기초</span><span style="color:#86868b">1/40</span><span><span class="badge badge-done">완료</span></span><span style="color:#86868b">05-06</span>
+        </div>
+        <div class="schedule-row">
+          <span style="font-weight:500;color:#1d1d1f">수학 1과정 2세트</span><span style="color:#86868b">수학 기초</span><span style="color:#86868b">2/40</span><span><span class="badge badge-done">완료</span></span><span style="color:#86868b">05-06</span>
+        </div>
+        <div class="schedule-row">
+          <span style="font-weight:500;color:#1d1d1f">수학 1과정 3세트</span><span style="color:#86868b">수학 기초</span><span style="color:#86868b">3/40</span><span><span class="badge badge-inprog">작성 중</span></span><span style="color:#86868b">05-07</span>
+        </div>
+        <div class="schedule-row">
+          <span style="font-weight:500;color:#1d1d1f">수학 2과정 1세트</span><span style="color:#86868b">수학 기초</span><span style="color:#86868b">11/40</span><span><span class="badge" style="background:#f5f5f3;color:#86868b">미작성</span></span><span style="color:#86868b">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="view" id="v-review">
+    <div class="phase-header" style="border-color:#BA7517">
+      <span class="phase-title">검수</span>
+      <span class="phase-desc">제출된 콘텐츠를 검토하고 승인합니다</span>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <input type="text" placeholder="검수 항목 검색..." style="flex:1;padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+      <select style="padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;outline:none;color:#1d1d1f">
+        <option>대기 중</option>
+        <option>전체</option>
+        <option>승인 완료</option>
+        <option>반려</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="sys-badge badge-nd">ND</span>
+          <span class="card-title">정답 해설 41~80세트</span>
+        </div>
+        <span class="badge badge-done">제출 완료</span>
+      </div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:4px">수학 기초 과정 / 김철수 / 2026-05-05 제출</div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:6px">총 40세트 / 문항 320개 / 파일 42건</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f5f3;color:#86868b">이미지 38건</span>
+        <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f5f3;color:#86868b">PDF 4건</span>
+      </div>
+      <div class="review-actions">
+        <button class="btn-reject">반려</button>
+        <button class="btn-approve">승인</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="sys-badge badge-nd">ND</span>
+          <span class="card-title">핵심점검 CBT 1~25세트</span>
+        </div>
+        <span class="badge badge-done">제출 완료</span>
+      </div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:4px">수학 기초 과정 / 이지은 / 2026-05-06 제출</div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:6px">총 25세트 / 문항 200개 / 파일 25건</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f5f3;color:#86868b">이미지 25건</span>
+      </div>
+      <div class="review-actions">
+        <button class="btn-reject">반려</button>
+        <button class="btn-approve">승인</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="sys-badge badge-nh">NH</span>
+          <span class="card-title">플래시카드 전체</span>
+        </div>
+        <span class="badge badge-pending">검수 중</span>
+      </div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:4px">영어 회화 과정 / 김영희 / 2026-05-07 제출</div>
+      <div style="font-size:12px;color:#86868b;margin-bottom:6px">총 60세트 / 문항 480개 / 파일 180건</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f5f3;color:#86868b">이미지 120건</span>
+        <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f5f3;color:#86868b">음성 60건</span>
+      </div>
+      <div class="review-actions">
+        <button class="btn-reject">반려</button>
+        <button class="btn-approve">승인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPLOY -->
+  <div class="view" id="v-deploy">
+    <div class="phase-header" style="border-color:#185FA5">
+      <span class="phase-title">배포</span>
+      <span class="phase-desc">승인된 콘텐츠를 시스템에 배포합니다</span>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:12px;color:#86868b">총 3개 스케줄</div>
+      <button style="font-size:12px;padding:6px 16px;border-radius:8px;border:0.5px solid #e5e5e5;background:none;cursor:pointer;font-family:inherit;color:#1d1d1f">+ 새 스케줄</button>
+    </div>
+
+    <div class="schedule-table">
+      <div class="schedule-header">
+        <span>스케줄</span><span>배포일</span><span>항목</span><span>대상 시스템</span><span>상태</span>
+      </div>
+      <div class="schedule-row">
+        <span style="font-weight:500;color:#1d1d1f">5월 2주차 정기 배포</span>
+        <span style="color:#86868b">2026-05-12</span>
+        <span style="color:#86868b">3건</span>
+        <span><span class="sys-badge badge-nd" style="font-size:11px">ND</span><span class="sys-badge badge-nh" style="font-size:11px">NH</span></span>
+        <span><span class="badge badge-pending">예정</span></span>
+      </div>
+      <div class="schedule-row">
+        <span style="font-weight:500;color:#1d1d1f">긴급 핫픽스</span>
+        <span style="color:#86868b">2026-05-08</span>
+        <span style="color:#86868b">1건</span>
+        <span><span class="sys-badge badge-nd" style="font-size:11px">ND</span></span>
+        <span><span class="badge badge-urgent">긴급</span></span>
+      </div>
+      <div class="schedule-row">
+        <span style="font-weight:500;color:#1d1d1f">5월 1주차 정기 배포</span>
+        <span style="color:#86868b">2026-05-05</span>
+        <span style="color:#86868b">5건</span>
+        <span><span class="sys-badge badge-nd" style="font-size:11px">ND</span><span class="sys-badge badge-sj" style="font-size:11px">SJ</span></span>
+        <span><span class="badge badge-done">완료</span></span>
+      </div>
+      <div class="schedule-row">
+        <span style="font-weight:500;color:#1d1d1f">4월 4주차 정기 배포</span>
+        <span style="color:#86868b">2026-04-28</span>
+        <span style="color:#86868b">7건</span>
+        <span><span class="sys-badge badge-nd" style="font-size:11px">ND</span><span class="sys-badge badge-nh" style="font-size:11px">NH</span><span class="sys-badge badge-sj" style="font-size:11px">SJ</span></span>
+        <span><span class="badge badge-done">완료</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICE -->
+  <div class="view" id="v-service">
+    <div class="phase-header" style="border-color:#639922">
+      <span class="phase-title">서비스</span>
+      <span class="phase-desc">배포된 콘텐츠의 운영 현황을 관리합니다</span>
+    </div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="status" style="--sub-color:#639922">콘텐츠 현황</button>
+      <button class="sub-tab" data-sub="bind" style="--sub-color:#639922">과목코드 바인딩</button>
+    </div>
+
+    <div class="sub-view active" data-sub-view="status">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">수학 기초 과정</div>
+          <span style="font-size:12px;color:#86868b">v1.2 / 2026-03-27 배포</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">수학 / 중등 1학년 / 바인딩: M 수학</div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>정답 해설 → ND (v1.2)</span>
+          <span class="form-tag badge-nh" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>정답 해설 → NH (v1.0)</span>
+          <span class="form-tag badge-nd" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>자동채점 → ND (v1.0)</span>
+          <span class="form-tag badge-sj" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-checking"></span>자동채점 → SJ (v1.0)</span>
+          <span class="form-tag badge-nd" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>핵심점검 → ND (v1.0)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">영어 회화 과정</div>
+          <span style="font-size:12px;color:#86868b">v1.0 / 2026-04-10 배포</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">영어 / 초등 4학년 / 바인딩: E 영어</div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>플래시카드 → ND (v1.0)</span>
+          <span class="form-tag badge-nh" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-checking"></span>웹콘텐츠 → NH (v1.0)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">국어 독해 과정</div>
+          <span style="font-size:12px;color:#86868b">v1.1 / 2026-04-28 배포</span>
+        </div>
+        <div style="font-size:12px;color:#86868b;margin-bottom:12px">국어 / 중등 2학년 / 바인딩: K 국어</div>
+        <div class="form-tags">
+          <span class="form-tag badge-nd" style="display:flex;align-items:center;gap:5px"><span class="svc-status-dot dot-live"></span>자동채점 → ND (v1.1)</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;font-size:11px;color:#86868b;align-items:center">
+        <span style="display:flex;align-items:center;gap:4px"><span class="svc-status-dot dot-live"></span> 정상</span>
+        <span style="display:flex;align-items:center;gap:4px"><span class="svc-status-dot dot-checking"></span> 점검 중</span>
+        <span style="display:flex;align-items:center;gap:4px"><span class="svc-status-dot dot-pending"></span> 대기</span>
+      </div>
+    </div>
+
+    <div class="sub-view" data-sub-view="bind" style="display:none">
+      <div style="display:flex;gap:12px;margin-bottom:20px">
+        <input type="text" placeholder="과목코드 검색..." style="flex:1;padding:8px 14px;border:0.5px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div class="schedule-table">
+        <div class="schedule-header" style="grid-template-columns:1.5fr 1fr 1fr 1fr 1fr">
+          <span>커리큘럼</span><span>양식</span><span>과목코드</span><span>바인딩 모드</span><span>상태</span>
+        </div>
+        <div class="schedule-row" style="grid-template-columns:1.5fr 1fr 1fr 1fr 1fr">
+          <span style="font-weight:500;color:#1d1d1f">수학 기초 과정</span><span style="color:#86868b">정답 해설</span><span><span class="badge badge-nd">M 수학</span></span><span style="color:#86868b">전체</span><span><span class="badge badge-done">연결됨</span></span>
+        </div>
+        <div class="schedule-row" style="grid-template-columns:1.5fr 1fr 1fr 1fr 1fr">
+          <span style="font-weight:500;color:#1d1d1f">수학 기초 과정</span><span style="color:#86868b">자동채점</span><span><span class="badge badge-nd">M 수학</span></span><span style="color:#86868b">전체</span><span><span class="badge badge-done">연결됨</span></span>
+        </div>
+        <div class="schedule-row" style="grid-template-columns:1.5fr 1fr 1fr 1fr 1fr">
+          <span style="font-weight:500;color:#1d1d1f">영어 회화 과정</span><span style="color:#86868b">플래시카드</span><span><span class="badge badge-nd">E 영어</span></span><span style="color:#86868b">전체</span><span><span class="badge badge-done">연결됨</span></span>
+        </div>
+        <div class="schedule-row" style="grid-template-columns:1.5fr 1fr 1fr 1fr 1fr">
+          <span style="font-weight:500;color:#1d1d1f">영어 회화 과정</span><span style="color:#86868b">웹콘텐츠</span><span style="color:#c5c5c5">-</span><span style="color:#c5c5c5">-</span><span><span class="badge badge-draft">미연결</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Command Palette Modal -->
+<div class="cmd-modal" id="cmdModal">
+  <div class="cmd-box">
+    <input class="cmd-input" type="text" placeholder="어디로 이동할까요?" id="cmdInput" autofocus>
+    <div class="cmd-results" id="cmdResults">
+      <div class="cmd-item" data-goto="home"><div class="cmd-item-icon" style="background:#86868b">H</div>홈 대시보드</div>
+      <div class="cmd-item" data-goto="design"><div class="cmd-item-icon" style="background:#534AB7">S</div>설계 - 커리큘럼 관리</div>
+      <div class="cmd-item" data-goto="make"><div class="cmd-item-icon" style="background:#0F6E56">M</div>제작 - 작업 현황</div>
+      <div class="cmd-item" data-goto="review"><div class="cmd-item-icon" style="background:#BA7517">R</div>검수 - 검수 대기</div>
+      <div class="cmd-item" data-goto="deploy"><div class="cmd-item-icon" style="background:#185FA5">D</div>배포 - 스케줄 관리</div>
+      <div class="cmd-item" data-goto="service"><div class="cmd-item-icon" style="background:#639922">V</div>서비스 - 콘텐츠 현황</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var navTabs = document.querySelectorAll('.nav-tab');
+var views = document.querySelectorAll('.view');
+
+function switchPhase(phase) {
+  navTabs.forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-phase') === phase); });
+  views.forEach(function(v) { v.classList.toggle('active', v.id === 'v-' + phase); });
+}
+
+document.getElementById('navTabs').addEventListener('click', function(e) {
+  var tab = e.target.closest('.nav-tab');
+  if (tab) switchPhase(tab.getAttribute('data-phase'));
+});
+
+document.querySelectorAll('.sub-tabs').forEach(function(container) {
+  container.addEventListener('click', function(e) {
+    var tab = e.target.closest('.sub-tab');
+    if (!tab) return;
+    var subId = tab.getAttribute('data-sub');
+    var view = container.closest('.view');
+    container.querySelectorAll('.sub-tab').forEach(function(t) { t.classList.toggle('active', t === tab); });
+    view.querySelectorAll('.sub-view').forEach(function(sv) {
+      sv.style.display = sv.getAttribute('data-sub-view') === subId ? 'block' : 'none';
+    });
+  });
+});
+
+document.querySelectorAll('.sub-tab.active').forEach(function(tab) {
+  var color = tab.style.getPropertyValue('--sub-color');
+  if (color) tab.style.borderBottomColor = color;
+});
+
+document.querySelectorAll('.sub-tabs').forEach(function(container) {
+  container.addEventListener('click', function() {
+    setTimeout(function() {
+      container.querySelectorAll('.sub-tab').forEach(function(t) {
+        if (t.classList.contains('active')) {
+          t.style.borderBottomColor = t.style.getPropertyValue('--sub-color') || '#1d1d1f';
+        } else {
+          t.style.borderBottomColor = 'transparent';
+        }
+      });
+    }, 0);
+  });
+});
+
+document.querySelectorAll('.sub-tab.active').forEach(function(t) {
+  t.style.borderBottomColor = t.style.getPropertyValue('--sub-color') || '#1d1d1f';
+});
+
+var cmdModal = document.getElementById('cmdModal');
+var cmdInput = document.getElementById('cmdInput');
+
+document.getElementById('cmdTrigger').addEventListener('click', function() {
+  cmdModal.classList.add('open');
+  cmdInput.value = '';
+  cmdInput.focus();
+});
+
+cmdModal.addEventListener('click', function(e) {
+  if (e.target === cmdModal) cmdModal.classList.remove('open');
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    cmdModal.classList.add('open');
+    cmdInput.value = '';
+    cmdInput.focus();
+  }
+  if (e.key === 'Escape') cmdModal.classList.remove('open');
+});
+
+document.querySelectorAll('.cmd-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    var goto = item.getAttribute('data-goto');
+    switchPhase(goto);
+    cmdModal.classList.remove('open');
+  });
+});
+
+cmdInput.addEventListener('input', function() {
+  var query = cmdInput.value.toLowerCase();
+  document.querySelectorAll('.cmd-item').forEach(function(item) {
+    var text = item.textContent.toLowerCase();
+    item.style.display = text.indexOf(query) !== -1 ? 'flex' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS v8 Exception Audit — 예외 케이스 감사 보고서</title>
+<style>
+  :root {
+    --c-primary: #0071E3;
+    --c-bg: #F5F5F7;
+    --c-card: #FFFFFF;
+    --c-text: #1D1D1F;
+    --c-sub: #6E6E73;
+    --c-border: #D2D2D7;
+    --c-red: #FF3B30;
+    --c-red-l: #FFF2F1;
+    --c-amber: #FF9500;
+    --c-amber-l: #FFF8F0;
+    --c-green: #34C759;
+    --c-green-l: #F0FFF4;
+    --c-purple: #AF52DE;
+    --c-purple-l: #F9F0FF;
+    --c-blue-l: #E8F2FF;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--c-bg); color: var(--c-text); line-height:1.6; }
+  .wrap { max-width:1100px; margin:0 auto; padding:40px 24px 80px; }
+  h1 { font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-bottom:8px; }
+  .subtitle { color:var(--c-sub); font-size:14px; margin-bottom:32px; }
+  .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
+  .stat-card { background:var(--c-card); border-radius:12px; padding:20px; text-align:center; }
+  .stat-num { font-size:32px; font-weight:700; letter-spacing:-1px; }
+  .stat-num.p0 { color:var(--c-red); }
+  .stat-num.p1 { color:var(--c-amber); }
+  .stat-num.p2 { color:var(--c-primary); }
+  .stat-num.p3 { color:var(--c-sub); }
+  .stat-label { font-size:12px; color:var(--c-sub); margin-top:4px; }
+  .priority-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+  .p0 { background:var(--c-red-l); color:var(--c-red); }
+  .p1 { background:var(--c-amber-l); color:#B35C00; }
+  .p2 { background:var(--c-blue-l); color:var(--c-primary); }
+  .p3 { background:#F5F5F7; color:var(--c-sub); }
+  .view-section { margin-bottom:32px; }
+  .view-header { display:flex; align-items:center; gap:10px; padding:14px 20px; background:var(--c-card); border-radius:12px 12px 0 0; border-bottom:1px solid var(--c-border); cursor:pointer; user-select:none; }
+  .view-header:hover { background:#FAFAFA; }
+  .view-icon { font-size:20px; }
+  .view-name { font-size:16px; font-weight:600; flex:1; }
+  .view-count { font-size:12px; color:var(--c-sub); }
+  .view-chevron { transition:transform .2s; color:var(--c-sub); }
+  .view-body { background:var(--c-card); border-radius:0 0 12px 12px; padding:0 20px 20px; display:none; }
+  .view-section.open .view-body { display:block; }
+  .view-section.open .view-chevron { transform:rotate(90deg); }
+  .cat-title { font-size:13px; font-weight:600; color:var(--c-sub); margin:16px 0 8px; padding-bottom:4px; border-bottom:1px solid #E8E8ED; text-transform:uppercase; letter-spacing:0.5px; }
+  .issue-row { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid #F0F0F5; align-items:flex-start; }
+  .issue-row:last-child { border-bottom:none; }
+  .issue-id { font-size:11px; font-weight:600; color:var(--c-sub); min-width:48px; padding-top:2px; }
+  .issue-desc { flex:1; font-size:13px; }
+  .issue-desc strong { font-weight:600; }
+  .issue-impact { font-size:11px; color:var(--c-sub); margin-top:2px; }
+  .cross-section { background:var(--c-card); border-radius:12px; padding:20px; margin-top:32px; }
+  .cross-section h2 { font-size:18px; font-weight:700; margin-bottom:16px; }
+  .legend { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--c-sub); }
+  .fixed-tag { display:inline-block; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; background:var(--c-green-l); color:#1B8A3E; margin-left:6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>CMS v8 Exception Audit</h1>
+<p class="subtitle">예외 케이스 감사 보고서 &mdash; 2026-04-22 &middot; 전체 10개 뷰 &middot; 프로토타입 완성도 강화용</p>
+
+<div class="legend">
+  <div class="legend-item"><span class="priority-tag p0">P0</span> 런타임 버그 / 크래시</div>
+  <div class="legend-item"><span class="priority-tag p1">P1</span> 데이터 무결성 / 로직 오류</div>
+  <div class="legend-item"><span class="priority-tag p2">P2</span> UX 완성도 (validation, 확인 다이얼로그)</div>
+  <div class="legend-item"><span class="priority-tag p3">P3</span> 프로덕션 대비 (동시성, 감사 추적)</div>
+</div>
+
+<div class="summary-grid">
+  <div class="stat-card"><div class="stat-num p0">2</div><div class="stat-label">P0 런타임 버그</div></div>
+  <div class="stat-card"><div class="stat-num p1">19</div><div class="stat-label">P1 데이터 무결성</div></div>
+  <div class="stat-card"><div class="stat-num p2">31</div><div class="stat-label">P2 UX 완성도</div></div>
+  <div class="stat-card"><div class="stat-num p3">22</div><div class="stat-label">P3 프로덕션 대비</div></div>
+</div>
+
+<!-- ========== 입력 양식 관리 ========== -->
+<div class="view-section open" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">📋</span>
+    <span class="view-name">입력 양식 관리 (form-manage)</span>
+    <span class="view-count">9건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>양식명 / 코드 중복 검증 없음</strong> &mdash; 동일 이름·코드로 여러 양식 생성 가능. FORM_TEMPLATES에 중복 ID 발생 위험<div class="issue-impact">영향: 커리큘럼 양식 매핑 시 잘못된 양식 참조</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>필드 타이틀 빈 값 허용</strong> &mdash; _fmSetTitle()에서 빈 문자열 저장 가능. 다른 뷰에서 빈 칸 표시</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>편집 취소 시 확인 없음</strong> &mdash; 변경사항이 있어도 _fmCancel()이 즉시 에디터 닫음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>삭제 기능 없음</strong> &mdash; 잘못 만든 양식을 제거할 방법이 없음</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>사용 중 양식(usedIn>0) 편집 시 경고 없음</strong> &mdash; 커리큘럼에서 참조 중인 양식의 필드 변경 시 기존 콘텐츠 데이터 불일치 가능<div class="issue-impact">영향: 콘텐츠 등록 뷰에서 필드 매핑 오류</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>targetSystem 변경 시 연관 바인딩 무효화 검사 없음</strong> &mdash; ND 전용 양식을 NH로 변경해도 기존 ND 배포 콘텐츠와 불일치</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>updatedAt 하드코딩</strong> &mdash; '2026-04-16' 고정. 실제 수정 시각 미반영</div></div>
+    <div class="cat-title">Edge Cases</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>레거시 양식 편집 시 poolKey 빈 문자열</strong> &mdash; fieldDefs 없는 양식 편집 시 필드 타입이 모두 '?'로 표시</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>양식 코드에 특수문자·한글 입력 가능</strong> &mdash; toUpperCase()만 적용, 영문/숫자 제한 없음</div></div>
+  </div>
+</div>
+
+<!-- ========== 커리큘럼 관리 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">🏗️</span>
+    <span class="view-name">커리큘럼 관리 (curriculum)</span>
+    <span class="view-count">11건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>커리큘럼 이름 중복 검증 없음</strong> &mdash; 동일 이름으로 여러 커리큘럼 생성 가능</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>Depth 0개 / count 0·음수 저장 가능</strong> &mdash; 빈 구조 커리큘럼 생성 시 하위 뷰에서 0 나누기 등 downstream 오류</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>삭제 / 비활성화 기능 없음</strong> &mdash; 잘못 만든 커리큘럼을 제거하거나 draft 전환할 방법 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>양식 없는 커리큘럼 저장 허용</strong> &mdash; forms=[] 상태로 저장 시 작업 생성 불가</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>작업 진행 중 depth 구조 변경 시 range 불일치</strong> &mdash; 세트 80→40 축소 시 41~80 범위 작업이 유효하지 않게 됨. 경고 없음<div class="issue-impact">영향: WORK_ITEMS_V7 데이터 무결성 파괴</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>바인딩된 커리큘럼 편집 시 depthRanges 불일치</strong> &mdash; partial bind의 범위가 새 구조와 맞지 않음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>배포 완료 커리큘럼 원본 편집 가드 없음</strong> &mdash; SVC_CURRICULA와 CURRICULUM_DATA 동기화 메커니즘 부재</div></div>
+    <div class="cat-title">Edge Cases</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>편집/복제 판정 로직 불안정</strong> &mdash; '(복사)' 문자열 포함 여부로 판별. 사용자가 지우면 원본 덮어씀</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>빌더에서 depth 변경 시 트리 노드 비동기</strong> &mdash; 3단→2단 축소해도 CUR_TREE_NODES는 3단 유지</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>splitDepth 미설정 시 totalSets=0</strong> &mdash; 작업 설정에서 분할 기준 없어 배정 불가</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>CUR_BUILDER 전역 싱글톤</strong> &mdash; 뷰 전환 후 돌아오면 이전 편집 상태 잔류</div></div>
+  </div>
+</div>
+
+<!-- ========== 과목코드 바인딩 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">🔗</span>
+    <span class="view-name">과목코드 바인딩 (service-bind)</span>
+    <span class="view-count">10건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p0">P0</span></span><div class="issue-desc"><strong>시스템 필터 미작동</strong> &mdash; c.targetSystems를 참조하지만 CURRICULUM_DATA에 해당 필드 없음 (양식 레벨로 이전). 시스템 필터 적용 시 모든 커리큘럼 필터링됨<div class="issue-impact">영향: 사용자가 시스템별 필터 사용 시 빈 화면</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>바인딩 해제 시 확인 다이얼로그 없음</strong> &mdash; 배포 중/작업 진행 중 코드도 즉시 해제</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>양식 없는 커리큘럼에 바인딩 시 무반응</strong> &mdash; forms=[]이면 _bindAddCode가 아무 동작 안 함. 사용자에게 안내 없음</div></div>
+    <div class="cat-title">Logic Mismatch</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>부분 바인딩 TODO 미구현</strong> &mdash; bindConfig가 항상 {mode:'full'}로 하드코딩. 실제 form-level bindConfig를 읽지 않음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>양식별 차등 바인딩 미지원</strong> &mdash; CLAUDE.md 정책: "양식마다 바인딩 코드 세트 다를 수 있음" vs 현재 커리큘럼 단위 일괄 추가/제거</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>count=null depth의 부분 바인딩 범위 입력</strong> &mdash; Math.min(toVal, null)=0으로 수치 UI 깨짐</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>서비스 중 콘텐츠 바인딩 해제 무방비</strong> &mdash; SVC_CURRICULA의 live 양식이 있는 커리큘럼 바인딩 해제 시 과목코드 연결 없이 부유</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>다수 커리큘럼이 같은 코드 바인딩 시 표시 불완전</strong> &mdash; otherBindMap에 마지막 것만 기록</div></div>
+    <div class="cat-title">UX</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>대량 선택/해제 미지원</strong> &mdash; 10개 이상 코드 바인딩 시 하나씩만 클릭 가능</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>모달 검색 시 커서 위치 리셋</strong> &mdash; 매 키입력마다 innerHTML 교체, selectionStart 미복원</div></div>
+  </div>
+</div>
+
+<!-- ========== 작업 설정 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">⚙️</span>
+    <span class="view-name">작업 설정 (work-config)</span>
+    <span class="view-count">10건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>범위 겹침 미검증</strong> &mdash; _wcAddConfirm()에서 동일 커리큘럼+양식의 기존 범위와 겹침 체크 없음. 두 담당자에게 동일 범위 배정 가능<div class="issue-impact">영향: 콘텐츠 중복 등록, 작업 충돌</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>WORK_ITEMS_V7 ↔ STATE.workflowItems 단절</strong> &mdash; 작업 설정에서 생성한 아이템이 워크플로우 보드에 미반영. 두 데이터 저장소 간 브릿지 없음<div class="issue-impact">영향: 작업 등록 후 칸반 보드에서 안 보임</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>기존 작업 편집/삭제 불가</strong> &mdash; 생성만 가능, 수정·삭제 UI 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>draft 커리큘럼 작업 생성 경고 없음</strong> &mdash; 구조 미확정 상태에서 작업 배정 가능</div></div>
+    <div class="cat-title">Edge Cases</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>totalSets=0일 때 폴백 80</strong> &mdash; cur.totalSets||80 로직. 실제 0인 커리큘럼에서 잘못된 범위 표시</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>삭제된 커리큘럼의 selectedCurId 잔류</strong> &mdash; 선택 해제 없이 빈 상태로 폴백되지만 stale ID 유지</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>_wcRemoveRange() 확인 없음</strong> &mdash; 범위 삭제가 즉시 실행, undo 불가</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>커리큘럼 바인딩 변경 후 작업 무효화 미처리</strong> &mdash; 바인딩 해제돼도 기존 작업 아이템에 경고 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>범위 삭제 후 미배정 구간 시각화 없음</strong> &mdash; 1~80 중 41~60이 삭제되어도 빈 구간 표시 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>prompt() 기반 담당자 입력</strong> &mdash; 사용자 목록 자동완성 없음, UI 스레드 차단</div></div>
+  </div>
+</div>
+
+<!-- ========== 콘텐츠 등록 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">📝</span>
+    <span class="view-name">콘텐츠 등록 (content-register)</span>
+    <span class="view-count">9건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>배포 상태 아이템 삭제 가능</strong> &mdash; phase='deploy'인 아이템도 동일 다이얼로그로 삭제. 라이브 콘텐츠 삭제 위험</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>삭제 시 연관 데이터 미정리</strong> &mdash; STATE.workflowItems에서만 제거, WORK_ITEMS_V7·DEPLOY_STATE·번들 참조 고아 상태</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>splice(-1, 1) 위험</strong> &mdash; 동시 삭제 시 findIndex=-1이면 배열 마지막 원소 잘못 삭제 (JS 동작)</div></div>
+    <div class="cat-title">UX</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>하드코딩 사용자</strong> &mdash; _myName='홍길동', teamMembers=['홍길동','김철수','이영희'] 고정. 새 담당자 미표시</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>페이지네이션 없음</strong> &mdash; 전체 아이템 한 번에 렌더링. 대량 데이터 시 성능 저하</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>텍스트 검색 없음</strong> &mdash; 작업 설정은 검색 있지만 콘텐츠 등록은 필터만 존재</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>편집 세션 보호 없음</strong> &mdash; crOpenWorkDetail()이 기존 미저장 세션을 무조건 덮어씀</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>_crExitFullscreen() 항상 "저장 완료" 토스트</strong> &mdash; 변경 없어도 저장 메시지 표시. 혼동 유발</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>번들 참조 깨짐 무경고</strong> &mdash; bundleId가 존재하지 않는 번들을 참조해도 UI에 표시만 생략</div></div>
+  </div>
+</div>
+
+<!-- ========== 워크플로우 보드 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">📊</span>
+    <span class="view-name">작업 진행 보드 (workflow)</span>
+    <span class="view-count">10건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>단계 전진 필수 조건 미검증</strong> &mdash; 진행률 0%도 배포 단계로 이동 가능. 바인딩 없는 아이템도 배포 가능<div class="issue-impact">영향: 미완성/미바인딩 콘텐츠가 배포 단계 진입</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>역방향 이동(반려) 없음</strong> &mdash; wfMoveNext()만 존재. 검수 반려 → 등록 되돌림 불가</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>더블클릭 시 2단계 점프</strong> &mdash; wfMoveNext()에 멱등성 가드 없음. 빠른 클릭으로 register→deploy 건너뜀</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>완료 시 영구 삭제</strong> &mdash; 마지막 단계 이동 시 filter로 제거, 아카이브·이력 없음. undo 불가</div></div>
+    <div class="cat-title">Logic Issues</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>칸반 vs 리스트 아이템 불일치</strong> &mdash; 칸반은 spoke 필터링하지만 리스트는 안 함. 카운트 상이</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>수동 등록 시 setCode 필드 무시</strong> &mdash; UI에서 필수(*)로 표시하지만 코드에서 읽지 않음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>수동 등록이 항상 assign 단계</strong> &mdash; 외부 연동으로 이미 등록 완료된 아이템도 처음부터 시작</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>미배정 아이템 단계 이동 허용</strong> &mdash; assignee=null인 아이템도 전 단계 이동 가능</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>필터 상태 뷰 전환 시 유실</strong> &mdash; switchToContentRegister() 시 보드 스크롤·필터 초기화</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>Date.now() ID 충돌</strong> &mdash; 밀리초 단위 동시 생성 시 중복 ID 발생</div></div>
+  </div>
+</div>
+
+<!-- ========== 검수 관리 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">✅</span>
+    <span class="view-name">검수 관리 (review)</span>
+    <span class="view-count">7건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>승인/반려 확인 다이얼로그 없음</strong> &mdash; 미스클릭으로 즉시 상태 변경. undo 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>반려 사유 입력 없음</strong> &mdash; "재작업 요청" 토스트만 표시. 작업자에게 전달할 사유 미기록</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>검수 완료 확인 없이 승인 가능</strong> &mdash; 세트 상세 미확인 상태에서 전체 승인</div></div>
+    <div class="cat-title">State Transitions</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>반려 시 setProgress 미초기화</strong> &mdash; phase만 register로 돌리고, done 상태 세트는 유지. 작업자가 어느 세트를 재작업해야 하는지 알 수 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>검수 시작/승인 시 메타데이터 미기록</strong> &mdash; 검수자, 시작 시각, 승인 시각, 코멘트 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>벌크 체크박스 있지만 벌크 액션 없음</strong> &mdash; _rv2ToggleAll로 전체 선택하지만 일괄 승인/반려 버튼 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>동시 검수 충돌</strong> &mdash; 두 검수자가 같은 아이템 열어 한 쪽이 승인, 다른 쪽이 반려 시 마지막 실행이 우선</div></div>
+  </div>
+</div>
+
+<!-- ========== 배포 관리 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">🚀</span>
+    <span class="view-name">배포 관리 (deploy)</span>
+    <span class="view-count">10건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p0">P0</span></span><div class="issue-desc"><strong>_renderDeployStg() 미존재 함수 호출</strong> &mdash; 2곳에서 정의되지 않은 함수 호출. STG바 갱신 안 됨<span class="fixed-tag">FIXED</span><div class="issue-impact">수정: _renderDeployStgBar()로 변경 완료</div></div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>미바인딩 아이템 배포 차단 없음</strong> &mdash; CLAUDE.md: "바인딩 완료된 커리큘럼만 배포 대상" 정책 미적용</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>배포 실행 확인 다이얼로그 없음</strong> &mdash; 미스클릭으로 프로덕션 배포 실행</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>스케줄 삭제 확인 없음</strong> &mdash; 아이템이 배정된 스케줄도 즉시 삭제</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>과거 날짜 스케줄 생성 가능</strong> &mdash; 날짜 validation 없음</div></div>
+    <div class="cat-title">Logic Issues</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>배포 실행 시 phase='live' 설정</strong> &mdash; 'live'는 표준 phase enum에 없음. 다른 뷰에서 추적 불가</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>배포 이력에 아이템 상세 누락</strong> &mdash; history에 count만 기록, deployedItems 빈 배열</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>수정 배포/상세 보기 스텁</strong> &mdash; _deployCreateRevision(), _deployViewDetail()은 alert()만 실행</div></div>
+    <div class="cat-title">Edge Cases</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>ID 충돌 위험</strong> &mdash; SCH+6자리/D+4자리 타임스탬프. 빠른 생성 시 중복</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>롤백 메커니즘 부재</strong> &mdash; 배포 실행 후 취소/되돌림 없음</div></div>
+  </div>
+</div>
+
+<!-- ========== 서비스 콘텐츠 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">📦</span>
+    <span class="view-name">서비스 콘텐츠 관리 (service-content)</span>
+    <span class="view-count">5건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Failure &amp; Validation</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>수정 작업 생성 확인 없음 + 실제 데이터 미생성</strong> &mdash; _svcCreateRevisionV2()가 토스트만 표시 후 워크플로우로 이동. 워크플로우 아이템 미생성</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>양식 선택 기능 없음</strong> &mdash; 수정 작업 시 어떤 양식을 수정할지 선택 UI 없음. 전체 커리큘럼 단위로만 동작</div></div>
+    <div class="cat-title">Edge Cases</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>페이지네이션 없음</strong> &mdash; 전체 SVC_CURRICULA 한 번에 렌더링</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>검색에 과목명 미포함</strong> &mdash; "수학"으로 검색 시 과목코드 "M"만 매칭, SUBJECT_COURSE_DATA의 courseName 미포함</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>중복 수정 작업 생성 방지 없음</strong> &mdash; 이미 revision 상태인 양식에 또 수정 작업 생성 가능</div></div>
+  </div>
+</div>
+
+<!-- ========== 채점 시뮬레이션 ========== -->
+<div class="view-section" onclick="this.classList.toggle('open')">
+  <div class="view-header">
+    <span class="view-icon">🎯</span>
+    <span class="view-name">채점 시뮬레이션 (scoring-sim)</span>
+    <span class="view-count">3건</span>
+    <span class="view-chevron">&#9654;</span>
+  </div>
+  <div class="view-body" onclick="event.stopPropagation()">
+    <div class="cat-title">Stub Status</div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>CRUD 전체 스텁</strong> &mdash; 신규·편집·다운로드 모두 alert() 스텁. 읽기 전용 뷰</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>정렬 미구현</strong> &mdash; sortBy 상태 존재하지만 실제 정렬 로직 없음</div></div>
+    <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>빈 결과 표시 오류</strong> &mdash; filtered=0일 때 "총 0건 중 1~0" 표시</div></div>
+  </div>
+</div>
+
+<!-- ========== Cross-cutting ========== -->
+<div class="cross-section">
+  <h2>Cross-cutting Issues (전체 뷰 공통)</h2>
+  <div class="cat-title">Architecture</div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>WORK_ITEMS_V7 ↔ STATE.workflowItems 데이터 단절</strong> &mdash; 작업 설정(WC)→칸반 보드(WF)→콘텐츠 등록(CR) 간 데이터가 분리되어 있어 한쪽에서 생성한 아이템이 다른 쪽에 미반영. <strong>가장 심각한 구조적 이슈.</strong></div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p1">P1</span></span><div class="issue-desc"><strong>삭제 기능 전면 부재</strong> &mdash; 양식·커리큘럼·바인딩·작업 등 모든 엔티티에서 삭제/비활성화 기능 없음. soft-delete 패턴 필요</div></div>
+  <div class="cat-title">UX Patterns</div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>확인 다이얼로그 부재 패턴</strong> &mdash; 대부분의 파괴적 액션(삭제, 배포 실행, 바인딩 해제, 승인/반려)에 확인 없이 즉시 실행</div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>편집 세션 보호 없음</strong> &mdash; 미저장 변경이 있는 상태에서 뷰 전환 시 경고 없이 데이터 유실</div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p2">P2</span></span><div class="issue-desc"><strong>페이지네이션 미적용 뷰</strong> &mdash; 콘텐츠 등록, 서비스 콘텐츠, 검수 관리에 페이지네이션 없음. 대량 데이터 시 성능 저하</div></div>
+  <div class="cat-title">Production Readiness</div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>로딩/에러 상태 전면 부재</strong> &mdash; 모든 렌더가 동기식. 비동기 API 연동 시 로딩 스피너, 에러 바운더리 필요</div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>감사 추적(audit trail) 없음</strong> &mdash; 누가, 언제, 무엇을 변경했는지 기록 없음. 양식 편집·바인딩 변경·배포 실행 등</div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>동시성 제어 전면 부재</strong> &mdash; 모든 데이터가 인메모리 직접 변경. optimistic locking, 트랜잭션 없음</div></div>
+  <div class="issue-row"><span class="issue-id"><span class="priority-tag p3">P3</span></span><div class="issue-desc"><strong>HTML 주입 가능</strong> &mdash; 문자열 연결로 HTML 생성 시 사용자 입력(담당자명, 검색어) 미이스케이프. XSS 위험</div></div>
+</div>
+
+</div>
+<script>
+// Default: first section open, rest collapsed
+document.querySelectorAll('.view-section').forEach(function(s, i) {
+  if(i === 0) s.classList.add('open');
+});
+</script>
+</body>
+</html>

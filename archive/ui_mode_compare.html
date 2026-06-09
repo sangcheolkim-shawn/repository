@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>콘텐츠 등록 · 풀스크린 작업환경</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;overflow:hidden;height:100vh;}
+
+/* ═══ LIGHT (default) ═══ */
+body{background:#F8FAFC;color:#1E293B;}
+
+.top-bar{
+  height:52px;padding:0 28px;background:#fff;border-bottom:1px solid #E5E7EB;
+  display:flex;align-items:center;gap:14px;flex-shrink:0;
+}
+.sys-badge{font-size:10px;padding:3px 10px;border-radius:5px;font-weight:700;}
+.code-badge{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:700;background:#F1F5F9;color:#475569;border:1px solid #E5E7EB;font-family:monospace;}
+.title-area{display:flex;flex-direction:column;gap:1px;}
+.ws-title{font-size:14px;font-weight:800;color:#1E293B;}
+.ws-sub{font-size:10px;color:#94A3B8;}
+
+.view-toggle{
+  margin-left:auto;display:flex;border:1.5px solid #E5E7EB;border-radius:8px;overflow:hidden;
+}
+.view-toggle button{
+  padding:6px 16px;border:none;font-size:11px;font-weight:700;cursor:pointer;
+  background:#fff;color:#94A3B8;transition:all .12s;display:flex;align-items:center;gap:5px;
+}
+.view-toggle button.on{background:#1E293B;color:#fff;}
+.view-toggle button:not(.on):hover{background:#F1F5F9;color:#475569;}
+
+.exit-btn{
+  padding:7px 16px;border:1.5px solid #E5E7EB;border-radius:8px;
+  background:#fff;color:#64748B;font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.exit-btn:hover{border-color:#DC2626;color:#DC2626;background:#FEF2F2;}
+
+.theme-btn{
+  width:32px;height:32px;border:1.5px solid #E5E7EB;border-radius:8px;
+  background:#fff;color:#94A3B8;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+.theme-btn:hover{background:#F1F5F9;color:#475569;}
+
+.page-bar{
+  height:40px;padding:0 28px;background:#fff;border-bottom:1px solid #E5E7EB;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.page-bar .label{font-size:11px;font-weight:800;color:#94A3B8;}
+.page-bar input{
+  width:56px;padding:3px 7px;border:1px solid #E5E7EB;border-radius:5px;
+  background:#fff;color:#1E293B;font-size:11px;font-weight:700;outline:none;
+}
+.page-bar input:focus{border-color:#6366F1;}
+.page-bar .add-btn{
+  padding:3px 12px;border:1px solid #6366F1;border-radius:5px;
+  background:#EEF2FF;color:#4F46E5;font-size:10px;font-weight:700;cursor:pointer;
+}
+.page-bar .add-btn:hover{background:#E0E7FF;}
+.page-bar .right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.page-bar .count{font-size:10px;color:#94A3B8;}
+.page-bar .save-all{padding:4px 14px;border:none;border-radius:5px;background:#059669;color:#fff;font-size:10px;font-weight:700;cursor:pointer;}
+.page-bar .excel-btn{
+  padding:3px 10px;border:1px solid #059669;border-radius:4px;
+  background:#F0FDF4;color:#059669;font-size:10px;font-weight:700;cursor:pointer;
+}
+.page-bar .excel-btn.up{border-color:#3B82F6;background:#EFF6FF;color:#3B82F6;}
+
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.scroll-area{flex:1;overflow-y:auto;padding:20px 28px 60px;}
+
+/* ═══ LIST VIEW ═══ */
+.list-item{
+  background:#fff;border:1px solid #E5E7EB;border-radius:12px;
+  margin-bottom:10px;overflow:hidden;transition:all .15s;cursor:grab;
+}
+.list-item:hover{border-color:#CBD5E1;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.list-item.drag-over{border-color:#6366F1;background:#F5F3FF;}
+.list-row{display:flex;align-items:flex-start;padding:16px 20px;gap:14px;}
+.list-grip{
+  width:18px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding-top:6px;cursor:grab;opacity:.3;transition:opacity .12s;
+}
+.list-item:hover .list-grip{opacity:.6;}
+.list-grip span{display:block;width:14px;height:2px;background:#94A3B8;border-radius:1px;}
+.list-num{
+  width:32px;height:32px;border-radius:8px;background:#4F46E5;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:#fff;
+}
+.list-body{flex:1;min-width:0;}
+.list-meta{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.tag{font-size:9px;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap;}
+
+.answer-block{
+  background:#F8FAFC;border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;margin-top:4px;
+}
+.answer-label{font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.answer-text{
+  font-size:20px;font-weight:800;color:#1E293B;line-height:1.3;letter-spacing:-.01em;
+}
+.explain-block{margin-top:10px;}
+.explain-label{font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.explain-text{
+  font-size:13.5px;font-weight:400;color:#475569;line-height:1.7;word-break:keep-all;
+}
+.list-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;padding-top:2px;}
+.act-btn{
+  width:32px;height:32px;border:1px solid #E5E7EB;border-radius:7px;
+  background:#fff;color:#94A3B8;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .1s;
+}
+.act-btn:hover{border-color:#6366F1;color:#4F46E5;background:#F5F3FF;}
+.act-btn.del:hover{border-color:#EF4444;color:#EF4444;background:#FEF2F2;}
+
+/* ═══ FOCUS VIEW ═══ */
+.focus-wrap{max-width:780px;margin:0 auto;width:100%;}
+.focus-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;}
+.focus-nav button{
+  padding:8px 20px;border:1.5px solid #E5E7EB;border-radius:8px;
+  background:#fff;color:#64748B;font-size:12px;font-weight:700;cursor:pointer;transition:all .12s;
+}
+.focus-nav button:hover:not(:disabled){border-color:#6366F1;color:#4F46E5;}
+.focus-nav button:disabled{opacity:.25;cursor:default;}
+.focus-nav .curr{font-size:16px;font-weight:800;color:#1E293B;min-width:80px;text-align:center;}
+.focus-dots{display:flex;gap:7px;justify-content:center;margin-bottom:18px;}
+.focus-dot{
+  width:10px;height:10px;border-radius:50%;background:#E5E7EB;
+  cursor:pointer;transition:all .15s;
+}
+.focus-dot.on{background:#4F46E5;transform:scale(1.3);}
+.focus-dot:hover:not(.on){background:#CBD5E1;}
+.focus-card{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.focus-head{
+  padding:18px 24px;background:#F8FAFC;border-bottom:1px solid #E5E7EB;
+  display:flex;align-items:center;gap:14px;
+}
+.focus-num{
+  width:44px;height:44px;border-radius:10px;background:#4F46E5;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;color:#fff;
+}
+.focus-head-info .h-title{font-size:16px;font-weight:800;color:#1E293B;}
+.focus-head-info .h-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
+.focus-del{
+  margin-left:auto;padding:6px 14px;border:1px solid #E5E7EB;border-radius:7px;
+  background:#fff;color:#94A3B8;font-size:11px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:4px;transition:all .1s;
+}
+.focus-del:hover{border-color:#EF4444;color:#EF4444;background:#FEF2F2;}
+.focus-body{padding:22px 24px;}
+.grp-label{
+  font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;
+  letter-spacing:.06em;margin:20px 0 10px;padding-bottom:8px;border-bottom:1px solid #F1F5F9;
+}
+.grp-label:first-child{margin-top:0;}
+.focus-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:6px;}
+.focus-row.w2{grid-template-columns:1fr 1fr;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:10px;font-weight:700;color:#64748B;letter-spacing:.03em;}
+.ff label .req{color:#EF4444;}
+.ff input,.ff select{
+  padding:9px 12px;border:1.5px solid #E5E7EB;border-radius:8px;
+  background:#fff;color:#1E293B;font-size:12px;outline:none;transition:border-color .12s;
+}
+.ff input:focus,.ff select:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.ff select{cursor:pointer;}
+.ff textarea{
+  padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:8px;
+  background:#fff;color:#1E293B;font-size:12px;outline:none;
+  min-height:80px;resize:vertical;line-height:1.6;transition:border-color .12s;
+}
+.ff textarea:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+
+/* ═══ DARK MODE ═══ */
+body.dark{background:#0F172A;color:#E2E8F0;}
+body.dark .top-bar{background:#1E293B;border-color:#334155;}
+body.dark .ws-title{color:#F8FAFC;}
+body.dark .code-badge{background:#1E293B;color:#94A3B8;border-color:#475569;}
+body.dark .view-toggle{border-color:#475569;}
+body.dark .view-toggle button{background:transparent;color:#94A3B8;}
+body.dark .view-toggle button.on{background:#4F46E5;color:#fff;}
+body.dark .view-toggle button:not(.on):hover{background:#263148;color:#C7D2FE;}
+body.dark .exit-btn{border-color:#475569;background:transparent;color:#94A3B8;}
+body.dark .exit-btn:hover{border-color:#F87171;color:#FCA5A5;background:rgba(239,68,68,.08);}
+body.dark .theme-btn{border-color:#475569;background:transparent;color:#94A3B8;}
+body.dark .theme-btn:hover{background:#263148;color:#F8FAFC;}
+body.dark .page-bar{background:#0F172A;border-color:#1E293B;}
+body.dark .page-bar input{background:#1E293B;color:#F8FAFC;border-color:#334155;}
+body.dark .page-bar .add-btn{background:rgba(99,102,241,.1);color:#818CF8;border-color:#6366F1;}
+body.dark .page-bar .excel-btn{background:rgba(5,150,105,.08);color:#34D399;}
+body.dark .page-bar .excel-btn.up{background:rgba(59,130,246,.08);color:#60A5FA;}
+body.dark .page-bar .count{color:#475569;}
+body.dark .list-item{background:#1E293B;border-color:#334155;}
+body.dark .list-item:hover{border-color:#475569;box-shadow:none;}
+body.dark .list-item.drag-over{border-color:#818CF8;background:#1a2040;}
+body.dark .list-grip span{background:#475569;}
+body.dark .answer-block{background:#0F172A;border-color:#2D3748;}
+body.dark .answer-text{color:#F8FAFC;}
+body.dark .explain-text{color:#CBD5E1;}
+body.dark .act-btn{border-color:#475569;background:transparent;color:#94A3B8;}
+body.dark .act-btn:hover{border-color:#818CF8;color:#C7D2FE;background:rgba(99,102,241,.08);}
+body.dark .act-btn.del:hover{border-color:#F87171;color:#FCA5A5;background:rgba(239,68,68,.08);}
+body.dark .focus-card{background:#1E293B;border-color:#475569;box-shadow:none;}
+body.dark .focus-head{background:#0F172A;border-color:#334155;}
+body.dark .focus-head-info .h-title{color:#F8FAFC;}
+body.dark .focus-del{border-color:#475569;background:transparent;color:#94A3B8;}
+body.dark .focus-del:hover{border-color:#F87171;color:#FCA5A5;background:rgba(239,68,68,.08);}
+body.dark .grp-label{color:#475569;border-color:#1E293B;}
+body.dark .ff input,.dark .ff select{border-color:#334155;background:#0F172A;color:#E2E8F0;}
+body.dark .ff input:focus,.dark .ff select:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,.15);}
+body.dark .ff textarea{border-color:#334155;background:#0F172A;color:#E2E8F0;}
+body.dark .ff textarea:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,.15);}
+body.dark .focus-nav button{border-color:#475569;background:transparent;color:#94A3B8;}
+body.dark .focus-nav button:hover:not(:disabled){border-color:#818CF8;color:#C7D2FE;}
+body.dark .focus-nav .curr{color:#F8FAFC;}
+body.dark .focus-dot{background:#334155;}
+body.dark .focus-dot.on{background:#6366F1;}
+body.dark .focus-dot:hover:not(.on){background:#475569;}
+body.dark .tag{opacity:.9;}
+</style>
+</head>
+<body>
+
+<div style="display:flex;flex-direction:column;height:100vh;">
+
+<!-- ══ 상단 헤더 ══ -->
+<div class="top-bar">
+  <span class="sys-badge" style="background:#DBEAFE;color:#1D4ED8;border:1px solid #93C5FD">뉴드림스</span>
+  <span class="code-badge">ANS</span>
+  <div class="title-area">
+    <span class="ws-title">정답·해설 (뉴드림스)</span>
+    <span class="ws-sub">E · NE1 · 1세트 · 작업중</span>
+  </div>
+  <div class="view-toggle">
+    <button id="btnList" class="on" onclick="setView('list')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      목록
+    </button>
+    <button id="btnFocus" onclick="setView('focus')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M11 4H4v7m15 0V4h-7M4 13v7h7m4 0h7v-7"/></svg>
+      편집
+    </button>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="다크/라이트 전환">🌙</button>
+  <button class="exit-btn" onclick="doExit()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    저장 후 나가기
+  </button>
+</div>
+
+<!-- ══ 쪽정보 바 ══ -->
+<div class="page-bar">
+  <span class="label">쪽정보</span>
+  <input type="text" id="pageInput" value="2쪽">
+  <button class="excel-btn" onclick="alert('엑셀 템플릿 다운로드')">⬇ 엑셀</button>
+  <button class="excel-btn up" onclick="alert('엑셀 업로드')">⬆ 업로드</button>
+  <button class="add-btn" onclick="addItem()">+ 문항추가</button>
+  <div class="right">
+    <span class="count" id="cntLabel">3건</span>
+    <button class="save-all" onclick="doSave()">저장</button>
+  </div>
+</div>
+
+<!-- ══ 메인 ══ -->
+<div class="main">
+  <div class="scroll-area" id="mainArea"></div>
+</div>
+
+</div>
+
+<script>
+var DATA = [
+  {contentType:'해답', page:'002', sideType:'기본', evalType:'평가없음', mainQ:'001', subQ:'000',
+   day:'', area:'읽기', qType:'내용추론', chapter:'', seq:'', scoring:'채점있음', answerForm:'텍스트',
+   explainType:'파일아님', explainFile:'',
+   answer:'①, ③',
+   explain:'글쓴이는 처음에는 평균대에서 떨어져서 창피했지만 친구들의 응원에 용기를 얻어 무사히 성공한 뒤의 뿌듯한 마음을 글로 썼다.'},
+  {contentType:'해답', page:'002', sideType:'기본', evalType:'평가없음', mainQ:'002', subQ:'000',
+   day:'', area:'읽기', qType:'내용추론', chapter:'', seq:'', scoring:'채점있음', answerForm:'텍스트',
+   explainType:'파일아님', explainFile:'',
+   answer:'세드릭',
+   explain:'세드릭의 착한 마음은 하긴스네와 할아버지 등 주위 사람들에게 큰 힘이 되어 주었다'},
+  {contentType:'해답', page:'002', sideType:'기본', evalType:'평가없음', mainQ:'003', subQ:'000',
+   day:'', area:'읽기', qType:'내용확인', chapter:'', seq:'', scoring:'채점있음', answerForm:'텍스트',
+   explainType:'파일아님', explainFile:'',
+   answer:'①, ②',
+   explain:'③, ④, ⑤는 책의 줄거리를 쓸 것이다.'},
+];
+
+var FIELDS = [
+  {key:'contentType', label:'컨텐츠 구분', type:'select', opts:['해답','문제','평가'], req:true, g:'meta'},
+  {key:'page', label:'페이지', type:'text', req:true, g:'meta'},
+  {key:'sideType', label:'면구분', type:'select', opts:['기본','앞면','뒷면'], g:'meta'},
+  {key:'evalType', label:'평가구분', type:'select', opts:['평가없음','중간','기말'], g:'meta'},
+  {key:'mainQ', label:'대문항', type:'text', req:true, g:'meta'},
+  {key:'subQ', label:'소문항', type:'text', req:true, g:'meta'},
+  {key:'day', label:'일차', type:'text', g:'detail'},
+  {key:'area', label:'영역', type:'select', opts:['읽기','쓰기','듣기','말하기'], g:'detail'},
+  {key:'qType', label:'문항유형', type:'select', opts:['내용추론','내용확인','어휘','문법'], g:'detail'},
+  {key:'chapter', label:'챕터', type:'text', g:'detail'},
+  {key:'seq', label:'순번', type:'select', opts:['선택','1','2','3','4','5'], g:'detail'},
+  {key:'scoring', label:'채점여부', type:'select', opts:['채점있음','채점없음'], g:'answer'},
+  {key:'answerForm', label:'해답형태', type:'select', opts:['텍스트','이미지','혼합'], req:true, g:'answer'},
+  {key:'explainType', label:'해설타입', type:'select', opts:['파일아님','파일'], g:'answer'},
+  {key:'explainFile', label:'해설파일명', type:'text', g:'answer'},
+  {key:'answer', label:'해답내용', type:'textarea', g:'content'},
+  {key:'explain', label:'해설내용', type:'textarea', g:'content'},
+];
+
+var view = 'list';
+var focusIdx = 0;
+var isDark = false;
+var dragSrc = null;
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+}
+
+function setView(v) {
+  view = v;
+  document.getElementById('btnList').className = v==='list'?'on':'';
+  document.getElementById('btnFocus').className = v==='focus'?'on':'';
+  render();
+}
+
+function goEdit(idx) { focusIdx = idx; setView('focus'); }
+function esc(s) { return !s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── DRAG ── */
+function dragStart(e,i){dragSrc=i;e.dataTransfer.effectAllowed='move';setTimeout(function(){e.target.closest('.list-item').style.opacity='.45'},0)}
+function dragOver(e,i){e.preventDefault();e.dataTransfer.dropEffect='move';var el=e.target.closest('.list-item');if(el&&i!==dragSrc)el.classList.add('drag-over')}
+function dragLeave(e){var el=e.target.closest('.list-item');if(el)el.classList.remove('drag-over')}
+function drop(e,i){e.preventDefault();var el=e.target.closest('.list-item');if(el)el.classList.remove('drag-over');if(dragSrc===null||dragSrc===i)return;var it=DATA.splice(dragSrc,1)[0];DATA.splice(i,0,it);dragSrc=null;render()}
+function dragEnd(e){dragSrc=null;document.querySelectorAll('.list-item').forEach(function(el){el.style.opacity='1';el.classList.remove('drag-over')})}
+
+/* ═══ LIST ═══ */
+function renderList() {
+  if(!DATA.length) return '<div style="text-align:center;padding:80px;color:#94A3B8"><div style="font-size:36px;margin-bottom:8px">📝</div><div style="font-size:14px;font-weight:600">문항을 추가하세요</div></div>';
+  var h = '';
+  DATA.forEach(function(row,ri){
+    h += '<div class="list-item" draggable="true" ondragstart="dragStart(event,'+ri+')" ondragover="dragOver(event,'+ri+')" ondragleave="dragLeave(event)" ondrop="drop(event,'+ri+')" ondragend="dragEnd(event)">';
+    h += '<div class="list-row">';
+    h += '<div class="list-grip"><span></span><span></span><span></span></div>';
+    h += '<div class="list-num">'+(ri+1)+'</div>';
+    h += '<div class="list-body">';
+
+    h += '<div class="list-meta">';
+    h += '<span class="tag" style="background:#DBEAFE;color:#1D4ED8;border:1px solid #93C5FD">대문항 '+row.mainQ+'</span>';
+    if(row.subQ&&row.subQ!=='000') h += '<span class="tag" style="background:#ECFEFF;color:#0891B2;border:1px solid #67E8F9">소문항 '+row.subQ+'</span>';
+    h += '<span class="tag" style="background:#DCFCE7;color:#166534;border:1px solid #86EFAC">'+row.contentType+'</span>';
+    if(row.area) h += '<span class="tag" style="background:#F3E8FF;color:#7C3AED;border:1px solid #C4B5FD">'+row.area+'</span>';
+    if(row.qType) h += '<span class="tag" style="background:#FCE7F3;color:#BE185D;border:1px solid #F9A8D4">'+row.qType+'</span>';
+    h += '<span style="font-size:9px;color:#94A3B8;margin-left:auto">p.'+row.page+' · '+row.sideType+'</span>';
+    h += '</div>';
+
+    if(row.answer) {
+      h += '<div class="answer-block">';
+      h += '<div class="answer-label">해답</div>';
+      h += '<div class="answer-text">'+esc(row.answer)+'</div>';
+      h += '</div>';
+    }
+    if(row.explain) {
+      h += '<div class="explain-block">';
+      h += '<div class="explain-label">해설</div>';
+      h += '<div class="explain-text">'+esc(row.explain)+'</div>';
+      h += '</div>';
+    }
+    h += '</div>';
+    h += '<div class="list-actions">';
+    h += '<button class="act-btn" onclick="goEdit('+ri+')" title="편집">✎</button>';
+    h += '<button class="act-btn del" onclick="removeItem('+ri+')" title="삭제">✕</button>';
+    h += '</div>';
+    h += '</div></div>';
+  });
+  return h;
+}
+
+/* ═══ FOCUS ═══ */
+function mkInput(f,val,ri) {
+  if(f.type==='select'){
+    var s='<select onchange="DATA['+ri+'][\''+f.key+'\']=this.value">';
+    if(!f.req) s+='<option value="">선택</option>';
+    (f.opts||[]).forEach(function(o){s+='<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>'});
+    return s+'</select>';
+  }
+  if(f.type==='textarea') return '<textarea onchange="DATA['+ri+'][\''+f.key+'\']=this.value">'+esc(val)+'</textarea>';
+  return '<input type="text" value="'+esc(val)+'" onchange="DATA['+ri+'][\''+f.key+'\']=this.value">';
+}
+
+function renderFocus() {
+  if(!DATA.length) return '<div style="text-align:center;padding:80px;color:#94A3B8"><div style="font-size:36px;margin-bottom:8px">📝</div><div style="font-size:14px;font-weight:600">문항을 추가하세요</div></div>';
+  if(focusIdx>=DATA.length) focusIdx=DATA.length-1;
+  if(focusIdx<0) focusIdx=0;
+  var ri=focusIdx, row=DATA[ri];
+
+  var h='<div class="focus-wrap">';
+  h+='<div class="focus-nav">';
+  h+='<button onclick="focusPrev()"'+(ri===0?' disabled':'')+'>&larr; 이전</button>';
+  h+='<span class="curr">'+(ri+1)+' / '+DATA.length+'</span>';
+  h+='<button onclick="focusNext()"'+(ri===DATA.length-1?' disabled':'')+'>다음 &rarr;</button>';
+  h+='</div>';
+
+  h+='<div class="focus-dots">';
+  DATA.forEach(function(_,i){h+='<div class="focus-dot'+(i===ri?' on':'')+'" onclick="focusIdx='+i+';render()"></div>'});
+  h+='</div>';
+
+  h+='<div class="focus-card"><div class="focus-head">';
+  h+='<div class="focus-num">'+(ri+1)+'</div>';
+  h+='<div class="focus-head-info"><div class="h-title">대문항 '+row.mainQ+(row.subQ!=='000'?' · 소문항 '+row.subQ:'')+'</div>';
+  h+='<div class="h-sub">'+row.contentType+' · '+(row.area||'-')+' · '+(row.qType||'-')+'</div></div>';
+  h+='<button class="focus-del" onclick="removeItem('+ri+')">✕ 삭제</button>';
+  h+='</div><div class="focus-body">';
+
+  var groups=[{k:'meta',l:'기본 정보'},{k:'detail',l:'문항 상세'},{k:'answer',l:'채점·해답 설정'},{k:'content',l:'해답·해설 내용'}];
+  groups.forEach(function(grp){
+    h+='<div class="grp-label">'+grp.l+'</div>';
+    var gf=FIELDS.filter(function(f){return f.g===grp.k});
+    h+='<div class="focus-row'+(grp.k==='content'?' w2':'')+'">';
+    gf.forEach(function(f){
+      h+='<div class="ff"><label>'+f.label+(f.req?'<span class="req">*</span>':'')+'</label>';
+      h+=mkInput(f,row[f.key],ri)+'</div>';
+    });
+    h+='</div>';
+  });
+  h+='</div></div></div>';
+  return h;
+}
+
+function render() {
+  document.getElementById('mainArea').innerHTML = view==='list'?renderList():renderFocus();
+  document.getElementById('cntLabel').textContent = DATA.length+'건';
+}
+
+function addItem() {
+  var last=0; DATA.forEach(function(r){var n=parseInt(r.mainQ);if(!isNaN(n)&&n>last)last=n});
+  DATA.push({contentType:'해답',page:'002',sideType:'기본',evalType:'평가없음',mainQ:String(last+1).padStart(3,'0'),subQ:'000',day:'',area:'읽기',qType:'',chapter:'',seq:'',scoring:'채점있음',answerForm:'텍스트',explainType:'파일아님',explainFile:'',answer:'',explain:''});
+  if(view==='focus') focusIdx=DATA.length-1;
+  render();
+}
+function removeItem(i){if(!confirm((i+1)+'번 문항을 삭제하시겠습니까?'))return;DATA.splice(i,1);if(focusIdx>=DATA.length)focusIdx=Math.max(0,DATA.length-1);render()}
+function focusPrev(){if(focusIdx>0){focusIdx--;render()}}
+function focusNext(){if(focusIdx<DATA.length-1){focusIdx++;render()}}
+function doSave(){alert(DATA.length+'건 저장 완료')}
+function doExit(){alert(DATA.length+'건 저장 후 나가기')}
+
+document.addEventListener('keydown',function(e){
+  if(view!=='focus')return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowLeft')focusPrev();
+  else if(e.key==='ArrowRight')focusNext();
+});
+
+render();
+</script>
+</body>
+</html>

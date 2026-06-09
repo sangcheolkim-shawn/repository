@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS 2.0 콘텐츠 독립성 아키텍처 — 개발자 설명 자료</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F7;color:#1D1D1F;line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+
+/* Header */
+.hero{text-align:center;padding:60px 0 48px}
+.hero h1{font-size:36px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px}
+.hero .subtitle{font-size:18px;color:#636366;font-weight:400;letter-spacing:-0.3px}
+.hero .date{font-size:13px;color:#8E8E93;margin-top:12px}
+
+/* Section */
+.section{margin-bottom:56px}
+.section-title{font-size:24px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.section-title .num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0071E3;color:#fff;font-size:15px;font-weight:700;flex-shrink:0}
+.section-desc{font-size:15px;color:#636366;margin-bottom:24px;padding-left:42px}
+
+/* Comparison Layout */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+@media(max-width:768px){.compare-grid{grid-template-columns:1fr}}
+
+.card{background:#fff;border-radius:16px;padding:28px;position:relative;overflow:hidden}
+.card-bad{border:2px solid #FFB3AE}
+.card-bad::before{content:'AS-IS (현행)';position:absolute;top:0;right:0;background:#FF3B30;color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 0 12px;letter-spacing:0.5px}
+.card-good{border:2px solid #A8E6B8}
+.card-good::before{content:'TO-BE (신규)';position:absolute;top:0;right:0;background:#34C759;color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 0 12px;letter-spacing:0.5px}
+.card h3{font-size:17px;font-weight:700;margin-bottom:16px;letter-spacing:-0.3px}
+.card p{font-size:14px;color:#48484A;margin-bottom:12px}
+
+/* Flow Diagram */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:16px 0}
+.flow-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px}
+.flow-box{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;line-height:1.3;white-space:nowrap}
+.flow-label{font-size:11px;color:#8E8E93}
+.flow-arrow{font-size:20px;color:#D1D1D6;margin:0 4px;flex-shrink:0}
+
+/* DB-like Table */
+.db-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.db-table th{background:#F5F5F7;padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid #E5E5EA;font-size:12px;color:#636366;text-transform:uppercase;letter-spacing:0.5px}
+.db-table td{padding:8px 12px;border-bottom:1px solid #E5E5EA;vertical-align:top}
+.db-table tr:last-child td{border-bottom:none}
+
+/* Code Block */
+.code-block{background:#1D1D1F;color:#E5E5EA;border-radius:12px;padding:20px;font-family:'SF Mono','Fira Code',monospace;font-size:13px;line-height:1.7;overflow-x:auto;margin:12px 0}
+.code-block .comment{color:#636366}
+.code-block .key{color:#FF9500}
+.code-block .val{color:#34C759}
+.code-block .highlight{color:#0071E3;font-weight:700}
+
+/* Diagram Boxes */
+.diagram{padding:24px;margin:16px 0}
+.diagram-row{display:flex;align-items:stretch;justify-content:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.diagram-box{border-radius:12px;padding:16px 20px;text-align:center;min-width:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.diagram-box .box-title{font-size:14px;font-weight:700;letter-spacing:-0.2px}
+.diagram-box .box-sub{font-size:11px;opacity:0.7}
+.diagram-arrow-down{text-align:center;font-size:24px;color:#D1D1D6;margin:4px 0}
+.diagram-arrow-right{font-size:24px;color:#D1D1D6;display:flex;align-items:center}
+
+/* Color Themes */
+.bg-blue{background:#E8F2FF;color:#0055B8;border:1px solid #B3D7FF}
+.bg-green{background:#F0FFF4;color:#1B8A3E;border:1px solid #A8E6B8}
+.bg-purple{background:#F9F0FF;color:#8944AB;border:1px solid #D9B3F0}
+.bg-amber{background:#FFF8F0;color:#B35C00;border:1px solid #FFD9A8}
+.bg-red{background:#FFF2F1;color:#C12E26;border:1px solid #FFB3AE}
+.bg-gray{background:#F5F5F7;color:#48484A;border:1px solid #E5E5EA}
+.bg-dark{background:#2C2C2E;color:#fff}
+
+/* Highlight Box */
+.highlight-box{background:linear-gradient(135deg,#E8F2FF 0%,#F0FFF4 100%);border:2px solid #B3D7FF;border-radius:16px;padding:24px 28px;margin:24px 0}
+.highlight-box h4{font-size:16px;font-weight:700;color:#0055B8;margin-bottom:8px}
+.highlight-box p{font-size:14px;color:#48484A}
+
+/* Problem/Solution */
+.problem-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.problem-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+.icon-bad{background:#FFF2F1;color:#FF3B30}
+.icon-good{background:#F0FFF4;color:#34C759}
+.icon-info{background:#E8F2FF;color:#0071E3}
+.problem-text{font-size:14px;color:#48484A}
+.problem-text strong{color:#1D1D1F}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;margin:0 2px}
+.badge-nd{background:#E8F2FF;color:#0055B8}
+.badge-nh{background:#F9F0FF;color:#8944AB}
+.badge-sj{background:#F0FFF4;color:#1B8A3E}
+.badge-code{background:#F5F5F7;color:#48484A;font-family:'SF Mono',monospace}
+
+/* Connector Lines */
+.connect-diagram{position:relative;padding:32px 0}
+.connect-row{display:flex;justify-content:center;align-items:center;gap:24px;margin:8px 0}
+.connect-label{font-size:12px;color:#8E8E93;text-align:center;margin:8px 0}
+
+/* Large Flow */
+.mega-flow{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0;flex-wrap:wrap}
+.mega-step{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mega-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.mega-label{font-size:13px;font-weight:600;text-align:center}
+.mega-sublabel{font-size:11px;color:#8E8E93;text-align:center}
+.mega-arrow{font-size:24px;color:#D1D1D6}
+
+/* Scenario */
+.scenario{background:#fff;border-radius:16px;padding:28px;margin:16px 0;border:1px solid #E5E5EA}
+.scenario-title{font-size:15px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #E5E5EA;display:flex;align-items:center;gap:8px}
+.scenario-step{display:flex;gap:12px;margin-bottom:8px;align-items:flex-start}
+.step-num{width:22px;height:22px;border-radius:50%;background:#0071E3;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text{font-size:14px;color:#48484A}
+
+/* Meeting Feedback */
+.feedback-card{background:#fff;border-radius:16px;padding:24px;margin:16px 0;border-left:4px solid #FF9500}
+.feedback-card h4{font-size:15px;font-weight:700;margin-bottom:12px;color:#B35C00}
+.feedback-card .response{background:#F0FFF4;border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid #34C759}
+.feedback-card .response strong{color:#1B8A3E;font-size:13px}
+.feedback-card .response p{font-size:13px;color:#48484A;margin-top:4px}
+
+/* Print */
+@media print{body{background:#fff}.card{break-inside:avoid}}
+
+/* Separator */
+hr.sep{border:none;border-top:1px solid #E5E5EA;margin:48px 0}
+
+/* Sticky Nav */
+.toc{background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:40px;border:1px solid #E5E5EA}
+.toc-title{font-size:13px;font-weight:700;color:#8E8E93;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.toc-list{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.toc-list a{font-size:13px;color:#0071E3;text-decoration:none;padding:4px 12px;border-radius:8px;background:#E8F2FF;font-weight:500;transition:all .2s}
+.toc-list a:hover{background:#0071E3;color:#fff}
+
+/* Width constraint for readability */
+.narrow{max-width:680px;margin-left:auto;margin-right:auto}
+
+/* Binding Visual */
+.bind-visual{display:flex;justify-content:center;align-items:center;gap:40px;padding:24px 0;flex-wrap:wrap}
+.bind-col{display:flex;flex-direction:column;gap:8px;align-items:center}
+.bind-col-title{font-size:12px;font-weight:700;color:#8E8E93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.bind-item{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;min-width:120px}
+.bind-lines{display:flex;flex-direction:column;gap:8px;align-items:center;color:#D1D1D6;font-size:20px}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <h1>CMS 2.0 콘텐츠 독립성 아키텍처</h1>
+  <div class="subtitle">과목코드 키 전환 — 왜, 어떻게, 무엇이 달라지는가</div>
+  <div class="date">2026-04-17 | Shawn (김상철) | 내부 개발팀 설명 자료</div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <ul class="toc-list">
+    <li><a href="#s1">1. 핵심 한 장 요약</a></li>
+    <li><a href="#s2">2. 현행 vs 신규 구조 비교</a></li>
+    <li><a href="#s3">3. 전체 프로세스 흐름</a></li>
+    <li><a href="#s4">4. 실전 시나리오</a></li>
+    <li><a href="#s5">5. 데이터 구조 비교</a></li>
+    <li><a href="#s6">6. 회의 피드백 대응</a></li>
+    <li><a href="#s7">7. 정리 — 이것만 기억하세요</a></li>
+  </ul>
+</div>
+
+<!-- ===== Section 1 ===== -->
+<div class="section" id="s1">
+  <div class="section-title"><span class="num">1</span> 핵심 한 장 요약</div>
+  <div class="section-desc">전체를 관통하는 핵심 메시지 하나.</div>
+
+  <div class="highlight-box">
+    <h4>콘텐츠는 과목코드를 몰라도 된다</h4>
+    <p>
+      현행: <strong>유형코드(ANS, CBT...)가 콘텐츠의 키</strong> → 과목코드와 유형코드가 강하게 결합<br>
+      신규: <strong>커리큘럼 + 입력양식이 콘텐츠의 키</strong> → 과목코드는 나중에 "연결"만 하면 됨
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div style="text-align:center;padding:12px 0">
+      <div style="font-size:15px;color:#8E8E93;margin-bottom:16px;font-weight:500">비유: 상품(콘텐츠)과 판매채널(과목코드)</div>
+      <div style="display:flex;justify-content:center;gap:60px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-size:40px;margin-bottom:8px">📦</div>
+          <div style="font-size:14px;font-weight:700;color:#1D1D1F">콘텐츠 = 상품</div>
+          <div style="font-size:12px;color:#8E8E93;margin-top:4px">상품은 상품대로 만들고<br>카탈로그(양식)에 따라 등록</div>
+        </div>
+        <div style="font-size:32px;color:#D1D1D6;display:flex;align-items:center">⟷</div>
+        <div style="text-align:center">
+          <div style="font-size:40px;margin-bottom:8px">🏪</div>
+          <div style="font-size:14px;font-weight:700;color:#1D1D1F">과목코드 = 판매채널</div>
+          <div style="font-size:12px;color:#8E8E93;margin-top:4px">어떤 매장에서 팔지는<br>나중에 "진열(바인딩)"하면 됨</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:12px 20px;background:#F0FFF4;border-radius:10px;display:inline-block">
+        <span style="font-size:14px;color:#1B8A3E;font-weight:600">
+          같은 상품을 여러 매장에 진열 = 하나의 콘텐츠를 여러 과목코드에 바인딩
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 2 ===== -->
+<div class="section" id="s2">
+  <div class="section-title"><span class="num">2</span> 현행 vs 신규 구조 비교</div>
+  <div class="section-desc">유형코드 중심에서 과목코드 중심으로, 무엇이 달라지는가.</div>
+
+  <div class="compare-grid">
+    <!-- AS-IS -->
+    <div class="card card-bad">
+      <h3>유형코드가 키 (현행)</h3>
+      <p>과목코드 안에 유형코드가 종속되어 있음. 콘텐츠를 만들려면 먼저 "어떤 과목의 어떤 유형인지"를 알아야 함.</p>
+
+      <div class="diagram">
+        <div class="diagram-row">
+          <div class="diagram-box bg-amber" style="min-width:200px">
+            <div class="box-title">M (수학)</div>
+            <div class="box-sub">과목코드</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 종속</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-red" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">ANS</div>
+            <div class="box-sub">해답지</div>
+          </div>
+          <div class="diagram-box bg-red" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">CBT</div>
+            <div class="box-sub">자동채점</div>
+          </div>
+          <div class="diagram-box bg-red" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">STDG</div>
+            <div class="box-sub">영상강의</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 직접 연결</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-gray">
+            <div class="box-title" style="font-size:12px">콘텐츠 데이터</div>
+            <div class="box-sub">과목+유형에 고정</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-item">
+        <div class="problem-icon icon-bad">✕</div>
+        <div class="problem-text"><strong>1:1 고정</strong> — 수학 해답지는 수학에서만 사용 가능</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-bad">✕</div>
+        <div class="problem-text"><strong>유형 폭발</strong> — 과목 30개 × 유형 10개 = 300개 조합 관리</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-bad">✕</div>
+        <div class="problem-text"><strong>재사용 불가</strong> — 동일 콘텐츠를 다른 과목에 쓰려면 복사해야 함</div>
+      </div>
+    </div>
+
+    <!-- TO-BE -->
+    <div class="card card-good">
+      <h3>과목코드는 나중에 연결 (신규)</h3>
+      <p>콘텐츠는 커리큘럼 + 양식으로 독립적으로 존재. 과목코드는 서비스 연결 시점에 바인딩.</p>
+
+      <div class="diagram">
+        <div class="diagram-row">
+          <div class="diagram-box bg-purple" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">입력 양식</div>
+            <div class="box-sub">필드 구조 정의</div>
+          </div>
+          <div style="font-size:18px;color:#D1D1D6;display:flex;align-items:center">+</div>
+          <div class="diagram-box bg-blue" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">커리큘럼</div>
+            <div class="box-sub">Depth 구조 정의</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 독립적으로 제작</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-green">
+            <div class="box-title">콘텐츠</div>
+            <div class="box-sub">과목코드 모름, 독립 존재</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 나중에 연결</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-amber" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">M</div>
+            <div class="box-sub">수학</div>
+          </div>
+          <div class="diagram-box bg-amber" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">E</div>
+            <div class="box-sub">영어</div>
+          </div>
+          <div class="diagram-box bg-amber" style="padding:10px 14px">
+            <div class="box-title" style="font-size:13px">외부A</div>
+            <div class="box-sub">제휴사</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text"><strong>N:M 연결</strong> — 하나의 콘텐츠를 여러 코드에 바인딩</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text"><strong>양식 재사용</strong> — 표준 양식을 여러 커리큘럼에서 공유</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text"><strong>외부 확장</strong> — 자사 + 타사 시스템에 동일 콘텐츠 제공 가능</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 3 ===== -->
+<div class="section" id="s3">
+  <div class="section-title"><span class="num">3</span> 전체 프로세스 흐름</div>
+  <div class="section-desc">5단계 프로세스. 콘텐츠 제작과 서비스 연결이 완전히 분리됩니다.</div>
+
+  <div class="card">
+    <div class="mega-flow">
+      <div class="mega-step">
+        <div class="mega-circle bg-purple">📋</div>
+        <div class="mega-label">입력 양식 정의</div>
+        <div class="mega-sublabel">필드 구조 설계</div>
+      </div>
+      <div class="mega-arrow">→</div>
+      <div class="mega-step">
+        <div class="mega-circle bg-blue">🌳</div>
+        <div class="mega-label">커리큘럼 설계</div>
+        <div class="mega-sublabel">Depth + 양식 매핑</div>
+      </div>
+      <div class="mega-arrow">→</div>
+      <div class="mega-step">
+        <div class="mega-circle bg-green">✏️</div>
+        <div class="mega-label">콘텐츠 제작</div>
+        <div class="mega-sublabel">작업 배정 + 등록</div>
+      </div>
+      <div class="mega-arrow" style="position:relative">→<div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:#FF3B30;font-weight:700;white-space:nowrap">여기서 분리!</div></div>
+      <div class="mega-step">
+        <div class="mega-circle bg-amber">🔗</div>
+        <div class="mega-label">과목코드 바인딩</div>
+        <div class="mega-sublabel">서비스 연결</div>
+      </div>
+      <div class="mega-arrow">→</div>
+      <div class="mega-step">
+        <div class="mega-circle bg-dark" style="color:#fff">🚀</div>
+        <div class="mega-label">배포</div>
+        <div class="mega-sublabel">STG → PRD</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:16px;padding:16px;background:#FFF8F0;border-radius:12px">
+      <div style="font-size:14px;font-weight:600;color:#B35C00">
+        ①②③ 콘텐츠 제작 구간 — 과목코드를 전혀 모르는 상태에서 작업 가능
+      </div>
+      <div style="font-size:13px;color:#8E8E93;margin-top:4px">
+        ④ 바인딩 단계에서 비로소 과목코드(M, E, K...)와 연결
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed breakdown -->
+  <div style="margin-top:24px">
+    <div class="compare-grid">
+      <div class="card" style="border:1px solid #D9B3F0">
+        <h3 style="color:#8944AB">콘텐츠 제작 영역 (①②③)</h3>
+        <p style="font-size:13px;color:#636366;margin-bottom:16px">과목코드와 무관하게 독립적으로 진행</p>
+        <div class="problem-item">
+          <div class="problem-icon icon-info">1</div>
+          <div class="problem-text"><strong>양식 관리자</strong>가 필드 풀에서 양식 구성<br><span style="font-size:12px;color:#8E8E93">예) "해답지 양식" = 문항번호 + 정답 + 배점 + 해설</span></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon icon-info">2</div>
+          <div class="problem-text"><strong>커리큘럼 설계자</strong>가 Depth 구조 설계 + 양식 연결<br><span style="font-size:12px;color:#8E8E93">예) 과목 › 과정 › 세트 › 학습일 + "해답지 양식" 매핑</span></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon icon-info">3</div>
+          <div class="problem-text"><strong>작업자</strong>가 커리큘럼 기준으로 콘텐츠 등록<br><span style="font-size:12px;color:#8E8E93">예) 세트 1~40 담당, 양식에 맞춰 데이터 입력</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid #FFD9A8">
+        <h3 style="color:#B35C00">서비스 연결 영역 (④⑤)</h3>
+        <p style="font-size:13px;color:#636366;margin-bottom:16px">완성된 콘텐츠에 과목코드를 연결하여 서비스 투입</p>
+        <div class="problem-item">
+          <div class="problem-icon" style="background:#FFF8F0;color:#B35C00">4</div>
+          <div class="problem-text"><strong>과목코드 바인딩</strong> — 완성 커리큘럼에 코드를 연결<br><span style="font-size:12px;color:#8E8E93">예) "수학 기초 과정" 커리큘럼 → M(수학) 코드 바인딩</span></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon" style="background:#FFF8F0;color:#B35C00">5</div>
+          <div class="problem-text"><strong>배포</strong> — 바인딩 완료된 콘텐츠만 배포 가능<br><span style="font-size:12px;color:#8E8E93">바인딩 없으면 배포 대상에서 제외 (안전장치)</span></div>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:#FFF8F0;border-radius:8px">
+          <div style="font-size:13px;color:#B35C00;font-weight:600">핵심 포인트</div>
+          <div style="font-size:12px;color:#48484A;margin-top:4px">
+            외부 시스템에서 <strong>과목코드 - 과정 - 세트</strong> 정보가 내려오면,<br>
+            과목코드를 키로 바인딩만 하면 콘텐츠가 즉시 연결됩니다.<br>
+            콘텐츠를 다시 만들 필요가 없습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 4 ===== -->
+<div class="section" id="s4">
+  <div class="section-title"><span class="num">4</span> 실전 시나리오</div>
+  <div class="section-desc">실제 업무에서 어떻게 달라지는지 구체적으로.</div>
+
+  <!-- Scenario A -->
+  <div class="scenario">
+    <div class="scenario-title">
+      <span style="font-size:18px">📘</span>
+      시나리오 A — 수학 해답지를 뉴드림스 + 눈높이에 동시 제공
+    </div>
+
+    <div class="compare-grid" style="margin-bottom:0">
+      <div style="padding:4px">
+        <div style="font-size:12px;font-weight:700;color:#FF3B30;margin-bottom:8px">❌ 현행 방식</div>
+        <div class="scenario-step"><div class="step-num" style="background:#FF3B30">1</div><div class="step-text">뉴드림스용 M-ANS 해답지 콘텐츠 제작</div></div>
+        <div class="scenario-step"><div class="step-num" style="background:#FF3B30">2</div><div class="step-text">눈높이용 M-ANS 해답지 <strong>동일 콘텐츠 복사해서 별도 제작</strong></div></div>
+        <div class="scenario-step"><div class="step-num" style="background:#FF3B30">3</div><div class="step-text">수정 발생 시 <strong>양쪽 모두 수정</strong> (작업 2배)</div></div>
+        <div style="margin-top:12px;padding:8px 12px;background:#FFF2F1;border-radius:8px;font-size:12px;color:#C12E26;font-weight:600">
+          결과: 동일 콘텐츠 2벌 관리, 수정 포인트 2배
+        </div>
+      </div>
+
+      <div style="padding:4px">
+        <div style="font-size:12px;font-weight:700;color:#34C759;margin-bottom:8px">✅ 신규 방식</div>
+        <div class="scenario-step"><div class="step-num" style="background:#34C759">1</div><div class="step-text">"수학 기초 과정" 커리큘럼에 해답지 양식으로 콘텐츠 <strong>1벌 제작</strong></div></div>
+        <div class="scenario-step"><div class="step-num" style="background:#34C759">2</div><div class="step-text">뉴드림스 과목코드 <strong>M</strong> 바인딩</div></div>
+        <div class="scenario-step"><div class="step-num" style="background:#34C759">3</div><div class="step-text">눈높이 과목코드 <strong>M-NH</strong> 바인딩 (같은 콘텐츠에 추가 연결)</div></div>
+        <div style="margin-top:12px;padding:8px 12px;background:#F0FFF4;border-radius:8px;font-size:12px;color:#1B8A3E;font-weight:600">
+          결과: 콘텐츠 1벌, 수정 시 1번만 수정, 양쪽 자동 반영
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario B -->
+  <div class="scenario">
+    <div class="scenario-title">
+      <span style="font-size:18px">🤝</span>
+      시나리오 B — 외부 제휴사에 콘텐츠 제공
+    </div>
+    <div class="scenario-step"><div class="step-num">1</div><div class="step-text">이미 제작 완료된 "수학 기초 과정" 커리큘럼이 있음</div></div>
+    <div class="scenario-step"><div class="step-num">2</div><div class="step-text">제휴사가 자체 과목코드 <strong>EXT-M01</strong>을 전달</div></div>
+    <div class="scenario-step"><div class="step-num">3</div><div class="step-text">바인딩 화면에서 EXT-M01 → "수학 기초 과정" 연결 <strong>(클릭 한 번)</strong></div></div>
+    <div class="scenario-step"><div class="step-num">4</div><div class="step-text">배포 → 제휴사 시스템에 콘텐츠 제공 완료</div></div>
+    <div style="margin-top:12px;padding:10px 14px;background:#E8F2FF;border-radius:8px;font-size:13px;color:#0055B8;font-weight:600">
+      콘텐츠를 다시 만들 필요 없음. 기존 콘텐츠에 코드만 연결하면 끝.
+    </div>
+  </div>
+
+  <!-- Scenario C -->
+  <div class="scenario">
+    <div class="scenario-title">
+      <span style="font-size:18px">🧬</span>
+      시나리오 C — 양식 Key + 상속 전략 (4/13 회의 안건)
+    </div>
+
+    <div style="padding:4px">
+      <div style="font-size:13px;color:#48484A;margin-bottom:16px">
+        회의에서 논의된 "양식에 Key(ANS) 부여 + 상속" 전략이 이 구조에서 어떻게 녹아드는지:
+      </div>
+
+      <div class="diagram" style="padding:12px 0">
+        <div class="diagram-row">
+          <div class="diagram-box bg-purple" style="min-width:180px">
+            <div class="box-title">STD_ANS (표준 양식)</div>
+            <div class="box-sub">Key = ANS | 공통 필수 속성</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin:8px 0;font-size:13px;color:#8E8E93">상속 ↙ ↓ ↘</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-purple" style="padding:8px 12px;opacity:0.85">
+            <div class="box-title" style="font-size:12px">M_ANS</div>
+            <div class="box-sub">수학 전용 필드 추가</div>
+          </div>
+          <div class="diagram-box bg-purple" style="padding:8px 12px;opacity:0.85">
+            <div class="box-title" style="font-size:12px">SO_ANS</div>
+            <div class="box-sub">사회 전용 필드 추가</div>
+          </div>
+          <div class="diagram-box bg-purple" style="padding:8px 12px;opacity:0.85">
+            <div class="box-title" style="font-size:12px">NSO_ANS</div>
+            <div class="box-sub">비사회 전용 필드 추가</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 각각 커리큘럼에 매핑</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-blue" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">수학 커리큘럼</div>
+          </div>
+          <div class="diagram-box bg-blue" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">사회 커리큘럼</div>
+          </div>
+          <div class="diagram-box bg-blue" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">과학 커리큘럼</div>
+          </div>
+        </div>
+        <div class="diagram-arrow-down">↓ 바인딩</div>
+        <div class="diagram-row">
+          <div class="diagram-box bg-amber" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">M</div>
+          </div>
+          <div class="diagram-box bg-amber" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">SO</div>
+          </div>
+          <div class="diagram-box bg-amber" style="padding:8px 12px">
+            <div class="box-title" style="font-size:12px">SC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text">같은 <strong>ANS Key</strong>를 가진 양식은 동일한 콘텐츠 구조를 보장</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text"><strong>[커리큘럼ID][ANS Key]</strong>로 콘텐츠 데이터 즉시 조회 가능</div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon icon-good">✓</div>
+        <div class="problem-text">브릿지 테이블 없이 <strong>Path 기반 조회</strong> — 조인 비용 제거</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 5 ===== -->
+<div class="section" id="s5">
+  <div class="section-title"><span class="num">5</span> 데이터 구조 비교</div>
+  <div class="section-desc">개발자를 위한 데이터 레벨 비교.</div>
+
+  <div class="compare-grid">
+    <div class="card card-bad">
+      <h3>현행 데이터 흐름</h3>
+      <div class="code-block">
+<span class="comment">// 콘텐츠 조회: 과목 + 유형으로 직접 접근</span>
+<span class="key">SELECT</span> * <span class="key">FROM</span> content
+<span class="key">WHERE</span> subject_code = <span class="val">'M'</span>
+  <span class="key">AND</span> type_code = <span class="val">'ANS'</span>
+  <span class="key">AND</span> course = <span class="val">'기초수학'</span>
+  <span class="key">AND</span> set_no = <span class="val">1</span>;
+
+<span class="comment">// 문제: 과목코드가 바뀌면?</span>
+<span class="comment">// → 콘텐츠 전체 마이그레이션 필요</span>
+<span class="comment">// → 다른 시스템에 제공? 복사해야 함</span>
+      </div>
+    </div>
+
+    <div class="card card-good">
+      <h3>신규 데이터 흐름</h3>
+      <div class="code-block">
+<span class="comment">// 콘텐츠 조회: 커리큘럼 + 양식Key로 접근</span>
+<span class="key">SELECT</span> * <span class="key">FROM</span> <span class="highlight">ncm_content_data</span>
+<span class="key">WHERE</span> curriculum_id = <span class="val">'CUR-001'</span>
+  <span class="key">AND</span> form_key = <span class="val">'ANS'</span>;
+
+<span class="comment">// 서비스 연결: 바인딩 테이블만 조회</span>
+<span class="key">SELECT</span> b.subject_code, c.*
+<span class="key">FROM</span> <span class="highlight">ncm_content_bindings</span> b
+<span class="key">JOIN</span> ncm_content_data c
+  <span class="key">ON</span> c.curriculum_id = b.curriculum_id
+<span class="key">WHERE</span> b.subject_code = <span class="val">'M'</span>;
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>핵심 테이블 관계 (ncm_ prefix)</h3>
+    <div style="display:flex;justify-content:center;padding:16px 0">
+      <div style="text-align:center">
+        <div class="diagram-row">
+          <div class="diagram-box bg-purple" style="min-width:160px">
+            <div class="box-title" style="font-size:12px">ncm_form_templates</div>
+            <div class="box-sub">양식 정의 (Key 선택 부여)</div>
+          </div>
+          <div class="diagram-arrow-right">→</div>
+          <div class="diagram-box bg-blue" style="min-width:160px">
+            <div class="box-title" style="font-size:12px">ncm_curriculums</div>
+            <div class="box-sub">커리큘럼 (Depth 구조)</div>
+          </div>
+          <div class="diagram-arrow-right">→</div>
+          <div class="diagram-box bg-green" style="min-width:160px">
+            <div class="box-title" style="font-size:12px">ncm_content_data</div>
+            <div class="box-sub">콘텐츠 (독립 존재)</div>
+          </div>
+        </div>
+        <div style="margin-top:16px"></div>
+        <div class="diagram-row">
+          <div style="min-width:160px"></div>
+          <div style="min-width:30px"></div>
+          <div style="min-width:160px"></div>
+          <div style="min-width:30px"></div>
+          <div style="text-align:center;min-width:160px">
+            <div style="font-size:18px;color:#D1D1D6">↓</div>
+            <div class="diagram-box bg-amber" style="min-width:160px">
+              <div class="box-title" style="font-size:12px">ncm_content_bindings</div>
+              <div class="box-sub">과목코드 바인딩 (N:M)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#8E8E93;margin-top:8px">
+      콘텐츠(ncm_content_data)는 바인딩 테이블을 통해서만 과목코드와 연결됨<br>
+      → 직접 JOIN이 아닌, 필요할 때만 바인딩 조회
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 6 ===== -->
+<div class="section" id="s6">
+  <div class="section-title"><span class="num">6</span> 4/13 회의 피드백 대응</div>
+  <div class="section-desc">개발팀에서 제기한 주요 우려사항과 이 구조에서의 해결 방안.</div>
+
+  <div class="feedback-card">
+    <h4>우려 1: 브릿지 테이블 성능 — "하루 수백만 조회 API에 조인이 항상 가야 해서 성능 저하"</h4>
+    <div class="response">
+      <strong>✅ 해결</strong>
+      <p>
+        콘텐츠 <strong>조회 시에는 바인딩 테이블을 조인하지 않습니다.</strong><br>
+        콘텐츠는 <code>[curriculum_id][form_key]</code> Path로 직접 접근합니다.<br>
+        바인딩 테이블은 <strong>"이 과목코드에 어떤 커리큘럼이 연결됐나?"</strong>를 확인하는 <strong>관리 목적</strong>에서만 사용됩니다.<br>
+        실 서비스 API는 curriculum_id를 이미 알고 있으므로 바인딩 조인 불필요.
+      </p>
+    </div>
+  </div>
+
+  <div class="feedback-card">
+    <h4>우려 2: 콘텐츠Data는 form_id를 알아야 할 이유가 없다</h4>
+    <div class="response">
+      <strong>✅ 동의 + 대안</strong>
+      <p>
+        맞습니다. form_id 대신 <strong>양식 Key(ANS, CBT 등)</strong>를 선택적으로 부여합니다.<br>
+        Key가 있으면: <code>[curriculum_id][form_key]</code>로 조회<br>
+        Key가 없으면: <code>[curriculum_id][content_id]</code>로 조회<br>
+        → form_id가 콘텐츠에 직접 노출되지 않습니다. 4/13 회의의 "2번 대안"과 동일한 방향입니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="feedback-card">
+    <h4>우려 3: "v7 전환 시점에 모든 시스템은 전부 레거시, 언제 생길지 모를 V7 사용 대상을 위해 브릿지 전략은 보수적"</h4>
+    <div class="response">
+      <strong>✅ 관점 전환</strong>
+      <p>
+        이 구조의 핵심은 "미래를 위한 투자"가 아니라 <strong>"현재의 관리 비용 절감"</strong>입니다.<br>
+        현행: 과목 30개 × 유형 10개 = 300개 조합을 각각 관리<br>
+        신규: 커리큘럼 N개 + 양식 M개 → 바인딩으로 300+ 코드 대응<br>
+        <strong>콘텐츠 1벌로 여러 서비스를 커버</strong>하므로 운영 인력과 수정 비용이 즉시 줄어듭니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="feedback-card">
+    <h4>제안: 양식 상속 전략 — STD_ANS → M_ANS, SO_ANS 분기</h4>
+    <div class="response">
+      <strong>✅ 수용 — 두 가지 옵션 모두 지원</strong>
+      <p>
+        <strong>옵션 A (상속):</strong> 표준 양식을 참조하되, 하위 양식에 커스텀 필드 추가. 표준 변경 시 하위에 영향.<br>
+        <strong>옵션 B (복사):</strong> 표준 양식을 복사하여 독립 양식 생성. 변경 영향 없지만 공통 수정 시 개별 관리.<br>
+        현재 프로토타입의 "필드 풀 + 양식 편집기"가 이 두 가지를 모두 지원하는 구조입니다.<br>
+        ANS Key는 <strong>유니크 제약</strong>으로, 상속 외에는 동일 Key 부여 불가 (중복 방지).
+      </p>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- ===== Section 7 ===== -->
+<div class="section" id="s7">
+  <div class="section-title"><span class="num">7</span> 정리 — 이것만 기억하세요</div>
+
+  <div class="card" style="border:2px solid #0071E3">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center;padding:8px 0">
+      <div>
+        <div style="font-size:36px;margin-bottom:8px">📋 + 🌳</div>
+        <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:4px">양식 + 커리큘럼으로 제작</div>
+        <div style="font-size:12px;color:#8E8E93">과목코드 없이 콘텐츠를 만든다</div>
+      </div>
+      <div>
+        <div style="font-size:36px;margin-bottom:8px">🔗</div>
+        <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:4px">코드는 나중에 연결만</div>
+        <div style="font-size:12px;color:#8E8E93">과목코드가 내려오면 바인딩</div>
+      </div>
+      <div>
+        <div style="font-size:36px;margin-bottom:8px">♻️</div>
+        <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-bottom:4px">1벌로 N개 서비스</div>
+        <div style="font-size:12px;color:#8E8E93">복사 없이 여러 코드에 연결</div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;padding:16px 20px;background:#E8F2FF;border-radius:12px;text-align:center">
+      <div style="font-size:16px;font-weight:700;color:#0055B8;letter-spacing:-0.3px">
+        "과목코드 - 과정 - 세트 정보가 내려올 때,<br>
+        우리가 만들어 놓은 커리큘럼에 코드만 연결하면 끝입니다."
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual Binding Summary -->
+  <div class="card" style="margin-top:24px">
+    <h3 style="text-align:center;margin-bottom:20px">바인딩 = 연결의 자유</h3>
+    <div class="bind-visual">
+      <div class="bind-col">
+        <div class="bind-col-title">우리가 만든 콘텐츠</div>
+        <div class="bind-item bg-blue">수학 기초 과정</div>
+        <div class="bind-item bg-blue">영어 회화 과정</div>
+        <div class="bind-item bg-blue">국어 독해 과정</div>
+      </div>
+      <div class="bind-lines">
+        <div>──→</div>
+        <div style="font-size:11px;color:#8E8E93;font-weight:600">바인딩</div>
+        <div>──→</div>
+      </div>
+      <div class="bind-col">
+        <div class="bind-col-title">과목코드 (300+)</div>
+        <div class="bind-item bg-amber">M 수학 <span class="badge badge-nd">ND</span></div>
+        <div class="bind-item bg-amber">M-NH 수학 <span class="badge badge-nh">NH</span></div>
+        <div class="bind-item bg-amber">E 영어 <span class="badge badge-nd">ND</span></div>
+        <div class="bind-item bg-amber">EXT-M01 <span class="badge" style="background:#F5F5F7;color:#636366">외부</span></div>
+        <div style="font-size:12px;color:#8E8E93">... 300개+ 코드</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#636366;margin-top:8px">
+      하나의 커리큘럼을 여러 코드에 연결할 수 있고, 언제든 연결을 추가/해제할 수 있습니다.
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:40px 0;color:#8E8E93;font-size:12px">
+  <div style="margin-bottom:4px">CMS 2.0 콘텐츠 독립성 아키텍처 설명 자료</div>
+  <div>Prepared by Shawn (김상철) | 2026-04-17 | 대교 교육 콘텐츠 관리 시스템 고도화 프로젝트</div>
+</div>
+
+</div>
+</body>
+</html>

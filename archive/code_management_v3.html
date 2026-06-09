@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코드 관리 v3 — 과목코드(제품) 중심</title>
+<style>
+:root{--bg:#F1F3F5;--wh:#fff;--bd:#E2E8F0;--bl:#2563EB;--blb:#EFF6FF;--pu:#7C3AED;--pub:#F5F3FF;--gn:#059669;--gnb:#ECFDF5;--or:#D97706;--orb:#FFFBEB;--rd:#DC2626;--g1:#F8FAFC;--g2:#F1F5F9;--g3:#CBD5E1;--g4:#94A3B8;--g5:#64748B;--g6:#475569;--g7:#334155;--g8:#1E293B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--g8);font-size:13px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.top{height:44px;background:#1E293B;display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.top b{font-size:14px;color:#fff}.top .sep{width:1px;height:20px;background:#475569}
+.top .sub{font-size:11px;color:#94A3B8}.top .ver{margin-left:auto;font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff}
+.wrap{flex:1;display:flex;overflow:hidden}
+
+/* ── LEFT: 과목코드 목록 ── */
+.left{width:300px;background:var(--wh);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.lhd{padding:10px 14px;border-bottom:1px solid var(--bd)}
+.lhd-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.lhd-t{font-size:14px;font-weight:800;flex:1}.lhd-cnt{font-size:9px;font-weight:700;background:var(--blb);color:var(--bl);padding:2px 8px;border-radius:10px}
+.lhd-stats{display:flex;gap:4px}
+.lhd-stat{font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px}
+.lsrch{padding:6px 10px;border-bottom:1px solid var(--bd)}
+.lsrch input{width:100%;border:1px solid var(--bd);border-radius:6px;padding:6px 10px 6px 28px;font-size:11px;outline:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 8px center no-repeat}
+.lsrch input:focus{border-color:var(--bl)}
+.llist{flex:1;overflow-y:auto}
+
+/* 과목코드 아이템 */
+.sk{padding:10px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:.1s}
+.sk:hover{background:var(--g1)}
+.sk.on{background:var(--blb);border-left:3px solid var(--bl)}
+.sk-top{display:flex;align-items:center;gap:8px}
+.sk-code{font-size:16px;font-weight:900;font-family:'SF Mono',Menlo,monospace;color:var(--bl);min-width:42px}
+.sk-nm{font-size:12px;font-weight:700;color:var(--g7);flex:1}
+.sk-cnt{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--g2);color:var(--g5)}
+.sk-bot{display:flex;align-items:center;gap:5px;margin-top:4px;padding-left:50px}
+.sk-sys{display:flex;gap:2px}
+.sk-sys-dot{width:8px;height:8px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:5px;color:#fff;font-weight:900}
+.sk-child{font-size:8px;color:var(--g4)}
+
+.lfoot{padding:8px 14px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px}
+.btn{display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;transition:.12s;white-space:nowrap}
+.btn-p{background:var(--bl);color:#fff}.btn-p:hover{background:#1D4ED8}
+.btn-g{background:var(--g2);color:var(--g6);border:1px solid var(--bd)}.btn-g:hover{background:#E2E8F0}
+.btn-sm{padding:3px 8px;font-size:9px}
+
+/* ── CENTER ── */
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chd{background:var(--wh);border-bottom:1px solid var(--bd);padding:14px 24px}
+.chd-row1{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.chd-code{font-size:28px;font-weight:900;font-family:'SF Mono',Menlo,monospace;color:var(--bl)}
+.chd-nm{font-size:16px;font-weight:800;color:var(--g8)}
+.chd-meta{display:flex;gap:6px;flex-wrap:wrap}
+.cm{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:14px;font-size:9px;font-weight:600}
+.cm .v{font-weight:800}
+.cbody{flex:1;overflow-y:auto;padding:18px 24px}
+
+/* 과정코드 테이블 */
+.ct{width:100%;border-collapse:separate;border-spacing:0;background:var(--wh);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.ct th{padding:10px 14px;font-size:10px;font-weight:700;color:var(--g5);text-align:left;background:var(--g1);border-bottom:2px solid var(--bd);white-space:nowrap}
+.ct td{padding:10px 14px;border-bottom:1px solid #F3F4F6;font-size:12px;vertical-align:middle;white-space:nowrap}
+.ct tr:last-child td{border-bottom:none}
+.ct tr:hover td{background:#FAFBFF}
+.ct tr.on td{background:var(--blb)}
+.ct-code{font-weight:900;font-family:'SF Mono',Menlo,monospace;font-size:14px;color:var(--bl);cursor:pointer;letter-spacing:.5px}
+.ct-code:hover{text-decoration:underline}
+.ct-nm{font-weight:600;color:var(--g7);font-size:12px}
+.ct-sets{font-size:11px;font-weight:700;color:var(--g5);text-align:center}
+.ct-src{font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px}
+.ct-sys{display:flex;gap:4px;flex-wrap:wrap}
+.ct-sys-chip{font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;display:inline-flex;align-items:center;gap:3px}
+.ct-add{text-align:center;padding:10px;color:var(--bl);font-weight:700;font-size:11px;cursor:pointer}
+.ct-add:hover{background:var(--blb)}
+
+/* 시스템 연결 카드 */
+.sys-section{margin-bottom:16px}
+.sys-section-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:13px;font-weight:800}
+.sys-row{display:flex;gap:8px;flex-wrap:wrap}
+.sys-card{flex:1;min-width:180px;border:1.5px solid var(--bd);border-radius:8px;padding:10px 12px;transition:.15s}
+.sys-card:hover{border-color:var(--bl)}
+.sys-card.active{border-color:var(--bl);background:var(--blb)}
+.sys-card.off{opacity:.4;background:var(--g1)}
+.sys-card-hd{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sys-card-ico{font-size:14px}.sys-card-nm{font-size:11px;font-weight:800;flex:1}
+.sys-card-tag{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px}
+.sys-card-desc{font-size:9px;color:var(--g5);line-height:1.4}
+
+/* 세트 상세 */
+.set-strip{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.set-chip{padding:5px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--wh);font-size:10px;font-weight:700;cursor:pointer;transition:.12s;text-align:center}
+.set-chip:hover{border-color:var(--bl)}.set-chip.on{border-color:var(--bl);background:var(--bl);color:#fff}
+.set-chip .sn{font-size:11px;font-weight:800}.set-chip .sl{font-size:7px;color:var(--g4);font-family:monospace}
+.set-chip.on .sl{color:rgba(255,255,255,.7)}
+
+/* ── RIGHT ── */
+.right{width:320px;background:var(--wh);border-left:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.rhd{padding:12px 14px;border-bottom:1px solid var(--bd)}
+.rhd-t{font-size:13px;font-weight:800;margin-bottom:2px}.rhd-sub{font-size:9px;color:var(--g4)}
+.rbody{flex:1;overflow-y:auto;padding:12px 14px}
+.r-block{margin-bottom:14px}
+.r-block-t{font-size:10px;font-weight:800;color:var(--g6);margin-bottom:6px;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:.5px}
+.r-kv{display:flex;padding:4px 0;border-bottom:1px solid #F3F4F6;font-size:10px}
+.r-kv:last-child{border-bottom:none}
+.r-k{width:80px;color:var(--g5);font-weight:600;flex-shrink:0}.r-v{flex:1;font-weight:600;color:var(--g7)}
+.r-v.mono{font-family:'SF Mono',monospace;font-weight:800;color:var(--bl)}
+.r-sys-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--g1);border-radius:6px;margin-bottom:4px}
+.r-sys-ico{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.r-sys-info{flex:1}
+.r-sys-nm{font-size:10px;font-weight:700}.r-sys-model{font-size:8px;color:var(--g4)}
+.r-sys-stat{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px}
+
+/* 코드 경로 브레드크럼 */
+.bc{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--g4);margin-bottom:6px}
+.bc span{font-weight:800;color:var(--bl);font-family:'SF Mono',monospace}
+.bc .sep{color:var(--g3)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .18s ease}
+</style>
+</head>
+<body>
+<div class="top"><b>📚 CMS</b><div class="sep"></div><span class="sub">코드 관리 — 과목코드(제품) 중심</span><span class="ver">v3</span></div>
+<div class="wrap">
+  <div class="left">
+    <div class="lhd">
+      <div class="lhd-top"><span class="lhd-t">과목코드</span><span class="lhd-cnt" id="lCnt"></span></div>
+      <div class="lhd-stats" id="lStats"></div>
+    </div>
+    <div class="lsrch"><input placeholder="코드 또는 제품명 검색..." id="lSearch" oninput="filterList()"></div>
+    <div class="llist" id="lList"></div>
+    <div class="lfoot"><button class="btn btn-p btn-sm">＋ 과목코드 추가</button><span style="flex:1"></span><span style="font-size:8px;color:var(--g4)" id="lTotal"></span></div>
+  </div>
+  <div class="center"><div class="chd" id="cHd"></div><div class="cbody" id="cBody"></div></div>
+  <div class="right"><div class="rhd" id="rHd"></div><div class="rbody" id="rBody"></div></div>
+</div>
+<script>
+// ══════════════════════════════════
+// 시스템
+// ══════════════════════════════════
+const SYS=[
+  {id:'nd',name:'뉴드림스',icon:'🌟',color:'#2563EB',bg:'#EFF6FF',model:'지류 보조 (유형 기반)'},
+  {id:'hg',name:'학습관',icon:'📱',color:'#7C3AED',bg:'#F5F3FF',model:'디지털 학습'},
+  {id:'sj',name:'성장판',icon:'📊',color:'#059669',bg:'#ECFDF5',model:'학습 분석'},
+  {id:'n3',name:'눈높이 365',icon:'📅',color:'#D97706',bg:'#FFFBEB',model:'구독 학습'},
+];
+
+// ══════════════════════════════════
+// 과목코드 = 제품 단위
+// ══════════════════════════════════
+const PRODUCTS=[
+  {code:'K',  name:'눈높이 국어',      children:['PSK'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg','n3']},
+     {code:'F',  name:'심화과정',  src:'batch',sets:6,sys:['nd','hg']},
+     {code:'GA', name:'특별과정A',src:'batch',sets:4,sys:['nd']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:true}},
+
+  {code:'M',  name:'눈높이 수학',      children:['MV'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg','sj','n3']},
+     {code:'F',  name:'심화과정',  src:'batch',sets:6,sys:['nd','hg','sj']},
+     {code:'GA', name:'고급과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:true,sj:true,n3:true}},
+
+  {code:'E',  name:'눈높이 영어',      children:[],
+   courses:[
+     {code:'NE1',name:'NE1 기초',  src:'batch',sets:6,sys:['nd','hg','n3']},
+     {code:'NE2',name:'NE2 심화',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:true}},
+
+  {code:'H',  name:'눈높이 한자',      children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:false}},
+
+  {code:'SO', name:'눈높이 과학',      children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:false}},
+
+  {code:'NSH',name:'써밋 사회역사',    children:[],
+   courses:[
+     {code:'GA', name:'기본',      src:'batch',sets:6,sys:['nd']},
+     {code:'GB', name:'심화',      src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+
+  {code:'MZ', name:'코어 수학',        children:['PSM'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg','sj']},
+     {code:'F',  name:'심화과정',  src:'batch',sets:6,sys:['nd','sj']},
+   ],
+   sys:{nd:true,hg:true,sj:true,n3:false}},
+
+  {code:'LN', name:'한글똒똑',         children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:false}},
+
+  {code:'AN', name:'영어똑똑',         children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+
+  {code:'DN', name:'수학똑똑',         children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+
+  {code:'BN', name:'놀이똑똑',         children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+
+  {code:'QR', name:'창의독서프리미엄',  children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:false}},
+
+  {code:'IL', name:'아이리스닝',       children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','hg']},
+   ],
+   sys:{nd:true,hg:true,sj:false,n3:false}},
+
+  {code:'PMA',name:'스쿨수학',         children:['PMB'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','sj']},
+   ],
+   sys:{nd:true,hg:false,sj:true,n3:false}},
+
+  {code:'AM', name:'써밋스피드수학',    children:['AMA','AMB','AMP'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+
+  {code:'AQ', name:'사고력코딩',       children:['AQ2','AQD'],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd','sj']},
+   ],
+   sys:{nd:true,hg:false,sj:true,n3:false}},
+
+  {code:'HK', name:'눈높이 한국사',    children:[],
+   courses:[
+     {code:'E',  name:'기본과정',  src:'batch',sets:6,sys:['nd']},
+   ],
+   sys:{nd:true,hg:false,sj:false,n3:false}},
+];
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let ST={sel:'K',selCourse:null,selSet:null,search:''};
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function rndr(){rndrList();rndrCenter();rndrRight();}
+
+function filterList(){ST.search=document.getElementById('lSearch').value.toLowerCase();rndrList();}
+
+function rndrList(){
+  const el=document.getElementById('lList');
+  const filtered=PRODUCTS.filter(p=>
+    !ST.search||p.code.toLowerCase().includes(ST.search)||p.name.includes(ST.search)
+  );
+  let h='';
+  filtered.forEach(p=>{
+    const isOn=ST.sel===p.code;
+    const sysCnt=SYS.filter(s=>p.sys[s.id]).length;
+    const courseCnt=p.courses.length;
+    h+=`<div class="sk ${isOn?'on':''}" onclick="selProduct('${p.code}')">
+      <div class="sk-top">
+        <span class="sk-code">${p.code}</span>
+        <span class="sk-nm">${p.name}</span>
+        <span class="sk-cnt">${courseCnt}과정</span>
+      </div>
+      <div class="sk-bot">
+        <span class="sk-sys">${SYS.map(s=>`<span class="sk-sys-dot" style="background:${p.sys[s.id]?s.color:'#E2E8F0'}" title="${s.name}">${p.sys[s.id]?'✓':''}</span>`).join('')}</span>
+        ${p.children.length?`<span class="sk-child">하위: ${p.children.join(', ')}</span>`:''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+  document.getElementById('lCnt').textContent=filtered.length+'개';
+  document.getElementById('lTotal').textContent=PRODUCTS.length+'개 전체';
+
+  // 상단 통계
+  const totalCourses=PRODUCTS.reduce((a,p)=>a+p.courses.length,0);
+  document.getElementById('lStats').innerHTML=`
+    <span class="lhd-stat" style="background:var(--blb);color:var(--bl)">${PRODUCTS.length}개 과목코드</span>
+    <span class="lhd-stat" style="background:var(--pub);color:var(--pu)">${totalCourses}개 과정</span>
+    <span class="lhd-stat" style="background:var(--gnb);color:var(--gn)">${SYS.length}개 시스템</span>
+  `;
+}
+
+function selProduct(code){ST.sel=code;ST.selCourse=null;ST.selSet=null;rndr();}
+function selCourse(cc){ST.selCourse=ST.selCourse===cc?null:cc;ST.selSet=null;rndr();}
+function selSet(n){ST.selSet=ST.selSet===n?null:n;rndr();}
+
+// ── CENTER ──
+function rndrCenter(){
+  const p=PRODUCTS.find(x=>x.code===ST.sel);
+  if(!p) return;
+  const sysCnt=SYS.filter(s=>p.sys[s.id]).length;
+
+  // 브레드크럼
+  let bcHtml=`<span>${p.code}</span>`;
+  if(ST.selCourse) bcHtml+=` <span class="sep">›</span> <span>${ST.selCourse}</span>`;
+  if(ST.selSet) bcHtml+=` <span class="sep">›</span> <span>${ST.selSet}세트</span>`;
+
+  document.getElementById('cHd').innerHTML=`
+    <div class="bc">${bcHtml}</div>
+    <div class="chd-row1">
+      <span class="chd-code">${p.code}</span>
+      <div><div class="chd-nm">${p.name}</div>
+      <div style="font-size:10px;color:var(--g4)">${p.courses.length}개 과정 · ${sysCnt}개 시스템 연결${p.children.length?' · 하위과목: '+p.children.join(', '):''}</div></div>
+    </div>
+    <div class="chd-meta">
+      ${SYS.map(s=>`<div class="cm" style="background:${p.sys[s.id]?s.bg:'var(--g2)'}"><span class="v" style="color:${p.sys[s.id]?s.color:'var(--g4)'}">${s.icon} ${s.name}</span></div>`).join('')}
+    </div>`;
+
+  let h='';
+
+  // ── 과정코드 테이블 ──
+  h+=`<div class="sys-section"><div class="sys-section-hd">📋 과정코드</div>`;
+  h+=`<table class="ct"><thead><tr>
+    <th style="width:100px">과정코드</th>
+    <th style="width:auto">과정명</th>
+    <th style="width:70px;text-align:center">세트</th>
+    <th style="width:60px;text-align:center">수신</th>
+    <th style="min-width:200px">시스템</th>
+    <th style="width:36px"></th>
+  </tr></thead><tbody>`;
+  p.courses.forEach(c=>{
+    const isOn=ST.selCourse===c.code;
+    h+=`<tr class="${isOn?'on':''}">
+      <td><span class="ct-code" onclick="selCourse('${c.code}')">${c.code}</span></td>
+      <td class="ct-nm">${c.name}</td>
+      <td class="ct-sets" style="text-align:center">${c.sets}세트</td>
+      <td style="text-align:center"><span class="ct-src" style="background:${c.src==='batch'?'var(--gnb)':'var(--orb)'};color:${c.src==='batch'?'var(--gn)':'var(--or)'};">${c.src==='batch'?'배치':'수동'}</span></td>
+      <td><div class="ct-sys">${c.sys.map(sid=>{const s=SYS.find(x=>x.id===sid);return s?`<span class="ct-sys-chip" style="background:${s.bg};color:${s.color}">${s.icon} ${s.name}</span>`:'';}).join('')}</div></td>
+      <td style="text-align:center;cursor:pointer;font-size:12px;opacity:.4" title="설정">⚙</td>
+    </tr>`;
+  });
+  h+=`<tr><td colspan="6" class="ct-add">＋ 과정코드 추가</td></tr>`;
+  h+=`</tbody></table></div>`;
+
+  // ── 과정 선택 시: 세트 ──
+  if(ST.selCourse){
+    const c=p.courses.find(x=>x.code===ST.selCourse);
+    if(c){
+      h+=`<div class="sys-section"><div class="sys-section-hd">📦 ${ST.selCourse} 세트 구성</div>`;
+      h+=`<div class="set-strip">`;
+      for(let i=1;i<=c.sets;i++){
+        h+=`<div class="set-chip ${ST.selSet===i?'on':''}" onclick="selSet(${i})">
+          <div class="sn">${i}세트</div>
+          <div class="sl">${p.code}-${c.code}-S${i}</div>
+        </div>`;
+      }
+      h+=`</div></div>`;
+
+      // 시스템별 콘텐츠 현황
+      h+=`<div class="sys-section"><div class="sys-section-hd">🏢 시스템별 콘텐츠 현황 <span style="font-size:9px;font-weight:400;color:var(--g4)">과정 ${ST.selCourse}${ST.selSet?' > '+ST.selSet+'세트':''}</span></div>`;
+      h+=`<div class="sys-row">`;
+      c.sys.forEach(sid=>{
+        const s=SYS.find(x=>x.id===sid);if(!s) return;
+        h+=`<div class="sys-card active">
+          <div class="sys-card-hd">
+            <span class="sys-card-ico">${s.icon}</span>
+            <span class="sys-card-nm" style="color:${s.color}">${s.name}</span>
+            <span class="sys-card-tag" style="background:${s.bg};color:${s.color}">${s.model}</span>
+          </div>
+          <div class="sys-card-desc">${getSysContentSummary(sid,p.code)}</div>
+        </div>`;
+      });
+      // 미연결 시스템
+      SYS.filter(s=>!c.sys.includes(s.id)).forEach(s=>{
+        h+=`<div class="sys-card off">
+          <div class="sys-card-hd">
+            <span class="sys-card-ico">${s.icon}</span>
+            <span class="sys-card-nm">${s.name}</span>
+          </div>
+          <div class="sys-card-desc" style="color:var(--g4)">이 과정에 미연결</div>
+        </div>`;
+      });
+      h+=`</div></div>`;
+    }
+  }
+
+  // ── 시스템 연결 관리 (과목 레벨) ──
+  if(!ST.selCourse){
+    h+=`<div class="sys-section"><div class="sys-section-hd">🏢 시스템 연결</div>`;
+    h+=`<div class="sys-row">`;
+    SYS.forEach(s=>{
+      const on=p.sys[s.id];
+      h+=`<div class="sys-card ${on?'active':'off'}">
+        <div class="sys-card-hd">
+          <span class="sys-card-ico">${s.icon}</span>
+          <span class="sys-card-nm" style="color:${on?s.color:'var(--g4)'}">${s.name}</span>
+          <span class="sys-card-tag" style="background:${on?s.bg:'var(--g2)'};color:${on?s.color:'var(--g4)'};">${on?'✓ 연결':'미사용'}</span>
+        </div>
+        <div class="sys-card-desc">${on?getSysContentSummary(s.id,p.code):'이 과목코드와 연결되지 않음'}</div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  document.getElementById('cBody').innerHTML=h;
+}
+
+function getSysContentSummary(sysId,prodCode){
+  if(sysId==='nd') return '지류 보조: 교재가 제공하지 못하는 음원, 해설, 정답 등을 유형별로 등록';
+  if(sysId==='hg') return '디지털 학습: 커리큘럼 입력, PDF 페이지 매핑, 영상 강의 등 학습자용 콘텐츠';
+  if(sysId==='sj') return '학습 분석: 평가 데이터 연계, 학습 현황 분석 콘텐츠';
+  if(sysId==='n3') return '구독 학습: 일일학습, 복습 콘텐츠 등 구독 서비스용';
+  return '';
+}
+
+// ── RIGHT ──
+function rndrRight(){
+  const p=PRODUCTS.find(x=>x.code===ST.sel);
+  if(!p) return;
+
+  document.getElementById('rHd').innerHTML=`
+    <div class="rhd-t">📋 코드 상세</div>
+    <div class="rhd-sub">${ST.selCourse?p.code+' > '+ST.selCourse+(ST.selSet?' > '+ST.selSet+'세트':''):p.code+' '+p.name}</div>
+  `;
+
+  let h='';
+
+  // 코드 정보
+  h+=`<div class="r-block"><div class="r-block-t">📂 코드 정보</div>`;
+  h+=`<div class="r-kv"><span class="r-k">과목코드</span><span class="r-v mono">${p.code}</span></div>`;
+  h+=`<div class="r-kv"><span class="r-k">제품명</span><span class="r-v">${p.name}</span></div>`;
+  if(p.children.length) h+=`<div class="r-kv"><span class="r-k">하위과목</span><span class="r-v mono">${p.children.join(', ')}</span></div>`;
+  h+=`<div class="r-kv"><span class="r-k">과정 수</span><span class="r-v">${p.courses.length}개</span></div>`;
+  const totalSets=p.courses.reduce((a,c)=>a+c.sets,0);
+  h+=`<div class="r-kv"><span class="r-k">전체 세트</span><span class="r-v">${totalSets}개</span></div>`;
+  h+=`</div>`;
+
+  // 선택된 과정
+  if(ST.selCourse){
+    const c=p.courses.find(x=>x.code===ST.selCourse);
+    if(c){
+      h+=`<div class="r-block"><div class="r-block-t">📚 과정 정보</div>`;
+      h+=`<div class="r-kv"><span class="r-k">과정코드</span><span class="r-v mono">${c.code}</span></div>`;
+      h+=`<div class="r-kv"><span class="r-k">과정명</span><span class="r-v">${c.name}</span></div>`;
+      h+=`<div class="r-kv"><span class="r-k">세트 수</span><span class="r-v">${c.sets}세트</span></div>`;
+      h+=`<div class="r-kv"><span class="r-k">수신방식</span><span class="r-v">${c.src==='batch'?'⬇ 배치 수신':'📝 수동 등록'}</span></div>`;
+      h+=`<div class="r-kv"><span class="r-k">전체 코드</span><span class="r-v mono">${p.code}-${c.code}</span></div>`;
+      if(ST.selSet) h+=`<div class="r-kv"><span class="r-k">세트 코드</span><span class="r-v mono">${p.code}-${c.code}-S${ST.selSet}</span></div>`;
+      h+=`</div>`;
+    }
+  }
+
+  // 시스템 연결 현황
+  h+=`<div class="r-block"><div class="r-block-t">🏢 시스템 연결</div>`;
+  SYS.forEach(s=>{
+    const on=p.sys[s.id];
+    // 과정 수준 연결 확인
+    const linkedCourses=p.courses.filter(c=>c.sys.includes(s.id)).length;
+    h+=`<div class="r-sys-item" style="background:${on?s.bg:'var(--g1)'}">
+      <div class="r-sys-ico" style="background:${on?s.color:'var(--g3)'}; color:#fff">${s.icon}</div>
+      <div class="r-sys-info">
+        <div class="r-sys-nm" style="color:${on?s.color:'var(--g4)'}">${s.name}</div>
+        <div class="r-sys-model">${on?s.model+' · '+linkedCourses+'/'+p.courses.length+'개 과정':'미연결'}</div>
+      </div>
+      <span class="r-sys-stat" style="background:${on?'var(--gnb)':'var(--g2)'};color:${on?'var(--gn)':'var(--g4)'};">${on?'연결':'—'}</span>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // 코드 경로 요약
+  h+=`<div class="r-block"><div class="r-block-t">🗂 코드 경로</div>`;
+  h+=`<div style="font-size:9px;color:var(--g5);line-height:1.8">`;
+  p.courses.forEach(c=>{
+    for(let i=1;i<=c.sets;i++){
+      h+=`<div style="font-family:monospace;display:flex;align-items:center;gap:4px">
+        <span style="color:var(--bl);font-weight:800">${p.code}</span>
+        <span style="color:var(--g3)">›</span>
+        <span style="color:var(--pu);font-weight:700">${c.code}</span>
+        <span style="color:var(--g3)">›</span>
+        <span style="color:var(--gn)">S${i}</span>
+        <span style="flex:1"></span>
+        <span style="display:flex;gap:1px">${c.sys.map(sid=>{const s=SYS.find(x=>x.id===sid);return s?`<span style="width:6px;height:6px;border-radius:2px;background:${s.color}" title="${s.name}"></span>`:''}).join('')}</span>
+      </div>`;
+    }
+  });
+  h+=`</div></div>`;
+
+  document.getElementById('rBody').innerHTML=h;
+}
+
+rndr();
+</script>
+</body>
+</html>

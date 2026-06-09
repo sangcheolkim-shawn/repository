@@ -1,0 +1,683 @@
+<mxfile host="app.diagrams.net" modified="2026-04-29T10:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <!-- Page 1: 종속 구조 vs 참조 구조 비교 -->
+  <diagram id="dep-vs-ref" name="종속 vs 참조 구조">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title1" value="종속 구조 vs 참조 구조" style="text;html=1;fontSize=28;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="600" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle1" value="코드 의존 방식의 근본적 전환" style="text;html=1;fontSize=14;fontFamily=Noto Sans KR;fontColor=#64748B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="400" y="65" width="400" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== LEFT: 기존 종속 구조 ===== -->
+        <mxCell id="left_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FEF2F2;strokeColor=#FCA5A5;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="530" height="530" as="geometry"/>
+        </mxCell>
+        <mxCell id="left_header" value="" style="rounded=1;whiteSpace=wrap;fillColor=#DC2626;strokeColor=none;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="125" width="490" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="left_icon" value="✕" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#FFFFFF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="125" width="40" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="left_title" value="기존 : 종속 구조 (Dependency)" style="text;html=1;fontSize=16;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#FFFFFF;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="100" y="125" width="430" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- 수학 콘텐츠 = M(수학) -->
+        <mxCell id="l_content1" value="수학 콘텐츠" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="80" y="210" width="160" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_eq1" value="=" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#DC2626;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="210" width="40" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_code1" value="M (수학)" style="rounded=1;whiteSpace=wrap;fillColor=#DC2626;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="300" y="210" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <!-- 종속 화살표 (=) 강조 -->
+        <mxCell id="l_lock1" value="🔒" style="text;html=1;fontSize=16;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="210" width="40" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 영어 콘텐츠 = E(영어) -->
+        <mxCell id="l_content2" value="영어 콘텐츠" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="80" y="290" width="160" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_eq2" value="=" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#DC2626;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="290" width="40" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_code2" value="E (영어)" style="rounded=1;whiteSpace=wrap;fillColor=#DC2626;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="300" y="290" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_lock2" value="🔒" style="text;html=1;fontSize=16;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="290" width="40" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 문제점 설명 -->
+        <mxCell id="l_problem_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#FCA5A5;arcSize=8;dashed=1;dashPattern=5 3;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="470" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_problem_icon" value="⚠️" style="text;html=1;fontSize=20;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="90" y="385" width="40" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_problem_title" value="문제점" style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#DC2626;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="130" y="385" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_problem1" value="• 코드가 변경되면 콘텐츠도 깨짐" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="100" y="415" width="400" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_problem2" value="• 1 콘텐츠 = 1 코드에 고정 (재사용 불가)" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="100" y="440" width="400" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_problem3" value="• 코드 정리 시 콘텐츠 재검증 필요" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="100" y="465" width="400" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 요약 -->
+        <mxCell id="l_summary" value="콘텐츠가 코드에 &lt;b&gt;종속&lt;/b&gt;되어 있음" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#DC2626;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="80" y="520" width="470" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== CENTER ARROW ===== -->
+        <mxCell id="center_arrow" value="" style="shape=mxgraph.arrows2.arrow;dy=0.6;dx=30;notch=0;fillColor=#F59E0B;strokeColor=none;rotation=0;" vertex="1" parent="1">
+          <mxGeometry x="575" y="340" width="50" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== RIGHT: 신규 참조 구조 ===== -->
+        <mxCell id="right_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#86EFAC;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="630" y="110" width="530" height="530" as="geometry"/>
+        </mxCell>
+        <mxCell id="right_header" value="" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="650" y="125" width="490" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="right_icon" value="🔗" style="text;html=1;fontSize=18;fontColor=#FFFFFF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="650" y="125" width="40" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="right_title" value="신규 : 참조 구조 (Reference)" style="text;html=1;fontSize=16;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#FFFFFF;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="690" y="125" width="430" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- "참조" 라벨 -->
+        <mxCell id="r_ref_label" value="참조 (링크)" style="text;html=1;fontSize=11;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="910" y="185" width="80" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- 수학 커리큘럼 → M, E -->
+        <mxCell id="r_content1" value="수학 커리큘럼" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="670" y="210" width="170" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_arrow1" value="→" style="text;html=1;fontSize=20;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="845" y="210" width="40" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_code1a" value="M" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="895" y="210" width="70" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_code1b" value="E" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="975" y="210" width="70" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 영어 커리큘럼 → E, ET1 -->
+        <mxCell id="r_content2" value="영어 커리큘럼" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="670" y="290" width="170" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_arrow2" value="→" style="text;html=1;fontSize=20;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="845" y="290" width="40" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_code2a" value="E" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="895" y="290" width="70" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_code2b" value="ET1" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="975" y="290" width="70" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 추가: MV 독립 코드 -->
+        <mxCell id="r_arrow3" value="→" style="text;html=1;fontSize=20;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="845" y="355" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_code3" value="MV" style="rounded=1;whiteSpace=wrap;fillColor=#F59E0B;strokeColor=none;fontFamily=Noto Sans KR;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="895" y="355" width="70" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- 장점 설명 -->
+        <mxCell id="r_benefit_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#86EFAC;arcSize=8;dashed=1;dashPattern=5 3;" vertex="1" parent="1">
+          <mxGeometry x="670" y="420" width="470" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_benefit_icon" value="✅" style="text;html=1;fontSize=18;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="425" width="40" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_benefit_title" value="장점" style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#059669;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="720" y="425" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_benefit1" value="• 코드가 변경되어도 콘텐츠는 그대로" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="690" y="455" width="400" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_benefit2" value="• 1 콘텐츠 → N개 코드 자유 연결" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="690" y="480" width="400" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_benefit3" value="• 운영하면서 코드 체계가 자연스럽게 정돈" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="690" y="505" width="400" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 요약 -->
+        <mxCell id="r_summary" value="콘텐츠가 코드를 &lt;b&gt;참조&lt;/b&gt;로만 연결" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="555" width="470" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 강조 메시지 -->
+        <mxCell id="bottom_msg" value="핵심 : 콘텐츠를 옮기는 것이 아니라, &lt;b&gt;연결 방식&lt;/b&gt;만 바꾸는 것입니다." style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="200" y="660" width="800" height="35" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 2: 전환 3단계 시나리오 -->
+  <diagram id="scenario-3step" name="전환 시나리오 3단계">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="s_title" value="기존 콘텐츠가 새 시스템에서 동작하는 과정" style="text;html=1;fontSize=26;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="150" y="30" width="900" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_subtitle" value="콘텐츠 내용 변경 없이 연결 방식만 전환합니다" style="text;html=1;fontSize=14;fontFamily=Noto Sans KR;fontColor=#64748B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="75" width="600" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== STEP 1 ===== -->
+        <mxCell id="s1_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="340" height="380" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_bar" value="" style="rounded=0;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="340" height="6" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_badge" value="STEP 1" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontFamily=Noto Sans KR;fontSize=13;fontStyle=1;fontColor=#FFFFFF;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="165" width="90" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_title" value="콘텐츠 이전" style="text;html=1;fontSize=22;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="215" width="300" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_line" value="" style="line;strokeColor=#0D9488;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="258" width="80" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 1 내부 다이어그램: DB 복사 -->
+        <mxCell id="s1_db_old" value="기존 DB" style="shape=cylinder3;whiteSpace=wrap;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#F1F5F9;strokeColor=#94A3B8;fontFamily=Noto Sans KR;fontSize=11;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="80" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_arrow_db" value="" style="endArrow=block;endFill=1;strokeColor=#0D9488;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="307" as="sourcePoint"/>
+            <mxPoint x="230" y="307" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s1_copy_label" value="그대로&#xa;복사" style="text;html=1;fontSize=10;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="172" y="280" width="55" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_db_new" value="새 DB" style="shape=cylinder3;whiteSpace=wrap;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#F0FDF4;strokeColor=#0D9488;fontFamily=Noto Sans KR;fontSize=11;fontColor=#065F46;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="237" y="280" width="80" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s1_desc1" value="기존 콘텐츠 (커리큘럼 + 양식)를" style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="360" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_desc2" value="새 DB로 그대로 복사합니다." style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="382" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1_highlight" value="내용 변경 없음" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#059669;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="130" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow 1→2 -->
+        <mxCell id="s_arr12" value="" style="shape=mxgraph.arrows2.arrow;dy=0.6;dx=20;notch=0;fillColor=#F59E0B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="387" y="310" width="36" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== STEP 2 ===== -->
+        <mxCell id="s2_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="140" width="340" height="380" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_bar" value="" style="rounded=0;whiteSpace=wrap;fillColor=#059669;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="430" y="140" width="340" height="6" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_badge" value="STEP 2" style="rounded=1;whiteSpace=wrap;fillColor=#059669;strokeColor=none;fontFamily=Noto Sans KR;fontSize=13;fontStyle=1;fontColor=#FFFFFF;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="450" y="165" width="90" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_title" value="상품코드 연결" style="text;html=1;fontSize=22;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="215" width="300" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_line" value="" style="line;strokeColor=#059669;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="450" y="258" width="80" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 2 내부 다이어그램: 링크 연결 -->
+        <mxCell id="s2_content" value="콘텐츠" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#065F46;" vertex="1" parent="1">
+          <mxGeometry x="460" y="280" width="90" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_link_arr" value="" style="endArrow=block;endFill=1;strokeColor=#059669;strokeWidth=2;dashed=1;dashPattern=4 3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="300" as="sourcePoint"/>
+            <mxPoint x="615" y="300" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s2_link_label" value="참조" style="text;html=1;fontSize=10;fontFamily=Noto Sans KR;fontColor=#059669;align=center;verticalAlign=middle;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="562" y="280" width="45" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_code_m" value="M" style="rounded=1;whiteSpace=wrap;fillColor=#059669;strokeColor=none;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="620" y="280" width="50" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_code_e" value="E" style="rounded=1;whiteSpace=wrap;fillColor=#059669;strokeColor=none;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="680" y="280" width="50" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s2_desc1" value="운영 중인 상품코드를" style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="360" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_desc2" value="콘텐츠에 참조로 연결합니다." style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="450" y="382" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2_highlight" value="기존 코드 그대로 사용" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#059669;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#059669;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="450" y="420" width="160" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow 2→3 -->
+        <mxCell id="s_arr23" value="" style="shape=mxgraph.arrows2.arrow;dy=0.6;dx=20;notch=0;fillColor=#F59E0B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="777" y="310" width="36" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== STEP 3 ===== -->
+        <mxCell id="s3_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="340" height="380" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_bar" value="" style="rounded=0;whiteSpace=wrap;fillColor=#F59E0B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="340" height="6" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_badge" value="STEP 3" style="rounded=1;whiteSpace=wrap;fillColor=#F59E0B;strokeColor=none;fontFamily=Noto Sans KR;fontSize=13;fontStyle=1;fontColor=#FFFFFF;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="840" y="165" width="90" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_title" value="유기적 운영" style="text;html=1;fontSize=22;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="840" y="215" width="300" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_line" value="" style="line;strokeColor=#F59E0B;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="258" width="80" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 3 내부 다이어그램: 유기적 연결 -->
+        <mxCell id="s3_hub" value="콘텐츠" style="ellipse;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#F59E0B;fontFamily=Noto Sans KR;fontSize=11;fontStyle=1;fontColor=#92400E;" vertex="1" parent="1">
+          <mxGeometry x="910" y="275" width="70" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_c1" value="M" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="855" y="280" width="40" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_c2" value="E" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="995" y="280" width="40" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_c3" value="NEW" style="rounded=1;whiteSpace=wrap;fillColor=#F59E0B;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="995" y="318" width="40" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_link1" value="" style="endArrow=none;strokeColor=#94A3B8;strokeWidth=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="910" y="300" as="sourcePoint"/>
+            <mxPoint x="895" y="300" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s3_link2" value="" style="endArrow=none;strokeColor=#94A3B8;strokeWidth=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="980" y="300" as="sourcePoint"/>
+            <mxPoint x="995" y="296" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s3_link3" value="" style="endArrow=none;strokeColor=#94A3B8;strokeWidth=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="315" as="sourcePoint"/>
+            <mxPoint x="995" y="330" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="s3_desc1" value="새 코드 추가, 기존 코드 변경," style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="840" y="360" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_desc2" value="다중 시스템 연결 — 모두" style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="840" y="382" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_desc3" value="콘텐츠 수정 없이 가능합니다." style="text;html=1;fontSize=12;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="840" y="404" width="300" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_highlight" value="별도 정리 작업 불필요" style="rounded=1;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#F59E0B;fontFamily=Noto Sans KR;fontSize=12;fontStyle=1;fontColor=#92400E;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="840" y="440" width="155" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 요약 -->
+        <mxCell id="s_bottom" value="콘텐츠 팀의 추가 검증 작업은 어디에도 필요하지 않습니다." style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="560" width="700" height="30" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 3: 설계가 보장하는 4가지 안전 요소 -->
+  <diagram id="safety-4" name="설계 안전 4요소">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="f_title" value="설계 자체가 콘텐츠 안전을 보장합니다" style="text;html=1;fontSize=26;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="25" width="800" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="f_subtitle" value="추가 검증이 필요 없는 4가지 이유" style="text;html=1;fontSize=14;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="70" width="400" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Card 1: 콘텐츠 = 독립 객체 -->
+        <mxCell id="f1_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="555" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_accent" value="" style="rounded=0;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="6" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_num" value="01" style="text;html=1;fontSize=36;fontStyle=1;fontColor=#0D9488;align=left;verticalAlign=middle;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="70" y="135" width="80" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_title" value="콘텐츠 = 독립 객체" style="text;html=1;fontSize=20;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="185" width="500" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_desc1" value="커리큘럼과 양식이 상품코드와 분리되어" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="225" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_desc2" value="독립적으로 존재합니다." style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="247" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_key" value="코드가 바뀌어도 콘텐츠 내용은 영향 받지 않습니다." style="text;html=1;fontSize=12;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#0D9488;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="280" width="500" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- Inline diagram for Card 1 -->
+        <mxCell id="f1_d_content" value="콘텐츠" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;fontSize=11;fontStyle=1;fontColor=#065F46;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="400" y="145" width="70" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_d_code" value="코드" style="rounded=1;whiteSpace=wrap;fillColor=#F1F5F9;strokeColor=#94A3B8;fontSize=11;fontColor=#475569;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="500" y="145" width="70" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_d_sep" value="⧸" style="text;html=1;fontSize=20;fontColor=#DC2626;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="470" y="145" width="30" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- Card 2: 바인딩 = 참조 링크 -->
+        <mxCell id="f2_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="605" y="120" width="555" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_accent" value="" style="rounded=0;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="605" y="120" width="6" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_num" value="02" style="text;html=1;fontSize=36;fontStyle=1;fontColor=#0D9488;align=left;verticalAlign=middle;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="635" y="135" width="80" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_title" value="바인딩 = 참조 링크" style="text;html=1;fontSize=20;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="185" width="500" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_desc1" value="상품코드 연결은 '참조'일 뿐입니다." style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="225" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_desc2" value="링크를 끊거나, 새로 걸어도," style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="247" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_key" value="콘텐츠 원본은 그대로입니다." style="text;html=1;fontSize=12;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#0D9488;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="280" width="500" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- Inline diagram for Card 2: link -->
+        <mxCell id="f2_d_a" value="A" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;fontSize=12;fontStyle=1;fontColor=#065F46;" vertex="1" parent="1">
+          <mxGeometry x="990" y="140" width="45" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_d_b" value="B" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;fontSize=12;fontStyle=1;fontColor=#065F46;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="140" width="45" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2_d_link" value="" style="endArrow=none;strokeColor=#0D9488;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1035" y="155" as="sourcePoint"/>
+            <mxPoint x="1060" y="155" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Card 3: 양식 = 전달 단위 -->
+        <mxCell id="f3_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="555" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_accent" value="" style="rounded=0;whiteSpace=wrap;fillColor=#059669;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="6" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_num" value="03" style="text;html=1;fontSize=36;fontStyle=1;fontColor=#059669;align=left;verticalAlign=middle;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="70" y="395" width="80" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_title" value="양식 = 전달 단위" style="text;html=1;fontSize=20;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="445" width="500" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_desc1" value="같은 콘텐츠를 뉴드림스, 눈높이, 성장판 등" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="485" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_desc2" value="여러 시스템에 양식 단위로 독립 전달합니다." style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="507" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_key" value="시스템별 맞춤 전달, 원본은 하나." style="text;html=1;fontSize=12;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#059669;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="540" width="500" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- Card 3 mini diagram -->
+        <mxCell id="f3_d_form" value="양식" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#059669;fontSize=10;fontStyle=1;fontColor=#065F46;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="395" y="400" width="55" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_d_nd" value="ND" style="rounded=1;whiteSpace=wrap;fillColor=#E8F2FF;strokeColor=#0055B8;fontSize=9;fontStyle=1;fontColor=#0055B8;" vertex="1" parent="1">
+          <mxGeometry x="480" y="390" width="40" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_d_nh" value="NH" style="rounded=1;whiteSpace=wrap;fillColor=#F9F0FF;strokeColor=#8944AB;fontSize=9;fontStyle=1;fontColor=#8944AB;" vertex="1" parent="1">
+          <mxGeometry x="480" y="416" width="40" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3_arr_nd" value="" style="endArrow=block;endFill=1;strokeColor=#94A3B8;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="408" as="sourcePoint"/>
+            <mxPoint x="480" y="401" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f3_arr_nh" value="" style="endArrow=block;endFill=1;strokeColor=#94A3B8;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="418" as="sourcePoint"/>
+            <mxPoint x="480" y="427" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Card 4: 유형코드 = 자동 파생 -->
+        <mxCell id="f4_card" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="605" y="380" width="555" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_accent" value="" style="rounded=0;whiteSpace=wrap;fillColor=#059669;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="605" y="380" width="6" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_num" value="04" style="text;html=1;fontSize=36;fontStyle=1;fontColor=#059669;align=left;verticalAlign=middle;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="635" y="395" width="80" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_title" value="유형코드 = 자동 파생" style="text;html=1;fontSize=20;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="445" width="500" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_desc1" value="기존 ANS, CBT 등 유형코드는 양식 선택 시" style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="485" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_desc2" value="자동 생성됩니다." style="text;html=1;fontSize=13;fontFamily=Noto Sans KR;fontColor=#64748B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="507" width="500" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_key" value="레거시 시스템과의 호환이 설계에 내장되어 있습니다." style="text;html=1;fontSize=12;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#059669;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="635" y="540" width="500" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- Card 4 mini diagram -->
+        <mxCell id="f4_d_form" value="양식 선택" style="rounded=1;whiteSpace=wrap;fillColor=#F1F5F9;strokeColor=#94A3B8;fontSize=10;fontColor=#475569;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="980" y="400" width="70" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_d_arrow" value="→" style="text;html=1;fontSize=16;fontColor=#059669;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1052" y="400" width="25" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_d_code" value="ANS" style="rounded=1;whiteSpace=wrap;fillColor=#059669;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="400" width="50" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4_d_auto" value="자동" style="text;html=1;fontSize=9;fontColor=#059669;align=center;verticalAlign=middle;fontStyle=2;fontFamily=Noto Sans KR;" vertex="1" parent="1">
+          <mxGeometry x="1052" y="385" width="25" height="15" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 강조 -->
+        <mxCell id="f_bottom" value="별도의 검증 프로세스 없이, 아키텍처 자체가 콘텐츠를 보호합니다." style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="650" width="700" height="35" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 4: 달라지는 것 vs 달라지지 않는 것 -->
+  <diagram id="change-nochange" name="변화 vs 불변">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="c_title" value="콘텐츠팀의 일상 업무 관점에서" style="text;html=1;fontSize=26;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#1E293B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="25" width="700" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_subtitle" value="전환 후 달라지는 것과 달라지지 않는 것" style="text;html=1;fontSize=14;fontFamily=Noto Sans KR;fontColor=#64748B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="350" y="70" width="500" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== LEFT: 달라지지 않는 것 ===== -->
+        <mxCell id="c_left_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="555" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_left_header" value="" style="rounded=1;whiteSpace=wrap;fillColor=#0D9488;strokeColor=none;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="555" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_left_title" value="달라지지 않는 것" style="text;html=1;fontSize=18;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#FFFFFF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="555" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 1 -->
+        <mxCell id="c_l_icon1" value="✓" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="65" y="195" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_text1" value="기존에 작업한 콘텐츠 — 100% 보존" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="105" y="195" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_line1" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="65" y="238" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 2 -->
+        <mxCell id="c_l_icon2" value="✓" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="65" y="260" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_text2" value="커리큘럼 구조 (단계, 세트, 학습일)" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="105" y="260" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_line2" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="65" y="303" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 3 -->
+        <mxCell id="c_l_icon3" value="✓" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="65" y="325" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_text3" value="양식과 필드 구성" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="105" y="325" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_line3" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="65" y="368" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 4 -->
+        <mxCell id="c_l_icon4" value="✓" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="65" y="390" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_text4" value="작업 이력과 담당자 정보" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="105" y="390" width="460" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- 요약 박스 -->
+        <mxCell id="c_l_summary_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#F0FDF4;strokeColor=#0D9488;arcSize=12;dashed=1;dashPattern=5 3;" vertex="1" parent="1">
+          <mxGeometry x="65" y="460" width="500" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_l_summary" value="지금까지 쌓아온 모든 작업물이 그대로 유지됩니다." style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="65" y="460" width="500" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- ===== RIGHT: 좋아지는 것 ===== -->
+        <mxCell id="c_right_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#E5E7EB;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="605" y="120" width="555" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_right_header" value="" style="rounded=1;whiteSpace=wrap;fillColor=#F59E0B;strokeColor=none;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="605" y="120" width="555" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_right_title" value="좋아지는 것" style="text;html=1;fontSize=18;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#FFFFFF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="605" y="120" width="555" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 1 -->
+        <mxCell id="c_r_icon1" value="→" style="text;html=1;fontSize=18;fontStyle=1;fontColor=#F59E0B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="195" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_text1" value="하나의 콘텐츠를 여러 시스템에 동시 제공" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="195" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_line1" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="630" y="238" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 2 -->
+        <mxCell id="c_r_icon2" value="→" style="text;html=1;fontSize=18;fontStyle=1;fontColor=#F59E0B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="260" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_text2" value="상품코드 변경 시 콘텐츠 재작업 불필요" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="260" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_line2" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="630" y="303" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 3 -->
+        <mxCell id="c_r_icon3" value="→" style="text;html=1;fontSize=18;fontStyle=1;fontColor=#F59E0B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="325" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_text3" value="코드 체계가 운영하면서 자연 정돈" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="325" width="460" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_line3" value="" style="line;strokeColor=#E5E7EB;" vertex="1" parent="1">
+          <mxGeometry x="630" y="368" width="500" height="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Item 4 -->
+        <mxCell id="c_r_icon4" value="→" style="text;html=1;fontSize=18;fontStyle=1;fontColor=#F59E0B;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="390" width="35" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_text4" value="양식 단위로 세밀한 전달 관리 가능" style="text;html=1;fontSize=15;fontFamily=Noto Sans KR;fontColor=#1E293B;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="390" width="460" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- 요약 박스 -->
+        <mxCell id="c_r_summary_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#FEF3C7;strokeColor=#F59E0B;arcSize=12;dashed=1;dashPattern=5 3;" vertex="1" parent="1">
+          <mxGeometry x="630" y="460" width="500" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_r_summary" value="같은 노력으로 더 넓은 범위에 콘텐츠를 제공할 수 있습니다." style="text;html=1;fontSize=14;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#92400E;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="630" y="460" width="500" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- 하단 강조 메시지 -->
+        <mxCell id="c_bottom" value="콘텐츠는 건드리지 않습니다. 연결 방식만 바꿉니다." style="text;html=1;fontSize=16;fontStyle=1;fontFamily=Noto Sans KR;fontColor=#0D9488;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="660" width="700" height="35" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

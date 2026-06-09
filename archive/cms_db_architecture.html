@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS DB 아키텍처 — 정형 + 비정형 하이브리드</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#2563EB;--pl:#EFF6FF;--pb:#BFDBFE;--ph:#1D4ED8;
+  --g:#059669;--gl:#ECFDF5;--gb:#6EE7B7;
+  --a:#D97706;--al:#FFF7ED;--ab:#FED7AA;
+  --r:#DC2626;--rl:#FEF2F2;
+  --v:#7C3AED;--vl:#F5F3FF;--vb:#DDD6FE;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;--g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;--g900:#0F172A;
+  --bg:#F8F9FA;--sf:#FFFFFF;
+  --f:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;
+  --rd:8px;--rds:6px;--rdl:12px;
+  --sh:0 2px 6px rgba(60,64,67,.12),0 1px 3px rgba(60,64,67,.08);
+}
+body{font-family:var(--f);background:var(--bg);color:var(--g900);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+h1{font-size:18px;font-weight:800;margin-bottom:4px}
+h2{font-size:14px;font-weight:700;margin:24px 0 10px;display:flex;align-items:center;gap:6px}
+h2 .dot{width:8px;height:8px;border-radius:50%}
+.sub{font-size:12px;color:var(--g500);margin-bottom:20px}
+
+.tabs{display:flex;border-bottom:2px solid var(--g200);margin-bottom:16px}
+.tab{padding:8px 18px;font-size:12px;font-weight:500;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .12s}
+.tab:hover{color:var(--g700)}.tab.on{color:var(--p);font-weight:700;border-bottom-color:var(--p)}
+
+.card{background:var(--sf);border:1.5px solid var(--g200);border-radius:var(--rdl);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.card-h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.card-h .ic{font-size:16px}.card-h .t{font-size:13px;font-weight:700;flex:1}
+.card-sm{font-size:11px;color:var(--g500)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:6px 10px;text-align:left;font-weight:700;color:var(--g500);background:var(--g50);border-bottom:1.5px solid var(--g200);font-size:10px}
+.tbl td{padding:5px 10px;border-bottom:1px solid var(--g100)}
+.tbl tr:last-child td{border-bottom:none}
+
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.tag-p{background:var(--pl);color:var(--p);border:1px solid var(--pb)}
+.tag-g{background:var(--gl);color:var(--g);border:1px solid var(--gb)}
+.tag-a{background:var(--al);color:var(--a);border:1px solid var(--ab)}
+.tag-r{background:var(--rl);color:var(--r);border:1px solid #FCA5A5}
+.tag-v{background:var(--vl);color:var(--v);border:1px solid var(--vb)}
+.tag-gray{background:var(--g100);color:var(--g600);border:1px solid var(--g200)}
+
+.banner{padding:10px 14px;border-radius:var(--rdl);display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;font-size:12px;line-height:1.6}
+.banner-w{background:var(--al);border:1.5px solid var(--ab)}
+.banner-i{background:linear-gradient(135deg,var(--pl),var(--vl));border:1.5px solid var(--pb)}
+.banner .ic{font-size:16px;flex-shrink:0}
+.banner strong{color:var(--p)}
+
+.erd{display:grid;gap:10px}
+.erd-box{padding:12px;border-radius:var(--rd);border:2px solid}
+.erd-box h4{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.erd-cols{font-size:11px;line-height:1.8}
+.erd-col{display:flex;align-items:center;gap:4px}
+.erd-col .k{font-family:'JetBrains Mono',monospace;color:var(--g700);font-weight:600}
+.erd-col .t{color:var(--g400);font-size:10px}
+.erd-col .pk{color:var(--a);font-weight:700;font-size:9px}
+.erd-col .fk{color:var(--v);font-weight:700;font-size:9px}
+.erd-col .star{color:var(--r);font-size:9px}
+
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.flow-box{padding:6px 14px;border-radius:var(--rd);font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px}
+.flow-arrow{color:var(--g400);font-size:14px}
+
+.json-box{background:var(--g900);color:#E2E8F0;padding:12px 14px;border-radius:var(--rd);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;overflow-x:auto;white-space:pre}
+.json-key{color:#93C5FD}.json-str{color:#86EFAC}.json-num{color:#FDE68A}.json-null{color:#94A3B8}
+.json-comment{color:#64748B;font-style:italic}
+
+.sim{display:flex;gap:12px;margin-top:10px}
+.sim-panel{flex:1;min-width:0}
+.sim-h{font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+
+.sel{padding:5px 10px;border:1.5px solid var(--g200);border-radius:var(--rds);font-size:12px;outline:none;cursor:pointer;background:var(--sf);font-family:var(--f)}
+.sel:focus{border-color:var(--p)}
+.btn{padding:5px 12px;border-radius:var(--rds);font-size:11px;cursor:pointer;border:1px solid transparent;font-weight:600;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+.btn-p{background:var(--p);color:#fff}.btn-g{background:var(--sf);border-color:var(--g200);color:var(--g600)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>CMS DB 아키텍처 — 정형 + 비정형 하이브리드</h1>
+<div class="sub">필드를 자유 구성해도 DB에 문제가 없는 구조. 정형 데이터는 RDBMS 관계로, 유연 데이터는 JSONB로, 비정형은 별도 테이블로 관리합니다.</div>
+
+<div class="tabs">
+  <div class="tab on" onclick="showTab(0)">📊 ERD 구조</div>
+  <div class="tab" onclick="showTab(1)">🔄 데이터 흐름 시뮬레이션</div>
+  <div class="tab" onclick="showTab(2)">🔍 쿼리 테스트</div>
+</div>
+
+<div id="tab0">
+
+<!-- ═══ Problem ═══ -->
+<div class="banner banner-w">
+  <span class="ic">⚠️</span>
+  <div>
+    <strong style="color:var(--a)">기존 방식의 문제</strong>: 유형마다 고정 테이블(content_an2, content_cbt...)을 만들면, 운영자가 필드를 추가할 때마다 <code>ALTER TABLE</code>이 필요하고, 과목별 오버라이드 시 같은 유형인데 컬럼 수가 달라집니다. 19개 유형 × 29개 과목 = 관리 불가능.
+  </div>
+</div>
+
+<div class="banner banner-i">
+  <span class="ic">✅</span>
+  <div>
+    <strong>해결: JSONB 하이브리드</strong>: 고정 관계(subjects→courses→sets→content_items)는 RDBMS로, 가변 필드 값(field_values)은 <strong>JSONB</strong>로 저장합니다. 비정형 컨텍스트(메모/태그/링크)는 별도 테이블로 분리합니다.
+  </div>
+</div>
+
+<!-- ═══ ERD ═══ -->
+<h2><span class="dot" style="background:var(--p)"></span>테이블 구조</h2>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+  <!-- 정형 -->
+  <div>
+    <div style="font-size:10px;font-weight:700;color:var(--p);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">정형 테이블 (RDBMS 관계)</div>
+
+    <div class="erd-box" style="border-color:var(--pb);background:var(--pl)">
+      <h4>📚 subjects</h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="pk">PK</span> <span class="k">code</span> <span class="t">VARCHAR(10)</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">name</span> <span class="t">VARCHAR(50)</span></div>
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">parent_code</span> <span class="t">→ subjects</span></div>
+      </div>
+    </div>
+
+    <div class="erd-box" style="border-color:var(--pb);background:var(--pl)">
+      <h4>📖 courses</h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="pk">PK</span> <span class="k">id</span> <span class="t">SERIAL</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">course_code</span> <span class="t">VARCHAR(20)</span></div>
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">subject_code</span> <span class="t">→ subjects</span></div>
+        <div class="erd-col">&nbsp;&nbsp; <span class="k">source</span> <span class="t">'batch' | 'manual'</span></div>
+      </div>
+    </div>
+
+    <div class="erd-box" style="border-color:var(--pb);background:var(--pl)">
+      <h4>📁 sets</h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="pk">PK</span> <span class="k">id</span> <span class="t">SERIAL</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">set_code</span> <span class="t">VARCHAR(20)</span></div>
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">course_id</span> <span class="t">→ courses</span></div>
+      </div>
+    </div>
+
+    <div class="erd-box" style="border-color:var(--gb);background:var(--gl)">
+      <h4>📋 content_items</h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="pk">PK</span> <span class="k">id</span> <span class="t">SERIAL</span></div>
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">set_id</span> <span class="t">→ sets</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">type_code</span> <span class="t">'AN2','FLC'...</span></div>
+        <div class="erd-col">&nbsp;&nbsp; <span class="k">status</span> <span class="t">idle → live</span></div>
+        <div class="erd-col">&nbsp;&nbsp; <span class="k">assignee</span> <span class="t">VARCHAR</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 유연 + 비정형 -->
+  <div>
+    <div style="font-size:10px;font-weight:700;color:var(--a);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">유연 + 비정형 (JSONB & Text)</div>
+
+    <div class="erd-box" style="border-color:var(--ab);background:var(--al)">
+      <h4>⭐ content_data <span class="tag tag-a">JSONB</span></h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="pk">PK</span> <span class="k">id</span> <span class="t">SERIAL</span></div>
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">content_item_id</span> <span class="t">→ content_items</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">row_index</span> <span class="t">INT</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k" style="color:var(--a)">field_values</span> <span class="t" style="color:var(--a);font-weight:700">JSONB ← 핵심!</span></div>
+        <div class="erd-col">&nbsp;&nbsp; <span class="k">file_path</span> <span class="t">VARCHAR</span></div>
+      </div>
+    </div>
+
+    <div class="erd-box" style="border-color:var(--vb);background:var(--vl)">
+      <h4>💬 context_notes <span class="tag tag-v">비정형</span></h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">content_item_id</span> <span class="t">→ content_items</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">text</span> <span class="t">TEXT (전문검색)</span></div>
+        <div class="erd-col">&nbsp;&nbsp; <span class="k">is_pinned</span> <span class="t">BOOLEAN</span></div>
+      </div>
+    </div>
+
+    <div class="erd-box" style="border-color:var(--vb);background:var(--vl)">
+      <h4>🏷️ context_tags <span class="tag tag-v">비정형</span></h4>
+      <div class="erd-cols">
+        <div class="erd-col"><span class="fk">FK</span> <span class="k">content_item_id</span> <span class="t">→ content_items</span></div>
+        <div class="erd-col"><span class="star">*</span> <span class="k">tag</span> <span class="t">VARCHAR(50)</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;font-weight:700;color:var(--g500);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.06em">메타 테이블 (필드 정의 관리)</div>
+
+    <div class="erd-box" style="border-color:var(--g300);background:var(--g50)">
+      <h4>🧩 field_pool → type_fieldsets → subject_overrides</h4>
+      <div class="erd-cols" style="font-size:10px;color:var(--g600)">
+        글로벌 필드 정의 → 유형별 기본셋 → 과목별 커스텀<br>
+        이 3개 테이블로 "어떤 필드를 보여줄지" 결정
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ JSONB가 해결하는 것 ═══ -->
+<h2><span class="dot" style="background:var(--a)"></span>JSONB가 해결하는 핵심 문제</h2>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div class="card">
+    <div class="card-h"><span class="ic">❌</span><span class="t" style="color:var(--r)">기존: 유형별 고정 테이블</span></div>
+    <div class="json-box"><span class="json-comment">-- 유형마다 테이블이 필요</span>
+CREATE TABLE content_<span class="json-key">an2</span> (no, answer, score, note);
+CREATE TABLE content_<span class="json-key">cbt</span> (section, content, keyword);
+CREATE TABLE content_<span class="json-key">flc</span> (front, back, image);
+<span class="json-comment">-- 19개 테이블...</span>
+
+<span class="json-comment">-- 영어 AN2에 '언어' 추가하면?</span>
+ALTER TABLE content_an2 ADD COLUMN lang VARCHAR;
+<span class="json-comment">-- 수학에선 안 쓰는데 컬럼이 생김 😱</span></div>
+  </div>
+  <div class="card">
+    <div class="card-h"><span class="ic">✅</span><span class="t" style="color:var(--g)">개선: JSONB 단일 테이블</span></div>
+    <div class="json-box"><span class="json-comment">-- 테이블 1개로 모든 유형 처리</span>
+CREATE TABLE <span class="json-key">content_data</span> (
+  content_item_id INT,
+  row_index INT,
+  <span class="json-key">field_values JSONB</span>  <span class="json-comment">← 핵심!</span>
+);
+
+<span class="json-comment">-- 영어 AN2</span>
+{<span class="json-key">"no"</span>:<span class="json-str">"1"</span>, <span class="json-key">"answer"</span>:<span class="json-str">"③"</span>, <span class="json-key">"score"</span>:<span class="json-str">"5"</span>, <span class="json-key">"lang"</span>:<span class="json-str">"EN"</span>}
+
+<span class="json-comment">-- 수학 AN2 (비고 없이, 언어 없이)</span>
+{<span class="json-key">"no"</span>:<span class="json-str">"1"</span>, <span class="json-key">"answer"</span>:<span class="json-str">"③"</span>, <span class="json-key">"score"</span>:<span class="json-str">"5"</span>}
+<span class="json-comment">-- ALTER TABLE 불필요! 😊</span></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ═══ TAB 1: Simulation ═══ -->
+<div id="tab1" style="display:none">
+
+<h2><span class="dot" style="background:var(--g)"></span>데이터 흐름 시뮬레이션</h2>
+
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+  <span style="font-size:11px;font-weight:700;color:var(--g500)">과목</span>
+  <select class="sel" id="simSubj" onchange="updateSim()">
+    <option value="E">영어 (E)</option>
+    <option value="M">수학 (M)</option>
+    <option value="LN">한글똑똑 (LN)</option>
+    <option value="BN">놀이똑똑 (BN)</option>
+  </select>
+  <span style="font-size:11px;font-weight:700;color:var(--g500)">유형</span>
+  <select class="sel" id="simType" onchange="updateSim()">
+    <option value="AN2">AN2 채점</option>
+    <option value="ANS">ANS 해답지</option>
+    <option value="CBT">CBT 핵심점검</option>
+    <option value="VKS">VKS 동요</option>
+    <option value="FLC">FLC 플래시카드</option>
+  </select>
+  <button class="btn btn-p" onclick="addSimField()">+ 운영자 필드 추가</button>
+</div>
+
+<div class="sim">
+  <div class="sim-panel">
+    <div class="sim-h">📐 필드 정의 해석 과정</div>
+    <div id="simResolve" class="card" style="font-size:11px"></div>
+  </div>
+  <div class="sim-panel">
+    <div class="sim-h">💾 저장되는 JSONB</div>
+    <div id="simJson" class="json-box"></div>
+  </div>
+</div>
+
+<div style="margin-top:12px">
+  <div class="sim-h" style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px">🖥️ 렌더링되는 입력 폼</div>
+  <div id="simForm" class="card"></div>
+</div>
+
+</div>
+
+<!-- ═══ TAB 2: Query ═══ -->
+<div id="tab2" style="display:none">
+
+<h2><span class="dot" style="background:var(--v)"></span>JSONB + 비정형 쿼리 예시</h2>
+
+<div class="banner banner-i">
+  <span class="ic">🔍</span>
+  <div>JSONB 필드는 <strong>GIN 인덱스</strong>로 빠르게 검색 가능합니다. 비정형 메모는 <strong>Full-Text Search</strong>로, 태그는 <strong>인덱스 조인</strong>으로 검색합니다.</div>
+</div>
+
+<div id="queries"></div>
+
+</div>
+
+</div>
+
+<script>
+// ═══ Tab switching
+function showTab(idx) {
+  [0,1,2].forEach(i => {
+    document.getElementById('tab'+i).style.display = i===idx?'block':'none';
+    document.querySelectorAll('.tab')[i].classList.toggle('on', i===idx);
+  });
+  if(idx===1) updateSim();
+  if(idx===2) renderQueries();
+}
+
+// ═══ Simulation Data
+const SIM_TYPES = {
+  AN2:{fields:['no','answer','score','note'],req:['no','answer','score']},
+  ANS:{fields:['no','answer','explain'],req:['no','answer']},
+  CBT:{fields:['section','content','keyword'],req:['section','content']},
+  VKS:{fields:['file','duration','lang'],req:['file']},
+  FLC:{fields:['front','back','image'],req:['front','back']},
+};
+const SIM_OV = {
+  E:{AN2:{add:['lang'],addReq:['lang']}},
+  M:{AN2:{remove:['note']}},
+  LN:{ANS:{add:['tag']}},
+};
+const SIM_LABELS = {no:'문항번호',answer:'정답',score:'배점',note:'비고',explain:'해설',section:'섹션',content:'본문',keyword:'핵심어',file:'파일명',duration:'재생시간',lang:'언어',front:'앞면',back:'뒷면',image:'이미지',tag:'태그',goal:'학습목표',step:'단계',concept:'개념',memo:'메모'};
+const SIM_SAMPLES = {no:'1',answer:'③',score:'5',note:'참고사항',explain:'주어+동사 순서',section:'Unit 1',content:'Hello!',keyword:'greeting',file:'song_01.mp3',duration:'2:30',lang:'EN',front:'apple',back:'사과',image:'apple.jpg',tag:'#확인필요',goal:'기초 학습',step:'1단계',concept:'덧셈',memo:'검토 완료'};
+let simExtra = [];
+
+function addSimField(){
+  const key = 'memo';
+  if(!simExtra.includes(key)){simExtra.push(key);}
+  updateSim();
+}
+
+function updateSim() {
+  const subj = document.getElementById('simSubj').value;
+  const type = document.getElementById('simType').value;
+  const base = SIM_TYPES[type] || {fields:[],req:[]};
+  let fields = [...base.fields], req = [...base.req];
+  const ov = SIM_OV[subj]?.[type];
+
+  // Resolve
+  let steps = [];
+  steps.push({label:'1. 유형 기본셋', detail:`[${type}] → ${base.fields.map(f=>SIM_LABELS[f]||f).join(', ')}`, tag:'base'});
+
+  if(ov) {
+    if(ov.add) { fields=[...fields,...ov.add]; steps.push({label:'2. 과목 오버라이드 (+추가)', detail:`[${subj}] → +${ov.add.map(f=>SIM_LABELS[f]||f).join(', ')}`, tag:'add'}); }
+    if(ov.addReq) { req=[...req,...ov.addReq]; }
+    if(ov.remove) { fields=fields.filter(f=>!ov.remove.includes(f)); steps.push({label:'2. 과목 오버라이드 (-제거)', detail:`[${subj}] → -${ov.remove.map(f=>SIM_LABELS[f]||f).join(', ')}`, tag:'remove'}); }
+  } else {
+    steps.push({label:'2. 과목 오버라이드', detail:'없음 (기본셋 그대로)', tag:'none'});
+  }
+
+  simExtra.forEach(k => { if(!fields.includes(k)){fields.push(k);} });
+  if(simExtra.length) steps.push({label:'3. 운영자 추가 필드', detail:simExtra.map(f=>SIM_LABELS[f]||f).join(', '), tag:'custom'});
+
+  steps.push({label:`최종: ${fields.length}개 필드`, detail:fields.map(f=>`${SIM_LABELS[f]||f}${req.includes(f)?'*':''}`).join(', '), tag:'result'});
+
+  // Render resolve steps
+  const tagColors = {base:'tag-p',add:'tag-g',remove:'tag-r',none:'tag-gray',custom:'tag-a',result:'tag-v'};
+  document.getElementById('simResolve').innerHTML = steps.map(s => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--g100)">
+      <span class="tag ${tagColors[s.tag]}">${s.label}</span>
+      <span style="font-size:11px;color:var(--g700)">${s.detail}</span>
+    </div>
+  `).join('');
+
+  // Render JSON
+  const jsonObj = {};
+  fields.forEach(f => { jsonObj[f] = SIM_SAMPLES[f]||''; });
+  const jsonLines = JSON.stringify(jsonObj, null, 2)
+    .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span class="json-str">"$1"</span>');
+  document.getElementById('simJson').innerHTML = `<span class="json-comment">// content_data.field_values (JSONB)</span>\n${jsonLines}`;
+
+  // Render form
+  document.getElementById('simForm').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th style="width:30px">#</th>${fields.map(f=>`<th>${SIM_LABELS[f]||f}${req.includes(f)?' <span style="color:var(--r)">*</span>':''}</th>`).join('')}</tr></thead>
+      <tbody>${[1,2,3].map(i=>`<tr><td style="text-align:center;color:var(--g400);font-weight:600">${i}</td>${fields.map(f=>`<td><input value="${i===1?(SIM_SAMPLES[f]||''):''}" style="width:100%;padding:4px 6px;border:1.5px solid var(--g200);border-radius:4px;font-size:11px;outline:none"></td>`).join('')}</tr>`).join('')}</tbody>
+    </table>
+    <div style="margin-top:8px;font-size:10px;color:var(--g400)">
+      ※ 이 폼은 field_pool + type_fieldsets + subject_overrides 를 런타임에 계산해서 생성됩니다. DB 스키마 변경 없음.
+    </div>
+  `;
+}
+
+// ═══ Queries
+function renderQueries() {
+  const queries = [
+    {title:'JSONB 필드 값으로 검색', desc:'정답이 ③인 콘텐츠 찾기',
+     sql:`SELECT ci.id, ci.type_code, cd.field_values\nFROM content_items ci\nJOIN content_data cd ON ci.id = cd.content_item_id\nWHERE cd.field_values->>'answer' = '③';`},
+    {title:'특정 과목의 특정 필드 값 조회', desc:'영어 과목에서 언어가 EN인 데이터',
+     sql:`SELECT cd.*\nFROM content_data cd\nJOIN content_items ci ON cd.content_item_id = ci.id\nJOIN sets s ON ci.set_id = s.id\nJOIN courses c ON s.course_id = c.id\nWHERE c.subject_code = 'E'\n  AND cd.field_values->>'lang' = 'EN';`},
+    {title:'태그로 콘텐츠 검색', desc:'#이미지교체 태그가 붙은 콘텐츠',
+     sql:`SELECT ci.*, ct.tag\nFROM content_items ci\nJOIN context_tags ct ON ci.id = ct.content_item_id\nWHERE ct.tag = '이미지교체';`},
+    {title:'메모 전문검색', desc:'메모에서 "해상도" 키워드 검색',
+     sql:`SELECT ci.*, cn.text, cn.author, cn.created_at\nFROM content_items ci\nJOIN context_notes cn ON ci.id = cn.content_item_id\nWHERE to_tsvector('korean', cn.text) @@ to_tsquery('해상도');`},
+    {title:'필드 존재 여부 확인', desc:'lang 필드가 있는 데이터만 조회',
+     sql:`SELECT * FROM content_data\nWHERE field_values ? 'lang';  -- JSONB 키 존재 검사`},
+    {title:'비어있는 필수 필드 찾기', desc:'정답이 비어있는 행 찾기 (QA용)',
+     sql:`SELECT cd.*, ci.type_code\nFROM content_data cd\nJOIN content_items ci ON cd.content_item_id = ci.id\nWHERE cd.field_values->>'answer' IS NULL\n   OR cd.field_values->>'answer' = '';`},
+  ];
+
+  document.getElementById('queries').innerHTML = queries.map(q => `
+    <div class="card">
+      <div class="card-h">
+        <span class="ic">📝</span>
+        <span class="t">${q.title}</span>
+        <span class="card-sm">${q.desc}</span>
+      </div>
+      <div class="json-box">${q.sql}</div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>

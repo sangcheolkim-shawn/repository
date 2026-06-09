@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS — 운영자 필드 관리 + 콘텐츠 등록 프로토타입</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-primary:#2563EB;--c-primary-h:#1D4ED8;--c-primary-l:#EFF6FF;--c-primary-b:#BFDBFE;
+  --c-green:#059669;--c-green-l:#ECFDF5;--c-green-b:#6EE7B7;
+  --c-amber:#D97706;--c-amber-l:#FFF7ED;--c-amber-b:#FED7AA;
+  --c-red:#DC2626;--c-red-l:#FEF2F2;
+  --c-purple:#7C3AED;--c-purple-l:#F5F3FF;--c-purple-b:#DDD6FE;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;--g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;--g900:#0F172A;
+  --bg:#F8F9FA;--surface:#FFFFFF;
+  --font:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;
+  --r:8px;--rs:6px;--rl:12px;
+  --sh:0 2px 6px rgba(60,64,67,.12),0 1px 3px rgba(60,64,67,.08);
+  --shs:0 1px 3px rgba(60,64,67,.12);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--g900);font-size:13px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+.app{display:flex;height:100vh}
+
+/* Sidebar */
+.sb{width:220px;background:var(--g900);display:flex;flex-direction:column;flex-shrink:0}
+.sb-hd{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-t{font-size:12px;font-weight:700;color:#F1F5F9}.sb-s{font-size:10px;color:var(--g500);margin-top:2px}
+.sb-sec{padding:16px 10px 5px;font-size:9px;font-weight:700;color:#3D5166;text-transform:uppercase;letter-spacing:.1em}
+.sb-list{flex:1;overflow-y:auto;padding:4px 6px}
+.sb-i{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;color:var(--g500);font-size:11.5px;font-weight:500;transition:all .1s;margin-bottom:1px}
+.sb-i:hover{background:rgba(255,255,255,.04)}.sb-i.on{background:rgba(37,99,235,.18);color:#93C5FD;font-weight:600}
+.sb-i .ic{font-size:13px;width:18px;text-align:center}.sb-i .bd{font-size:9px;background:rgba(255,255,255,.08);color:var(--g500);padding:1px 6px;border-radius:7px;font-weight:600;margin-left:auto}
+.sb-i.on .bd{background:rgba(37,99,235,.25);color:#93C5FD}
+
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.hd{background:var(--surface);border-bottom:1px solid var(--g200);padding:0 18px;display:flex;align-items:center;min-height:48px;gap:10px}
+.hd-ic{width:26px;height:26px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:13px}
+.hd-t{font-size:13px;font-weight:700;flex:1}
+.hd-mode{display:flex;border:1.5px solid var(--g200);border-radius:var(--r);overflow:hidden}
+.hd-mode-btn{padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;background:var(--surface);color:var(--g500);border:none;transition:all .1s}
+.hd-mode-btn:hover{background:var(--g50)}.hd-mode-btn.on{background:var(--c-primary-l);color:var(--c-primary)}
+
+.body{flex:1;overflow-y:auto;padding:16px 20px}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:2px solid var(--g200);margin-bottom:16px}
+.tab{padding:8px 18px;font-size:12px;font-weight:500;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .12s}
+.tab:hover{color:var(--g700)}.tab.on{color:var(--c-primary);font-weight:700;border-bottom-color:var(--c-primary)}
+
+/* Buttons */
+.btn{padding:5px 12px;border-radius:var(--rs);font-size:11px;cursor:pointer;border:1px solid transparent;font-weight:600;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+.btn-p{background:var(--c-primary);color:#fff;border-color:var(--c-primary)}.btn-p:hover{background:var(--c-primary-h)}
+.btn-g{background:var(--surface);border-color:var(--g200);color:var(--g600)}.btn-g:hover{background:var(--g50)}
+.btn-gr{background:var(--c-green);color:#fff;border-color:var(--c-green)}.btn-gr:hover{background:#047857}
+.btn-r{background:var(--c-red-l);color:var(--c-red);border-color:#FCA5A5}.btn-r:hover{background:#FEE2E2}
+.btn-xs{padding:3px 8px;font-size:10px}
+
+/* Cards & Chips */
+.chip{padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:3px;cursor:pointer;transition:all .12s;border:1.5px solid}
+.chip-on{background:var(--c-primary);color:#fff;border-color:var(--c-primary)}
+.chip-off{background:var(--surface);color:var(--g500);border-color:var(--g200)}
+.chip-off:hover{border-color:var(--c-primary-b);color:var(--c-primary)}
+.chip-req{background:#DBEAFE;color:#1D4ED8;border-color:#93C5FD}
+.chip-opt{background:var(--g100);color:var(--g600);border-color:var(--g200)}
+
+.card{background:var(--surface);border:1.5px solid var(--g200);border-radius:var(--rl);padding:14px;margin-bottom:10px;box-shadow:var(--shs);transition:all .12s}
+.card:hover{border-color:var(--g300)}
+
+/* Grid */
+.grid-t{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shs)}
+.grid-t th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--g500);background:var(--g50);border-bottom:1.5px solid var(--g200)}
+.grid-t td{padding:6px 10px;border-bottom:1px solid var(--g100);font-size:12px}
+.grid-t tr:last-child td{border-bottom:none}
+.grid-t input,.grid-t select{width:100%;padding:4px 7px;border:1.5px solid var(--g200);border-radius:var(--rs);font-size:12px;outline:none;transition:border-color .15s;background:#fff}
+.grid-t input:focus,.grid-t select:focus{border-color:var(--c-primary);box-shadow:0 0 0 2px rgba(37,99,235,.06)}
+
+/* Toggle */
+.toggle{position:relative;width:36px;height:20px;border-radius:10px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--c-primary)}.toggle.off{background:var(--g300)}
+.toggle::after{content:'';position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.toggle.on::after{left:18px}.toggle.off::after{left:2px}
+
+/* Progress */
+.prog{height:4px;background:var(--g200);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog .fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* Info banner */
+.banner{padding:10px 14px;border-radius:var(--rl);display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;font-size:12px;line-height:1.5}
+.banner-info{background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1.5px solid var(--c-primary-b)}
+.banner-warn{background:var(--c-amber-l);border:1.5px solid var(--c-amber-b)}
+.banner .ic{font-size:16px;flex-shrink:0;margin-top:1px}
+.banner strong{color:var(--c-primary)}
+
+/* Field pool item */
+.fp-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1.5px solid var(--g200);border-radius:var(--rs);background:var(--surface);transition:all .12s;cursor:pointer}
+.fp-item:hover{border-color:var(--c-primary-b);background:var(--c-primary-l)}
+.fp-item.selected{border-color:var(--c-primary);background:var(--c-primary-l)}
+.fp-label{font-size:12px;font-weight:600;flex:1}.fp-type{font-size:10px;color:var(--g400);font-weight:500}
+.fp-cat{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700}
+
+/* Two column layout */
+.two-col{display:flex;gap:16px;align-items:flex-start}
+.two-col .col-l{width:260px;flex-shrink:0}.two-col .col-r{flex:1;min-width:0}
+
+/* Subject selector */
+.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.subj-card{padding:8px 10px;border:1.5px solid var(--g200);border-radius:var(--rs);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.subj-card:hover{border-color:var(--c-primary-b)}.subj-card.on{border-color:var(--c-primary);background:var(--c-primary-l)}
+.subj-code{font-size:10px;font-weight:700;color:var(--g400);background:var(--g100);padding:1px 6px;border-radius:4px}
+.subj-name{font-size:12px;font-weight:600}.subj-cnt{font-size:10px;color:var(--g400);margin-left:auto}
+
+/* Toast */
+.toast-w{position:fixed;top:14px;right:14px;z-index:9999}
+.toast{padding:7px 14px;border-radius:var(--r);font-size:11px;font-weight:600;color:#fff;margin-bottom:5px;animation:fi .2s;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.toast.ok{background:var(--c-green)}.toast.info{background:var(--c-primary)}.toast.warn{background:var(--c-amber)}
+@keyframes fi{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sb">
+  <div class="sb-hd"><div class="sb-t">CMS ADMIN</div><div class="sb-s">운영자 필드 관리 프로토타입</div></div>
+  <div class="sb-sec">프로세스</div>
+  <div class="sb-list">
+    <div class="sb-i" onclick="setView('register')"><span class="ic">📋</span>콘텐츠 등록<span class="bd">3</span></div>
+    <div class="sb-i" onclick="setView('workflow')"><span class="ic">📊</span>표준 프로세스</div>
+  </div>
+  <div class="sb-sec">설정</div>
+  <div class="sb-list">
+    <div class="sb-i" onclick="setView('settings')"><span class="ic">🔧</span>필드 관리</div>
+    <div class="sb-i"><span class="ic">👥</span>권한 관리</div>
+    <div class="sb-i"><span class="ic">🔗</span>연동 관리</div>
+  </div>
+</aside>
+
+<div class="mn">
+  <div class="hd">
+    <div class="hd-ic" id="hdIc" style="background:var(--c-primary-l)">⚙️</div>
+    <div class="hd-t" id="hdTitle">필드 관리</div>
+    <div class="hd-mode" id="hdMode"></div>
+  </div>
+  <div class="body" id="mainBody"></div>
+</div>
+
+</div>
+<div class="toast-w" id="tw"></div>
+
+<script>
+// ════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════
+const CAT_COLORS = {
+  '공통':'#64748B','평가':'#2563EB','핵심점검':'#7C3AED','미디어':'#DC2626',
+  '해설':'#0369A1','카드':'#D97706','교육':'#059669','운영':'#F59E0B'
+};
+
+const FIELD_POOL = [
+  {key:'no',label:'문항번호',type:'number',cat:'공통'},
+  {key:'answer',label:'정답',type:'text',cat:'평가'},
+  {key:'score',label:'배점',type:'number',cat:'평가'},
+  {key:'note',label:'비고',type:'text',cat:'공통'},
+  {key:'explain',label:'해설',type:'textarea',cat:'평가'},
+  {key:'level',label:'난이도',type:'select',cat:'평가',opts:['쉬움','보통','어려움']},
+  {key:'section',label:'섹션',type:'text',cat:'핵심점검'},
+  {key:'content',label:'본문',type:'textarea',cat:'핵심점검'},
+  {key:'keyword',label:'핵심어',type:'text',cat:'핵심점검'},
+  {key:'title',label:'제목',type:'text',cat:'공통'},
+  {key:'desc',label:'설명',type:'textarea',cat:'공통'},
+  {key:'image',label:'이미지 경로',type:'file',cat:'미디어'},
+  {key:'front',label:'앞면텍스트',type:'text',cat:'카드'},
+  {key:'back',label:'뒷면텍스트',type:'text',cat:'카드'},
+  {key:'goal',label:'학습목표',type:'textarea',cat:'교육'},
+  {key:'criteria',label:'달성기준',type:'text',cat:'교육'},
+  {key:'weight',label:'비중',type:'number',cat:'교육'},
+  {key:'step',label:'단계',type:'text',cat:'해설'},
+  {key:'concept',label:'개념',type:'text',cat:'해설'},
+  {key:'guide',label:'학습안내',type:'textarea',cat:'해설'},
+  {key:'question',label:'문제',type:'textarea',cat:'평가'},
+  {key:'lang',label:'언어',type:'select',cat:'공통',opts:['KO','EN','JP','CN']},
+  {key:'duration',label:'재생시간',type:'text',cat:'미디어'},
+  {key:'file',label:'파일명',type:'file',cat:'미디어'},
+  {key:'tag',label:'태그',type:'text',cat:'운영',custom:true},
+  {key:'memo',label:'작업메모',type:'textarea',cat:'운영',custom:true},
+];
+
+const TYPE_META = {
+  AN2:{l:'채점',ic:'✅',c:'#1D4ED8',bg:'#DBEAFE',g:'평가/채점',mode:'db'},
+  AN3:{l:'평가',ic:'📊',c:'#1E40AF',bg:'#BFDBFE',g:'평가/채점',mode:'db'},
+  ANS:{l:'해답지·채점·평가',ic:'📝',c:'#2563EB',bg:'#EFF6FF',g:'평가/채점',mode:'db'},
+  CBT:{l:'핵심점검 본문',ic:'📖',c:'#7C3AED',bg:'#F5F3FF',g:'핵심점검',mode:'db'},
+  CCV:{l:'핵심점검 Cover',ic:'🖼',c:'#6D28D9',bg:'#EDE9FE',g:'핵심점검',mode:'db'},
+  CGL:{l:'핵심점검 Goal',ic:'🎯',c:'#5B21B6',bg:'#DDD6FE',g:'핵심점검',mode:'db'},
+  EVA:{l:'맞춤평가',ic:'📋',c:'#B45309',bg:'#FEF3C7',g:'평가',mode:'db'},
+  EXP:{l:'개념노트 해답지',ic:'📒',c:'#0369A1',bg:'#E0F2FE',g:'해설',mode:'db'},
+  STDG:{l:'학습안내 및 풀이',ic:'📘',c:'#0284C7',bg:'#F0F9FF',g:'해설/안내',mode:'db'},
+  FLC:{l:'플래시카드',ic:'🃏',c:'#D97706',bg:'#FFF7ED',g:'학습카드',mode:'file'},
+  VKS:{l:'동요 컨텐츠',ic:'🎵',c:'#7C3AED',bg:'#F5F3FF',g:'영상/음원',mode:'file'},
+  VOT:{l:'동화구연',ic:'📖',c:'#DC2626',bg:'#FEF2F2',g:'영상/음원',mode:'file'},
+  VPV:{l:'프리뷰듣기',ic:'🎧',c:'#0891B2',bg:'#ECFEFF',g:'영상/음원',mode:'file'},
+  VRV:{l:'리뷰듣기',ic:'🔁',c:'#0D9488',bg:'#F0FDFA',g:'영상/음원',mode:'file'},
+  VSO:{l:'Song',ic:'🎤',c:'#EA580C',bg:'#FFF7ED',g:'영상/음원',mode:'file'},
+  WEB:{l:'웹콘텐츠',ic:'🌐',c:'#4F46E5',bg:'#EEF2FF',g:'웹',mode:'file'},
+  RDC:{l:'독서코칭',ic:'📚',c:'#BE185D',bg:'#FDF2F8',g:'독서',mode:'file'},
+  ACT:{l:'활동하기',ic:'🎯',c:'#059669',bg:'#ECFDF5',g:'학습활동',mode:'file'},
+};
+
+// Layer 2: 유형 기본 필드셋
+const TYPE_FS = {
+  AN2:{f:['no','answer','score','note'],r:['no','answer','score']},
+  AN3:{f:['no','answer','score','level'],r:['no','answer','score']},
+  ANS:{f:['no','answer','explain'],r:['no','answer']},
+  CBT:{f:['section','content','keyword'],r:['section','content']},
+  CCV:{f:['title','desc','image'],r:['title']},
+  CGL:{f:['goal','criteria','weight'],r:['goal']},
+  EVA:{f:['no','question','answer','score'],r:['no','answer']},
+  EXP:{f:['step','concept','explain'],r:['step','concept']},
+  STDG:{f:['step','content','guide'],r:['step','content']},
+  FLC:{f:['front','back','image'],r:['front','back']},
+  VKS:{f:['file','duration','lang'],r:['file']},
+  VOT:{f:['file','duration'],r:['file']},
+  VPV:{f:['file','duration'],r:['file']},
+  VRV:{f:['file','duration'],r:['file']},
+  VSO:{f:['file','duration','lang'],r:['file']},
+  WEB:{f:['title','file'],r:['file']},
+  RDC:{f:['title','content','file'],r:['title','file']},
+  ACT:{f:['title','content','file'],r:['title']},
+};
+
+// Layer 3: 과목 오버라이드
+const SUBJ_OV = {
+  E:{AN2:{add:['lang'],addReq:['lang']},FLC:{add:['lang']}},
+  M:{AN2:{remove:['note']}},
+  LN:{ANS:{add:['tag']}},
+};
+
+const SUBJECTS = {
+  M:{n:'수학',types:['ANS','AN2','AN3','CBT','STDG']},
+  E:{n:'영어',types:['AN2','AN3','CBT','CCV','CGL','EVA','FLC','WEB']},
+  K:{n:'국어',types:['AN2','AN3','STDG']},
+  H:{n:'한자',types:['AN2','CBT','CCV','CGL','FLC','STDG']},
+  LN:{n:'한글똑똑',types:['ANS','EXP','VKS','WEB']},
+  AN:{n:'영어똑똑',types:['CBT','CCV','CGL','FLC','WEB']},
+  DN:{n:'수학똑똑',types:['ANS','EXP','VKS']},
+  BN:{n:'놀이똑똑',types:['VKS','VOT']},
+  IL:{n:'아이리스닝',types:['AN2','VRV','VSO']},
+};
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let VIEW = 'settings'; // settings | register
+let SET_TAB = 'pool'; // pool | typeset | subject
+let SEL_TYPE = 'AN2';
+let SEL_SUBJ = 'E';
+let REG_SUBJ = 'E';
+let REG_TYPE = 'AN2';
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+const fp = key => FIELD_POOL.find(f=>f.key===key);
+function getResolvedFields(subjCode, typeCode) {
+  const base = TYPE_FS[typeCode];
+  if(!base) return [];
+  let fields = [...base.f], req = [...base.r];
+  const ov = SUBJ_OV[subjCode]?.[typeCode];
+  if(ov) {
+    if(ov.add) fields = [...fields, ...ov.add];
+    if(ov.remove) fields = fields.filter(f=>!ov.remove.includes(f));
+    if(ov.addReq) req = [...req, ...ov.addReq];
+    if(ov.removeReq) req = req.filter(f=>!ov.removeReq.includes(f));
+  }
+  return fields.map(key => ({...fp(key), required: req.includes(key)}));
+}
+function catColor(cat) { return CAT_COLORS[cat]||'#64748B'; }
+function toast(m,t='ok'){const w=document.getElementById('tw'),e=document.createElement('div');e.className='toast '+t;e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),2200);}
+
+// ════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════
+function render() {
+  // Sidebar active
+  document.querySelectorAll('.sb-i').forEach(el => el.classList.remove('on'));
+  if(VIEW==='settings') document.querySelectorAll('.sb-i')[2]?.classList.add('on');
+  if(VIEW==='register') document.querySelectorAll('.sb-i')[0]?.classList.add('on');
+
+  if(VIEW==='settings') renderSettings();
+  else if(VIEW==='register') renderRegister();
+}
+
+function setView(v){VIEW=v;render();}
+function setTab(t){SET_TAB=t;render();}
+function setSelType(t){SEL_TYPE=t;render();}
+function setSelSubj(s){SEL_SUBJ=s;render();}
+
+// ════════════════════════════════════════
+//  SETTINGS VIEW
+// ════════════════════════════════════════
+function renderSettings() {
+  document.getElementById('hdIc').textContent='⚙️';
+  document.getElementById('hdIc').style.background=var_primary_l();
+  document.getElementById('hdTitle').textContent='설정 > 필드 관리';
+  document.getElementById('hdMode').innerHTML=`
+    <button class="hd-mode-btn${VIEW==='settings'?' on':''}" onclick="setView('settings')">⚙️ 설정</button>
+    <button class="hd-mode-btn${VIEW==='register'?' on':''}" onclick="setView('register')">📋 등록 미리보기</button>
+  `;
+
+  const body = document.getElementById('mainBody');
+  body.innerHTML = `
+    <div class="tabs">
+      <div class="tab${SET_TAB==='pool'?' on':''}" onclick="setTab('pool')">📦 글로벌 필드 풀</div>
+      <div class="tab${SET_TAB==='typeset'?' on':''}" onclick="setTab('typeset')">📐 유형 기본 필드셋</div>
+      <div class="tab${SET_TAB==='subject'?' on':''}" onclick="setTab('subject')">📚 과목 커스텀</div>
+    </div>
+    <div id="tabContent"></div>
+  `;
+
+  if(SET_TAB==='pool') renderPoolTab();
+  else if(SET_TAB==='typeset') renderTypesetTab();
+  else if(SET_TAB==='subject') renderSubjectTab();
+}
+
+function var_primary_l(){return 'var(--c-primary-l)';}
+
+function renderPoolTab() {
+  const cats = [...new Set(FIELD_POOL.map(f=>f.cat))];
+  document.getElementById('tabContent').innerHTML = `
+    <div class="banner banner-info">
+      <span class="ic">💡</span>
+      <div>모든 콘텐츠 유형에서 사용 가능한 <strong>전체 필드 목록</strong>입니다. 여기서 필드를 추가/수정하면 유형 기본셋과 과목 커스텀에서 선택할 수 있게 됩니다.</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--g500)">전체 <strong style="color:var(--g800)">${FIELD_POOL.length}</strong>개 필드 · ${cats.length}개 카테고리</div>
+      <button class="btn btn-p" onclick="toast('새 필드가 추가되었습니다','info')">+ 필드 추가</button>
+    </div>
+    ${cats.map(cat => `
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:700;color:${catColor(cat)};text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${catColor(cat)}"></span>
+          ${cat} (${FIELD_POOL.filter(f=>f.cat===cat).length})
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px">
+          ${FIELD_POOL.filter(f=>f.cat===cat).map(f => `
+            <div class="fp-item">
+              <div class="fp-label">${f.label} <span style="font-size:10px;color:var(--g400)">${f.key}</span></div>
+              <div class="fp-type">${f.type}</div>
+              ${f.custom?'<span style="font-size:8px;padding:1px 5px;border-radius:4px;background:var(--c-amber-l);color:var(--c-amber);font-weight:700;border:1px solid var(--c-amber-b)">커스텀</span>':''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderTypesetTab() {
+  const types = Object.keys(TYPE_FS);
+  const tm = TYPE_META[SEL_TYPE]||{};
+  const fs = TYPE_FS[SEL_TYPE]||{f:[],r:[]};
+
+  document.getElementById('tabContent').innerHTML = `
+    <div class="banner banner-info">
+      <span class="ic">📐</span>
+      <div>각 콘텐츠 유형이 <strong>기본적으로 사용하는 필드 조합</strong>입니다. 유형을 선택하면 필드를 추가/제거하고 필수 여부를 설정할 수 있습니다.</div>
+    </div>
+    <div class="two-col">
+      <div class="col-l" style="max-height:calc(100vh - 200px);overflow-y:auto">
+        ${types.map(tc => {
+          const t = TYPE_META[tc]||{};
+          const isOn = tc===SEL_TYPE;
+          return `<div style="padding:6px 10px;border-radius:var(--rs);cursor:pointer;margin-bottom:2px;display:flex;align-items:center;gap:6px;transition:all .1s;
+            background:${isOn?'var(--c-primary-l)':'transparent'};border:1.5px solid ${isOn?'var(--c-primary-b)':'transparent'}"
+            onclick="setSelType('${tc}')">
+            <span style="font-size:13px">${t.ic||'📄'}</span>
+            <div style="flex:1">
+              <div style="font-size:11px;font-weight:${isOn?700:500};color:${isOn?'var(--c-primary)':'var(--g700)'}">${t.l||tc}</div>
+              <div style="font-size:9px;color:var(--g400)">[${tc}] ${t.mode==='db'?'DB입력':'파일업로드'} · ${(TYPE_FS[tc]?.f||[]).length}필드</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="col-r">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:18px">${tm.ic||'📄'}</span>
+            <div>
+              <div style="font-size:14px;font-weight:700">${tm.l||SEL_TYPE} <span style="font-size:11px;color:var(--g400)">[${SEL_TYPE}]</span></div>
+              <div style="font-size:11px;color:var(--g500)">${tm.g||''} · ${tm.mode==='db'?'DB 데이터 입력':'파일 업로드'} 모듈</div>
+            </div>
+            <button class="btn btn-p" style="margin-left:auto" onclick="toast('필드셋이 저장되었습니다')">💾 저장</button>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--g400);margin-bottom:8px">기본 필드 (${fs.f.length}개)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">
+            ${fs.f.map(key => {
+              const f = fp(key);
+              const isReq = fs.r.includes(key);
+              return `<span class="chip ${isReq?'chip-req':'chip-opt'}" title="${f?.type||''}">${f?.label||key} ${isReq?'*':''} <span style="font-size:8px;opacity:.6">${f?.type||''}</span></span>`;
+            }).join('')}
+          </div>
+          <div style="font-size:10px;font-weight:700;color:var(--g400);margin-bottom:8px">필드 풀에서 추가 가능</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${FIELD_POOL.filter(f=>!fs.f.includes(f.key)).map(f => `
+              <span class="chip chip-off" onclick="toast('${f.label} 필드가 추가되었습니다','info')">+ ${f.label}</span>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="card" style="background:var(--g50)">
+          <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:8px">미리보기: [${SEL_TYPE}] 입력 화면</div>
+          <table class="grid-t" style="font-size:11px">
+            <thead><tr><th style="width:30px">#</th>${fs.f.map(key=>{const f=fp(key);const isReq=fs.r.includes(key);return `<th>${f?.label||key}${isReq?' <span style="color:var(--c-red)">*</span>':''}</th>`;}).join('')}</tr></thead>
+            <tbody>${[1,2,3].map(i=>`<tr><td style="text-align:center;color:var(--g400);font-weight:600">${i}</td>${fs.f.map(()=>`<td><input style="background:var(--g50);border-color:var(--g200)"></td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSubjectTab() {
+  const subjKeys = Object.keys(SUBJECTS);
+  const subj = SUBJECTS[SEL_SUBJ];
+  const subjTypes = subj?.types||[];
+
+  document.getElementById('tabContent').innerHTML = `
+    <div class="banner banner-info">
+      <span class="ic">📚</span>
+      <div>과목별로 유형 기본셋을 <strong>그대로 사용</strong>하거나, 필드를 <strong>추가/제거</strong>해서 커스텀할 수 있습니다. 커스텀한 내용은 해당 과목의 콘텐츠 등록 화면에만 적용됩니다.</div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--g400);margin-bottom:8px">과목 선택</div>
+    <div class="subj-grid" style="margin-bottom:16px">
+      ${subjKeys.map(sc => {
+        const s = SUBJECTS[sc];
+        const isOn = sc===SEL_SUBJ;
+        const hasOv = !!SUBJ_OV[sc];
+        return `<div class="subj-card${isOn?' on':''}" onclick="setSelSubj('${sc}')">
+          <span class="subj-code">${sc}</span>
+          <span class="subj-name">${s.n}</span>
+          ${hasOv?'<span style="font-size:8px;padding:1px 5px;border-radius:4px;background:var(--c-amber-l);color:var(--c-amber);font-weight:700">커스텀</span>':''}
+          <span class="subj-cnt">${s.types.length}유형</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${subj ? `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:16px">📚</span>
+        <div style="font-size:14px;font-weight:700">[${SEL_SUBJ}] ${subj.n}</div>
+        <span style="font-size:11px;color:var(--g500)">${subjTypes.length}개 유형 사용</span>
+        <button class="btn btn-p" style="margin-left:auto" onclick="toast('과목 설정이 저장되었습니다')">💾 저장</button>
+      </div>
+
+      ${subjTypes.map(tc => {
+        const tm = TYPE_META[tc]||{};
+        const base = TYPE_FS[tc]||{f:[],r:[]};
+        const resolved = getResolvedFields(SEL_SUBJ, tc);
+        const hasOv = !!SUBJ_OV[SEL_SUBJ]?.[tc];
+        const ov = SUBJ_OV[SEL_SUBJ]?.[tc]||{};
+
+        return `<div style="padding:10px 12px;border:1.5px solid ${hasOv?'var(--c-amber-b)':'var(--g200)'};border-radius:var(--r);margin-bottom:8px;background:${hasOv?'#FFFDF7':'var(--surface)'}">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span style="font-size:14px">${tm.ic||'📄'}</span>
+            <span style="font-size:12px;font-weight:700;color:${tm.c||'var(--g700)'}">${tm.l||tc}</span>
+            <span style="font-size:10px;color:var(--g400)">[${tc}]</span>
+            <span style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:${tm.mode==='db'?'#DBEAFE':'#FEF2F2'};color:${tm.mode==='db'?'#1D4ED8':'#DC2626'}">${tm.mode==='db'?'DB입력':'파일'}</span>
+            ${hasOv?`<span style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:var(--c-amber-l);color:var(--c-amber);border:1px solid var(--c-amber-b)">커스텀 적용</span>`
+                   :`<span style="font-size:9px;color:var(--g400)">기본셋 사용</span>`}
+            <div style="margin-left:auto;display:flex;gap:4px">
+              <button class="btn btn-g btn-xs" onclick="toast('[${tc}] 커스텀 편집','info')">✏️ 편집</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${resolved.map(f => {
+              const isAdded = ov.add?.includes(f.key);
+              const bgc = isAdded ? '#FFF7ED' : f.required ? '#DBEAFE' : 'var(--g100)';
+              const clr = isAdded ? 'var(--c-amber)' : f.required ? '#1D4ED8' : 'var(--g600)';
+              const bdr = isAdded ? 'var(--c-amber-b)' : f.required ? '#93C5FD' : 'var(--g200)';
+              return `<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:${bgc};color:${clr};border:1px solid ${bdr}">${f.label}${f.required?' *':''}${isAdded?' ⊕':''}</span>`;
+            }).join('')}
+            ${(ov.remove||[]).map(key => {
+              const f = fp(key);
+              return `<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--c-red-l);color:var(--c-red);border:1px solid #FCA5A5;text-decoration:line-through">${f?.label||key} ✕</span>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ` : ''}
+  `;
+}
+
+// ════════════════════════════════════════
+//  REGISTER VIEW (미리보기)
+// ════════════════════════════════════════
+function renderRegister() {
+  document.getElementById('hdIc').textContent='📋';
+  document.getElementById('hdIc').style.background=var_primary_l();
+  document.getElementById('hdTitle').textContent='콘텐츠 등록 (필드 관리 적용)';
+  document.getElementById('hdMode').innerHTML=`
+    <button class="hd-mode-btn${VIEW==='settings'?' on':''}" onclick="setView('settings')">⚙️ 설정</button>
+    <button class="hd-mode-btn${VIEW==='register'?' on':''}" onclick="setView('register')">📋 등록 미리보기</button>
+  `;
+
+  const subj = SUBJECTS[REG_SUBJ];
+  const types = subj?.types||[];
+  const resolved = getResolvedFields(REG_SUBJ, REG_TYPE);
+  const tm = TYPE_META[REG_TYPE]||{};
+  const hasOv = !!SUBJ_OV[REG_SUBJ]?.[REG_TYPE];
+
+  document.getElementById('mainBody').innerHTML = `
+    <div class="banner banner-warn">
+      <span class="ic">👁️</span>
+      <div>이 화면은 <strong>설정 > 필드 관리</strong>에서 구성한 대로 콘텐츠 등록 화면이 어떻게 보이는지 <strong>미리보기</strong>합니다. 과목과 유형을 선택해서 확인하세요.</div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:11px;font-weight:700;color:var(--g500)">과목</div>
+      ${Object.entries(SUBJECTS).map(([sc,s]) => `
+        <span class="chip ${sc===REG_SUBJ?'chip-on':'chip-off'}" onclick="REG_SUBJ='${sc}';REG_TYPE=SUBJECTS['${sc}'].types[0];render()">${s.n}</span>
+      `).join('')}
+      <div style="width:1px;height:20px;background:var(--g200);margin:0 4px"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--g500)">유형</div>
+      ${types.map(tc => {
+        const t = TYPE_META[tc]||{};
+        return `<span class="chip ${tc===REG_TYPE?'chip-on':'chip-off'}" onclick="REG_TYPE='${tc}';render()">${t.ic||''} ${t.l||tc}</span>`;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:16px">${tm.ic||'📄'}</span>
+        <span style="font-size:13px;font-weight:700;color:${tm.c||'var(--g800)'}">[${REG_SUBJ}] ${subj?.n||''} — ${tm.l||REG_TYPE}</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:${tm.mode==='db'?'#DBEAFE':'#FEF2F2'};color:${tm.mode==='db'?'#1D4ED8':'#DC2626'}">${tm.mode==='db'?'DB 입력':'파일 업로드'}</span>
+        ${hasOv?'<span style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:var(--c-amber-l);color:var(--c-amber);border:1px solid var(--c-amber-b)">과목 커스텀 적용</span>':''}
+      </div>
+      <div style="font-size:11px;color:var(--g500);margin-bottom:14px">필수 <strong style="color:var(--c-primary)">${resolved.filter(f=>f.required).length}</strong>개 · 선택 ${resolved.filter(f=>!f.required).length}개 · 총 ${resolved.length}개 필드</div>
+
+      ${tm.mode==='db' ? `
+        <table class="grid-t">
+          <thead><tr><th style="width:35px">#</th>${resolved.map(f=>`<th>${f.label}${f.required?' <span style="color:var(--c-red)">*</span>':''}</th>`).join('')}<th style="width:50px">상태</th></tr></thead>
+          <tbody>
+            ${[1,2,3,4,5].map(i => `<tr>
+              <td style="text-align:center;color:var(--g400);font-weight:600;font-size:11px">${i}</td>
+              ${resolved.map(f => {
+                if(f.type==='select') return `<td><select>${(f.opts||[]).map(o=>`<option>${o}</option>`).join('')}</select></td>`;
+                return `<td><input placeholder="${f.required?f.label+' (필수)':'선택'}"></td>`;
+              }).join('')}
+              <td style="text-align:center"><span style="font-size:10px;color:var(--g400)">—</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      ` : `
+        <div style="border:2px dashed var(--g300);border-radius:var(--rl);padding:40px 20px;text-align:center;background:var(--g50)">
+          <div style="font-size:28px;margin-bottom:8px">📁</div>
+          <div style="font-size:13px;font-weight:600;color:var(--g600);margin-bottom:4px">파일을 드래그하거나 클릭해서 업로드</div>
+          <div style="font-size:11px;color:var(--g400)">허용 형식: ${tm.mode==='file'?'.mp3, .wav, .jpg, .png, .pdf, .html':'*'}</div>
+        </div>
+        ${resolved.length ? `
+          <div style="margin-top:12px;font-size:10px;font-weight:700;color:var(--g400);margin-bottom:6px">파일 메타정보</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px">
+            ${resolved.filter(f=>f.key!=='file').map(f => `
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <label style="font-size:10px;font-weight:600;color:var(--g600)">${f.label}${f.required?' <span style="color:var(--c-red)">*</span>':''}</label>
+                ${f.type==='select'
+                  ? `<select style="padding:5px 8px;border:1.5px solid var(--g200);border-radius:var(--rs);font-size:12px">${(f.opts||[]).map(o=>`<option>${o}</option>`).join('')}</select>`
+                  : `<input placeholder="${f.label}" style="padding:5px 8px;border:1.5px solid var(--g200);border-radius:var(--rs);font-size:12px">`}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `}
+
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+        <button class="btn btn-g" onclick="toast('임시 저장되었습니다')">💾 임시저장</button>
+        <button class="btn btn-gr" onclick="toast('검수 요청 완료','info')">📤 검수요청</button>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--g50);margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--g600);margin-bottom:8px">📊 과목별 필드 비교</div>
+      <div style="font-size:10px;color:var(--g500);margin-bottom:10px">같은 유형 [${REG_TYPE}]이 과목마다 어떻게 다른지 비교</div>
+      <table class="grid-t" style="font-size:11px">
+        <thead><tr><th>과목</th><th>사용 필드</th><th>필수</th><th>커스텀</th></tr></thead>
+        <tbody>
+          ${Object.entries(SUBJECTS).filter(([,s])=>s.types.includes(REG_TYPE)).map(([sc,s]) => {
+            const rf = getResolvedFields(sc, REG_TYPE);
+            const hasO = !!SUBJ_OV[sc]?.[REG_TYPE];
+            return `<tr style="${sc===REG_SUBJ?'background:var(--c-primary-l)':''}">
+              <td style="font-weight:600">[${sc}] ${s.n}</td>
+              <td>${rf.map(f=>`<span style="font-size:10px;padding:1px 5px;border-radius:6px;background:${f.required?'#DBEAFE':'var(--g100)'};color:${f.required?'#1D4ED8':'var(--g600)'};margin-right:3px">${f.label}${f.required?'*':''}</span>`).join('')}</td>
+              <td style="text-align:center">${rf.filter(f=>f.required).length}/${rf.length}</td>
+              <td style="text-align:center">${hasO?'<span style="color:var(--c-amber);font-weight:700">✓</span>':'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// Init
+render();
+</script>
+</body>
+</html>

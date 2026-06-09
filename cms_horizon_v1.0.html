@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS Horizon v1.0</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:#f5f5f3;color:#1d1d1f;font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:4px}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:220px;background:#fff;border-right:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-logo{padding:16px 16px 14px;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:30px;height:30px;background:#0F6E56;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-logo-icon svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2}
+.sb-logo-text{font-weight:600;font-size:14px;color:#1d1d1f;letter-spacing:-0.3px}
+.sb-logo-text span{display:block;font-size:11px;font-weight:400;color:#86868b;margin-top:1px}
+.sb-nav{flex:1;padding:6px 8px;overflow-y:auto}
+.sb-group{padding:14px 0 2px}
+.sb-label{font-size:11px;color:#aeaeb2;padding:0 10px;margin-bottom:4px;letter-spacing:0.3px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:#636366;font-size:13px;margin-bottom:1px;border-left:2px solid transparent;transition:all .12s}
+.sb-item:hover{background:#f5f5f3;color:#1d1d1f}
+.sb-item.on{background:#f0f7f4;color:#0F6E56;font-weight:500;border-left-color:#0F6E56}
+.sb-item .cnt{margin-left:auto;font-size:11px;background:#f0f0ee;color:#636366;padding:1px 7px;border-radius:8px;font-weight:500}
+.sb-item.on .cnt{background:#d4ede3;color:#085041}
+.sb-bottom{padding:10px 12px;border-top:0.5px solid #e5e5e5}
+.sb-user{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:#f9f9f7}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489}
+.sb-uname{font-size:12px;font-weight:500;color:#1d1d1f}
+.sb-uemail{font-size:11px;color:#aeaeb2}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:#fff;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;padding:0 24px;flex-shrink:0}
+.tb-title{font-size:15px;font-weight:500;flex:1;letter-spacing:-0.2px}
+.tb-stats{display:flex;gap:12px;font-size:12px;color:#86868b}
+.tb-stats strong{font-weight:500;color:#1d1d1f}
+.tb-search{font-size:12px;color:#86868b;padding:4px 10px;border:0.5px solid #e5e5e5;border-radius:6px;cursor:pointer;margin-left:14px}
+.tb-search:hover{background:#f5f5f3}
+.scroll{flex:1;overflow-y:auto;padding:20px 24px}
+.view{display:none}.view.on{display:block}
+
+/* ── Common Components ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-input{padding:7px 12px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:#fff;min-width:180px}
+.filter-input:focus{border-color:#0F6E56}
+.filter-select{padding:7px 10px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:12px;font-family:inherit;background:#fff;outline:none;color:#1d1d1f}
+.filter-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+.filter-spacer{flex:1}
+.btn{font-size:12px;padding:6px 14px;border-radius:6px;border:0.5px solid #e5e5e5;background:#fff;cursor:pointer;font-family:inherit;color:#1d1d1f;transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:#f5f5f3;border-color:#c5c5c5}
+.btn-p{background:#0F6E56;color:#fff;border-color:#0F6E56}
+.btn-p:hover{background:#085041}
+.btn-danger{background:#fff;color:#A32D2D;border-color:#e5c5c5}
+.btn-danger:hover{background:#fff5f5}
+.btn-sm{font-size:11px;padding:4px 10px}
+.tabs{display:flex;gap:0;border-bottom:0.5px solid #e5e5e5;margin-bottom:16px}
+.tab{font-size:13px;color:#86868b;cursor:pointer;padding:8px 16px;background:none;border:none;font-family:inherit;position:relative}
+.tab.on{color:#1d1d1f;font-weight:500}
+.tab.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#0F6E56;border-radius:1px 1px 0 0}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+
+/* ── Cards ── */
+.card{background:#fff;border:0.5px solid #d5d5d3;border-radius:10px;overflow:hidden;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.07),0 0 0 0.5px rgba(0,0,0,.03)}
+.card:hover{border-color:#b5b5b3;box-shadow:0 2px 8px rgba(0,0,0,.1),0 0 0 0.5px rgba(0,0,0,.05)}
+.card-top{background:#f9f9f7;padding:12px 14px;border-bottom:0.5px solid #e5e5e5}
+.card-top-row{display:flex;justify-content:space-between;align-items:center}
+.card-name{font-size:13px;font-weight:500;color:#1d1d1f}
+.card-pct{font-size:12px;font-weight:500;color:#0F6E56}
+.card-meta{font-size:11px;color:#86868b;margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.depth-flow{display:flex;align-items:center;gap:3px;font-size:11px;color:#86868b;margin-top:6px}
+.dp{padding:2px 6px;background:#ececf0;border-radius:4px}
+.dp-s{background:#3C3489;color:#fff}
+.darr{color:#c5c5c5;font-size:9px}
+
+/* ── Badges ── */
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.b-nd{background:#E6F1FB;color:#0C447C}.b-nh{background:#EEEDFE;color:#3C3489}
+.b-sj{background:#E1F5EE;color:#085041}.b-nh365{background:#FAEEDA;color:#633806}
+.b-active{background:#EAF3DE;color:#27500A}.b-draft{background:#FAEEDA;color:#633806}
+.b-urgent{background:#FCEBEB;color:#791F1F}.b-done{background:#EAF3DE;color:#27500A}
+.b-wait{background:#FAEEDA;color:#633806}.b-prog{background:#E1F5EE;color:#085041}
+.b-ready{background:#E6F1FB;color:#0C447C}.b-gray{background:#f0f0ee;color:#636366}
+
+/* ── Form Rows ── */
+.form-row{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:0.5px solid #f0f0ee;font-size:12px;transition:background .1s;cursor:pointer}
+.form-row:last-child{border-bottom:none}
+.form-row:hover{background:#fafaf8}
+.form-bar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
+.bar-nd{background:#0C447C}.bar-nh{background:#3C3489}.bar-sj{background:#085041}.bar-nh365{background:#633806}
+.form-name{font-weight:500;color:#1d1d1f;white-space:nowrap}
+.form-sys{font-size:11px;color:#86868b}
+.form-count{font-size:11px;color:#86868b;margin-left:auto;white-space:nowrap}
+.form-assignee{font-size:11px;color:#86868b;min-width:44px;text-align:right}
+.prog{display:flex;align-items:center;gap:6px;flex:1;max-width:120px}
+.prog-bar{flex:1;height:4px;background:#f0f0ee;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px}
+
+/* ── Kanban ── */
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+.k-col{background:#ededeb;border-radius:10px;padding:10px;min-height:200px}
+.k-head{font-size:12px;font-weight:500;color:#86868b;margin-bottom:10px;display:flex;align-items:center;gap:6px;padding:0 4px}
+.k-cnt{background:#e5e5e5;color:#636366;font-size:11px;padding:1px 7px;border-radius:8px}
+.k-card{background:#fff;border:0.5px solid #d5d5d3;border-radius:8px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.k-card:last-child{margin-bottom:0}
+.k-card-top{background:#f9f9f7;padding:8px 10px;border-bottom:0.5px solid #f0f0ee}
+.k-card-name{font-size:12px;font-weight:500;color:#1d1d1f}
+.k-card-depth{font-size:10px;color:#aeaeb2;margin-top:2px}
+.k-card .form-row{padding:7px 10px;gap:6px}
+.k-card .form-bar{height:22px}
+.k-card .prog{max-width:80px}
+
+/* ── Table ── */
+.tbl{border:0.5px solid #d5d5d3;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.tbl-head{display:grid;padding:8px 14px;font-size:11px;color:#86868b;background:#f9f9f7;border-bottom:0.5px solid #e5e5e5}
+.tbl-row{display:grid;padding:10px 14px;font-size:13px;border-bottom:0.5px solid #f0f0ee;align-items:center;transition:background .1s;cursor:pointer}
+.tbl-row:last-child{border-bottom:none}
+.tbl-row:hover{background:#fafaf8}
+
+/* ── Misc ── */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-live{background:#27500A}.dot-rev{background:#BA7517}.dot-chk{background:#185FA5}.dot-pend{background:#aeaeb2}
+.code-pill{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;cursor:pointer}
+.code-pill:hover{opacity:.8}
+.legend{display:flex;gap:14px;font-size:11px;color:#86868b;margin-bottom:14px;align-items:center}
+.legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px}
+.field-chip{font-size:11px;padding:2px 8px;border-radius:4px;background:#f5f5f3;color:#636366;display:inline-flex;align-items:center;gap:4px;margin:2px}
+.field-dot{width:6px;height:6px;border-radius:50%}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#fff;border:0.5px solid #d5d5d3;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.stat-label{font-size:12px;color:#86868b}
+.stat-val{font-size:24px;font-weight:500;margin-top:4px;letter-spacing:-0.5px}
+.settings-tabs{display:flex;gap:0;border-bottom:0.5px solid #e5e5e5;margin-bottom:16px;flex-wrap:wrap}
+.s-tab{font-size:12px;color:#86868b;cursor:pointer;padding:8px 14px;background:none;border:none;font-family:inherit}
+.s-tab.on{color:#1d1d1f;font-weight:500;border-bottom:2px solid #0F6E56}
+
+/* ── Command Palette ── */
+.cmd-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;padding-top:14vh}
+.cmd-ov.open{display:flex}
+.cmd-box{background:#fff;border-radius:12px;width:480px;max-height:400px;overflow:hidden}
+.cmd-inp{width:100%;border:none;outline:none;padding:14px 16px;font-size:14px;font-family:inherit;border-bottom:0.5px solid #e5e5e5}
+.cmd-inp::placeholder{color:#c5c5c5}
+.cmd-list{padding:6px;max-height:320px;overflow-y:auto}
+.cmd-r{padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px}
+.cmd-r:hover{background:#f5f5f3}
+.cmd-d{width:7px;height:7px;border-radius:2px}
+
+
+/* ── Content Register Extras ── */
+.cr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cr-title{font-size:15px;font-weight:500}
+.cr-subtitle{font-size:12px;color:#86868b;margin-left:8px}
+.cr-stats{display:flex;gap:8px;align-items:center}
+.cr-empty{text-align:center;padding:60px 20px;color:#86868b}
+.cr-empty-icon{font-size:36px;margin-bottom:12px;opacity:.5}
+.cr-empty-title{font-size:14px;font-weight:500;color:#1d1d1f;margin-bottom:4px}
+
+/* ── Fullscreen Editor (3-panel) ── */
+.fs-body{flex:1;display:flex;overflow:hidden}
+.fs-left{width:240px;background:#fff;border-right:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.fs-center{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.fs-right{width:340px;background:#fff;border-left:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+
+/* Left Panel */
+.fs-assignee{padding:14px;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;gap:10px}
+.fs-avatar{width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#3C3489;flex-shrink:0}
+.fs-ainfo{flex:1}
+.fs-aname{font-size:13px;font-weight:500}
+.fs-aprog{font-size:11px;color:#86868b;margin-top:2px}
+.fs-ring{width:36px;height:36px;flex-shrink:0}
+.fs-batch{padding:8px 14px;border-bottom:0.5px solid #e5e5e5}
+.fs-batch-btn{width:100%;padding:7px;border:0.5px solid #e5e5e5;border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;color:#636366}
+.fs-batch-btn:hover{background:#f5f5f3}
+.fs-batch-btn.active{background:#f0f7f4;border-color:#0F6E56;color:#0F6E56}
+.fs-tree{flex:1;overflow-y:auto;padding:8px}
+.fs-course{border-radius:6px;margin-bottom:2px}
+.fs-course-head{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:#1d1d1f;transition:background .1s}
+.fs-course-head:hover{background:#f5f5f3}
+.fs-course-arr{font-size:9px;color:#aeaeb2;width:12px;transition:transform .15s}
+.fs-course-arr.open{transform:rotate(90deg)}
+.fs-course-icon{font-size:13px}
+.fs-course-name{flex:1;font-weight:500}
+.fs-course-micro{width:40px;height:3px;background:#f0f0ee;border-radius:2px;overflow:hidden}
+.fs-course-micro-fill{height:100%;border-radius:2px;background:#0F6E56}
+.fs-course-cnt{font-size:10px;color:#aeaeb2}
+.fs-sets{padding:2px 0 4px 26px}
+.fs-set{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;cursor:pointer;font-size:12px;color:#636366;transition:background .1s}
+.fs-set:hover{background:#f5f5f3}
+.fs-set.active{background:#f0f7f4;color:#0F6E56;font-weight:500}
+.fs-set-icon{font-size:10px}
+.fs-set-name{flex:1}
+.fs-left-bottom{padding:10px 14px;border-top:0.5px solid #e5e5e5;background:#f9f9f7}
+.fs-left-prog{display:flex;align-items:center;gap:8px;font-size:11px;color:#86868b}
+.fs-left-prog-bar{flex:1;height:4px;background:#e5e5e5;border-radius:2px;overflow:hidden}
+.fs-left-prog-fill{height:100%;background:#0F6E56;border-radius:2px}
+
+/* Center - Tab Bar */
+.fs-tabs{display:flex;align-items:center;padding:0 16px;border-bottom:0.5px solid #e5e5e5;background:#fff;height:40px;flex-shrink:0}
+.fs-tab{font-size:12px;padding:8px 14px;cursor:pointer;color:#86868b;position:relative;border:none;background:none;font-family:inherit}
+.fs-tab.on{color:#1d1d1f;font-weight:500}
+.fs-tab.on::after{content:'';position:absolute;bottom:0;left:4px;right:4px;height:2px;border-radius:1px 1px 0 0}
+.fs-tab[data-t="edit"].on::after{background:#185FA5}
+.fs-tab[data-t="excel"].on::after{background:#27500A}
+.fs-tab[data-t="preview"].on::after{background:#3C3489}
+.fs-tab-spacer{flex:1}
+.fs-tab-save{font-size:11px;color:#86868b;margin-right:8px}
+.fs-tab-save-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#BA7517;margin-right:4px}
+
+/* Center - Connection Banner */
+.fs-conn{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#f9f9f7;border-bottom:0.5px solid #e5e5e5;font-size:12px;flex-shrink:0;flex-wrap:wrap}
+.fs-conn-sep{color:#c5c5c5}
+
+/* Center - Content Area */
+.fs-content{flex:1;overflow-y:auto;padding:16px}
+.fs-content-pane{display:none}.fs-content-pane.on{display:block}
+
+/* Center - Edit Grid */
+.grid-toolbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fff;border:0.5px solid #d5d5d3;border-radius:8px 8px 0 0;flex-wrap:wrap}
+.grid-toolbar-title{font-size:13px;font-weight:500;flex:1}
+.grid-toolbar-info{font-size:11px;color:#86868b}
+.grid-wrap{border:0.5px solid #d5d5d3;border-top:none;border-radius:0 0 8px 8px;overflow-x:auto;background:#fff}
+.grid-table{width:100%;border-collapse:collapse;font-size:12px}
+.grid-table th{background:#f5f5f3;padding:7px 10px;text-align:left;font-weight:500;color:#636366;border-bottom:0.5px solid #e5e5e5;white-space:nowrap;position:sticky;top:0;z-index:1}
+.grid-table td{padding:6px 10px;border-bottom:0.5px solid #f0f0ee;vertical-align:middle}
+.grid-table tr:nth-child(even) td{background:#fafaf8}
+.grid-table tr:hover td{background:#f5f8ff}
+.grid-input{width:100%;border:0.5px solid transparent;border-radius:4px;padding:4px 6px;font-size:12px;font-family:inherit;background:transparent;outline:none}
+.grid-input:focus{border-color:#0F6E56;background:#fff}
+.grid-select{border:0.5px solid #e5e5e5;border-radius:4px;padding:3px 6px;font-size:12px;font-family:inherit;background:#fff}
+.grid-file-btn{font-size:11px;padding:3px 8px;border:0.5px solid #e5e5e5;border-radius:4px;background:#fff;cursor:pointer;color:#636366}
+.grid-file-btn:hover{background:#f5f5f3}
+.grid-file-name{font-size:11px;color:#0F6E56;display:flex;align-items:center;gap:4px}
+.grid-del{border:none;background:none;cursor:pointer;color:#c5c5c5;font-size:14px;padding:2px 6px;border-radius:4px}
+.grid-del:hover{color:#A32D2D;background:#fff5f5}
+.grid-footer{padding:8px 14px;font-size:11px;color:#86868b;display:flex;gap:12px}
+.grid-req{color:#A32D2D}
+.grid-auto{display:inline-flex;align-items:center;gap:2px;font-size:10px;color:#BA7517}
+
+/* Center - Excel Upload */
+.excel-steps{display:flex;gap:0;margin-bottom:20px}
+.excel-step{flex:1;text-align:center;padding:10px;position:relative}
+.excel-step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#f0f0ee;color:#86868b;font-size:12px;font-weight:500;margin-bottom:4px}
+.excel-step.active .excel-step-num{background:#0F6E56;color:#fff}
+.excel-step.done .excel-step-num{background:#27500A;color:#fff}
+.excel-step-label{font-size:11px;color:#86868b;display:block}
+.excel-step.active .excel-step-label{color:#1d1d1f;font-weight:500}
+.excel-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.excel-card{background:#fff;border:0.5px solid #d5d5d3;border-radius:10px;padding:20px;text-align:center}
+.excel-card-icon{font-size:32px;margin-bottom:10px;opacity:.6}
+.excel-card-title{font-size:14px;font-weight:500;margin-bottom:4px}
+.excel-card-desc{font-size:12px;color:#86868b;margin-bottom:14px}
+.excel-summary{font-size:12px;color:#636366;text-align:left;margin-top:10px}
+.excel-summary-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid #f0f0ee}
+
+/* Center - Preview */
+.preview-header{display:flex;align-items:center;gap:8px;padding:12px;background:#fff;border:0.5px solid #d5d5d3;border-radius:8px;margin-bottom:14px;flex-wrap:wrap}
+.preview-card{background:#fff;border:0.5px solid #d5d5d3;border-radius:10px;overflow:hidden;margin-bottom:12px}
+.preview-card-head{padding:10px 14px;background:#f5f5f3;border-bottom:0.5px solid #e5e5e5;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.preview-card-body{padding:14px}
+.preview-row{display:flex;gap:12px;padding:8px 0;border-bottom:0.5px solid #f0f0ee;font-size:12px}
+.preview-row:last-child{border-bottom:none}
+.preview-label{width:80px;color:#86868b;flex-shrink:0}
+.preview-val{flex:1;color:#1d1d1f}
+.preview-exp{padding:8px 12px;background:#f9f9f7;border-left:3px solid #d5d5d3;border-radius:0 6px 6px 0;margin-top:6px;font-size:12px;color:#636366}
+.preview-video{width:100%;height:180px;background:#1d1d1f;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;margin-bottom:12px}
+
+/* Right Panel - Repository */
+.repo-section{padding:10px 14px;border-bottom:0.5px solid #e5e5e5}
+.repo-title{font-size:12px;font-weight:500;color:#1d1d1f;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.repo-cloud{display:flex;gap:6px}
+.repo-cloud-btn{flex:1;padding:7px;border:0.5px solid #e5e5e5;border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;font-size:11px;text-align:center;color:#636366;transition:all .12s}
+.repo-cloud-btn:hover{background:#f5f5f3}
+.repo-cloud-btn.active{border-color:#0C447C;background:#E6F1FB;color:#0C447C}
+.repo-cloud-btn.kollus{border-color:#BA7517;background:#FFF8F0;color:#BA7517}
+.repo-tree{flex:1;overflow-y:auto;padding:8px 14px}
+.repo-node{display:flex;align-items:center;gap:5px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:12px;color:#636366;transition:background .1s;margin-bottom:1px}
+.repo-node:hover{background:#f5f5f3}
+.repo-node.active{background:#f0f7f4;color:#0F6E56;font-weight:500}
+.repo-node-arr{font-size:8px;color:#aeaeb2;width:10px}
+.repo-node-icon{font-size:12px}
+.repo-node-name{flex:1}
+.repo-node-cnt{font-size:10px;color:#aeaeb2}
+.repo-path{display:flex;align-items:center;gap:4px;padding:8px 14px;background:#f0f7f4;border-bottom:0.5px solid #e5e5e5;font-size:11px;color:#0F6E56}
+.repo-upload{padding:14px;border-bottom:0.5px solid #e5e5e5}
+.repo-dropzone{border:1.5px dashed #d5d5d3;border-radius:8px;padding:24px;text-align:center;transition:border-color .15s}
+.repo-dropzone:hover{border-color:#0F6E56}
+.repo-drop-icon{font-size:28px;opacity:.4;margin-bottom:6px}
+.repo-drop-text{font-size:12px;color:#86868b;margin-bottom:8px}
+.repo-drop-hint{font-size:11px;color:#aeaeb2}
+.repo-staged{padding:8px 14px;border-bottom:0.5px solid #e5e5e5}
+.repo-staged-file{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f9f9f7;border-radius:6px;margin-bottom:4px;font-size:12px}
+.repo-staged-name{flex:1;color:#1d1d1f}
+.repo-staged-size{font-size:11px;color:#aeaeb2}
+.repo-staged-rm{border:none;background:none;cursor:pointer;color:#c5c5c5;font-size:12px}
+.repo-staged-rm:hover{color:#A32D2D}
+.repo-uploaded{padding:10px 14px;flex:1;overflow-y:auto}
+.repo-uploaded-head{font-size:12px;font-weight:500;color:#27500A;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.repo-uploaded-hint{font-size:11px;color:#86868b;margin-bottom:8px}
+.repo-file{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#fff;border:0.5px solid #d5d5d3;border-radius:6px;margin-bottom:4px;cursor:grab;font-size:12px;transition:all .12s}
+.repo-file:hover{border-color:#0F6E56;background:#f0faf5}
+.repo-file-icon{font-size:14px}
+.repo-file-name{flex:1;font-weight:500;color:#1d1d1f}
+.repo-file-size{font-size:11px;color:#aeaeb2}
+.repo-file-drag{font-size:11px;color:#0F6E56}
+.repo-empty{text-align:center;padding:30px;color:#aeaeb2;font-size:12px}
+.repo-empty-icon{font-size:24px;margin-bottom:6px;opacity:.4}
+
+/* Upload progress */
+.upload-prog{padding:14px}
+.upload-prog-bar{height:6px;background:#f0f0ee;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.upload-prog-fill{height:100%;background:#0F6E56;border-radius:3px;transition:width .3s}
+.upload-prog-info{display:flex;justify-content:space-between;font-size:11px;color:#86868b}
+
+/* Workflow guide */
+.wf-guide{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#FFF8F0;border:0.5px solid #FFE0B2;border-radius:8px;margin-bottom:14px;font-size:12px;color:#633806}
+.wf-guide-steps{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.wf-guide-step{padding:3px 8px;background:#fff;border-radius:4px;border:0.5px solid #FFE0B2;white-space:nowrap}
+.wf-guide-step.active{background:#BA7517;color:#fff;border-color:#BA7517}
+.wf-guide-close{border:none;background:none;cursor:pointer;color:#BA7517;font-size:14px}
+
+
+/* ── Course Group View ── */
+.cg-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fff;border:0.5px solid #d5d5d3;border-radius:8px;margin-bottom:12px;flex-wrap:wrap}
+.cg-header-name{font-size:14px;font-weight:500}
+.cg-header-range{font-size:12px;color:#86868b}
+.cg-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.cg-chip{font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;border:0.5px solid #e5e5e5;background:#fff;color:#636366;font-family:inherit;transition:all .12s}
+.cg-chip:hover{background:#f5f5f3}
+.cg-chip.done{background:#EAF3DE;border-color:#B8D4A0;color:#27500A}
+.cg-chip.prog{background:#E1F5EE;border-color:#A8E6B8;color:#085041}
+.cg-chip.idle{background:#f5f5f3;color:#aeaeb2}
+.cg-section{margin-bottom:12px}
+.cg-section-head{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9f9f7;border:0.5px solid #d5d5d3;border-radius:8px 8px 0 0;cursor:pointer;font-size:13px}
+.cg-section-head:hover{background:#f0f0ee}
+.cg-section-arr{font-size:9px;color:#aeaeb2;transition:transform .15s}
+.cg-section-arr.open{transform:rotate(90deg)}
+.cg-section-name{font-weight:500;flex:1}
+.cg-section-badge{font-size:10px;padding:2px 6px;border-radius:4px}
+.cg-section-actions{display:flex;gap:4px}
+.cg-section-body{border:0.5px solid #d5d5d3;border-top:none;border-radius:0 0 8px 8px;overflow:hidden}
+.cg-mini-table{width:100%;border-collapse:collapse;font-size:12px}
+.cg-mini-table th{background:#f5f5f3;padding:5px 8px;text-align:left;font-weight:500;color:#86868b;font-size:11px;border-bottom:0.5px solid #e5e5e5}
+.cg-mini-table td{padding:5px 8px;border-bottom:0.5px solid #f0f0ee}
+.cg-mini-table tr:last-child td{border-bottom:none}
+.cg-mini-input{border:0.5px solid transparent;border-radius:3px;padding:2px 4px;font-size:12px;font-family:inherit;width:100%;background:transparent}
+.cg-mini-input:focus{border-color:#0F6E56;background:#fff;outline:none}
+
+/* Center view mode indicator */
+.fs-view-mode{display:flex;align-items:center;gap:6px;padding:6px 16px;background:#f0f7f4;border-bottom:0.5px solid #e5e5e5;font-size:12px;color:#0F6E56;flex-shrink:0}
+.fs-view-mode-icon{font-size:14px}
+.fs-view-mode-text{font-weight:500}
+.fs-view-mode-hint{color:#86868b;margin-left:auto;font-size:11px}
+
+/* ══════ DETAIL VIEWS ══════ */
+
+/* ── Fullscreen Overlay ── */
+.fs-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#f5f5f3;flex-direction:column}
+.fs-overlay.open{display:flex}
+.fs-header{height:50px;background:#fff;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.fs-header-title{font-size:14px;font-weight:500;flex:1;display:flex;align-items:center;gap:8px}
+.fs-body{flex:1;display:flex;overflow:hidden}
+
+/* ── Content Editor ── */
+.ed-left{width:240px;background:#fff;border-right:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0}
+.ed-left-head{padding:12px 14px;border-bottom:0.5px solid #e5e5e5;font-size:12px;font-weight:500;color:#86868b}
+.ed-left-list{flex:1;overflow-y:auto;padding:4px 8px}
+.ed-course{margin-bottom:2px}
+.ed-course-head{padding:7px 8px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;color:#636366}
+.ed-course-head:hover{background:#f5f5f3}
+.ed-set{padding:5px 8px 5px 28px;border-radius:4px;font-size:12px;cursor:pointer;color:#86868b;display:flex;align-items:center;gap:6px}
+.ed-set:hover{background:#f5f5f3;color:#1d1d1f}
+.ed-set.on{background:#f0f7f4;color:#0F6E56;font-weight:500}
+.ed-set .ed-dot{width:6px;height:6px;border-radius:50%;background:#d1d1d6;flex-shrink:0}
+.ed-set.done .ed-dot{background:#27500A}
+.ed-set.on .ed-dot{background:#0F6E56}
+.ed-center{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ed-toolbar{height:40px;background:#fff;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;padding:0 16px;gap:8px}
+.ed-toolbar-btn{padding:4px 8px;border:0.5px solid #e5e5e5;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;font-family:inherit;color:#636366}
+.ed-toolbar-btn:hover{background:#f5f5f3}
+.ed-content{flex:1;overflow-y:auto;padding:20px 24px}
+.ed-field{margin-bottom:16px}
+.ed-field-label{font-size:11px;color:#86868b;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.ed-field-label .req{color:#A32D2D}
+.ed-field input,.ed-field textarea,.ed-field select{width:100%;padding:8px 12px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+.ed-field input:focus,.ed-field textarea:focus{border-color:#0F6E56}
+.ed-field textarea{min-height:80px;resize:vertical}
+.ed-right{width:320px;background:#fff;border-left:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0}
+.ed-right-head{padding:12px 14px;border-bottom:0.5px solid #e5e5e5;font-size:12px;font-weight:500}
+.ed-right-body{flex:1;overflow-y:auto;padding:12px 14px}
+.ed-folder{padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;color:#636366}
+.ed-folder:hover{background:#f5f5f3}
+.ed-folder.on{background:#f0f7f4;color:#0F6E56}
+.ed-upload-zone{border:1.5px dashed #d1d1d6;border-radius:8px;padding:20px;text-align:center;color:#86868b;font-size:12px;margin-top:12px;cursor:pointer;transition:border-color .12s}
+.ed-upload-zone:hover{border-color:#0F6E56;color:#0F6E56}
+.ed-file-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:0.5px solid #e5e5e5;border-radius:6px;margin-top:8px;font-size:12px}
+.ed-file-icon{width:28px;height:28px;border-radius:6px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0C447C;font-weight:600;flex-shrink:0}
+.ed-file-name{flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-file-size{font-size:11px;color:#86868b}
+.ed-bottom-nav{padding:8px 14px;border-top:0.5px solid #e5e5e5;display:flex;justify-content:space-between}
+
+/* ── Review Viewer ── */
+.rv-content{flex:1;overflow-y:auto;padding:20px 24px}
+.rv-card{background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:16px;margin-bottom:12px}
+.rv-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rv-field-row{display:flex;gap:12px;margin-bottom:8px;font-size:13px}
+.rv-field-label{color:#86868b;min-width:80px}
+.rv-field-val{color:#1d1d1f;flex:1}
+.rv-checklist{margin-top:16px;padding-top:12px;border-top:0.5px solid #e5e5e5}
+.rv-check{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px}
+.rv-checkbox{width:16px;height:16px;border:1.5px solid #d1d1d6;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rv-checkbox.checked{background:#0F6E56;border-color:#0F6E56;color:#fff}
+.rv-comment{margin-top:12px}
+.rv-comment textarea{width:100%;min-height:60px;padding:8px 12px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:12px;font-family:inherit;resize:vertical;outline:none}
+.rv-comment textarea:focus{border-color:#0F6E56}
+
+/* ── Form Editor ── */
+.fe-body{flex:1;display:flex;overflow:hidden}
+.fe-left{width:300px;background:#fff;border-right:0.5px solid #e5e5e5;display:flex;flex-direction:column;flex-shrink:0}
+.fe-left-head{padding:12px 14px;border-bottom:0.5px solid #e5e5e5}
+.fe-left-search{width:100%;padding:7px 10px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.fe-left-search:focus{border-color:#0F6E56}
+.fe-cat-bar{display:flex;gap:4px;padding:8px 14px;flex-wrap:wrap}
+.fe-cat{font-size:11px;padding:3px 8px;border-radius:10px;cursor:pointer;background:#f5f5f3;color:#636366;border:none;font-family:inherit}
+.fe-cat.on{background:#0F6E56;color:#fff}
+.fe-pool{flex:1;overflow-y:auto;padding:8px}
+.fe-pool-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;margin-bottom:2px;transition:background .1s}
+.fe-pool-item:hover{background:#f5f5f3}
+.fe-pool-type{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
+.fe-pool-name{font-size:12px;font-weight:500;flex:1}
+.fe-pool-desc{font-size:11px;color:#86868b}
+.fe-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.fe-right-body{flex:1;overflow-y:auto;padding:20px 24px}
+.fe-info-card{background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:16px;margin-bottom:16px}
+.fe-info-title{font-size:12px;font-weight:500;margin-bottom:12px;color:#86868b}
+.fe-row{display:flex;gap:12px;margin-bottom:10px}
+.fe-row label{font-size:12px;color:#86868b;display:block;margin-bottom:4px}
+.fe-row input,.fe-row select{width:100%;padding:7px 10px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:13px;font-family:inherit;outline:none}
+.fe-row input:focus{border-color:#0F6E56}
+.fe-sys-toggle{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:6px;border:0.5px solid #e5e5e5;cursor:pointer;font-size:11px;margin-right:4px;transition:all .12s}
+.fe-sys-toggle.on{border-color:#0F6E56;background:#f0f7f4;color:#0F6E56}
+.fe-composed{background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;overflow:hidden}
+.fe-comp-head{padding:10px 14px;background:#f9f9f7;border-bottom:0.5px solid #e5e5e5;font-size:12px;font-weight:500;color:#86868b;display:flex;align-items:center;justify-content:space-between}
+.fe-comp-row{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid #f0f0ee;font-size:12px}
+.fe-comp-row:last-child{border-bottom:none}
+.fe-comp-idx{width:20px;height:20px;border-radius:50%;background:#f0f0ee;display:flex;align-items:center;justify-content:center;font-size:10px;color:#636366;flex-shrink:0}
+.fe-comp-title{flex:1}
+.fe-comp-title input{padding:4px 8px;border:0.5px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:inherit;width:100%;outline:none}
+.fe-comp-title input:focus{border-color:#0F6E56}
+.fe-comp-act{display:flex;gap:4px}
+.fe-comp-act button{padding:2px 6px;border:0.5px solid #e5e5e5;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#86868b;font-family:inherit}
+.fe-comp-act button:hover{background:#f5f5f3}
+
+/* ── Curriculum Builder ── */
+.cb-body{flex:1;display:flex;overflow:hidden}
+.cb-left{flex:1;overflow-y:auto;padding:20px 24px}
+.cb-right{width:300px;background:#fff;border-left:0.5px solid #e5e5e5;overflow-y:auto;padding:16px;flex-shrink:0}
+.cb-section{background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:16px;margin-bottom:16px}
+.cb-section-title{font-size:12px;font-weight:500;color:#86868b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.cb-depth-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #f0f0ee}
+.cb-depth-row:last-child{border-bottom:none}
+.cb-depth-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;color:#fff;flex-shrink:0}
+.cb-depth-input{flex:1;padding:6px 10px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.cb-depth-input:focus{border-color:#0F6E56}
+.cb-depth-count{width:60px;padding:6px 10px;border:0.5px solid #e5e5e5;border-radius:6px;font-size:12px;font-family:inherit;outline:none;text-align:center}
+.cb-depth-act{display:flex;gap:4px}
+.cb-preview-card{background:#f9f9f7;border:0.5px solid #e5e5e5;border-radius:10px;padding:14px;margin-bottom:12px}
+.cb-preview-bar{height:18px;border-radius:4px;margin-bottom:6px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:500;color:#fff}
+
+/* ── Tree Editor ── */
+.te-body{flex:1;overflow-y:auto;padding:16px 20px}
+.te-search{padding:12px 16px;border-bottom:0.5px solid #e5e5e5;background:#fff}
+.te-tree{padding:8px 12px}
+.te-node{margin-left:20px}
+.te-node-row{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:13px;transition:background .1s}
+.te-node-row:hover{background:#f5f5f3}
+.te-toggle{width:16px;text-align:center;color:#aeaeb2;font-size:10px;cursor:pointer;flex-shrink:0}
+.te-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;flex-shrink:0}
+.te-label{flex:1}
+.te-actions{display:none;gap:4px}
+.te-node-row:hover .te-actions{display:flex}
+.te-act-btn{padding:2px 6px;border:0.5px solid #e5e5e5;border-radius:4px;background:#fff;cursor:pointer;font-size:10px;color:#86868b;font-family:inherit}
+.te-act-btn:hover{background:#f0f7f4;color:#0F6E56;border-color:#0F6E56}
+.te-add-root{margin-top:12px;padding:10px;border:1.5px dashed #d1d1d6;border-radius:8px;text-align:center;font-size:12px;color:#86868b;cursor:pointer;transition:all .12s}
+.te-add-root:hover{border-color:#0F6E56;color:#0F6E56}
+
+/* ── Modal ── */
+.modal-ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:300;justify-content:center;align-items:center}
+.modal-ov.open{display:flex}
+.modal-box{background:#fff;border-radius:12px;width:640px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:14px 16px;border-bottom:0.5px solid #e5e5e5;display:flex;align-items:center;gap:10px}
+.modal-head-title{font-size:14px;font-weight:500;flex:1}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:#f5f5f3;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:#636366}
+.modal-close:hover{background:#e5e5e5}
+.modal-body{flex:1;overflow-y:auto;padding:16px}
+.modal-foot{padding:12px 16px;border-top:0.5px solid #e5e5e5;display:flex;justify-content:flex-end;gap:8px}
+.code-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;cursor:pointer;margin-bottom:2px;transition:background .1s}
+.code-row:hover{background:#f5f5f3}
+.code-row.bound{background:#f0f7f4}
+.code-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;font-family:'SF Mono',monospace;background:#f0f0ee;color:#1d1d1f;min-width:36px;text-align:center}
+.code-name{font-size:13px;flex:1}
+.code-detail{font-size:11px;color:#86868b}
+.consonant-bar{display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap}
+.consonant-btn{padding:4px 8px;border-radius:6px;border:0.5px solid #e5e5e5;background:#fff;cursor:pointer;font-size:11px;font-family:inherit}
+.consonant-btn.on{background:#0F6E56;color:#fff;border-color:#0F6E56}
+
+/* ── Inline Panels ── */
+.range-panel{background:#f9f9f7;border-top:0.5px solid #e5e5e5;padding:10px 14px;display:none}
+.range-panel.open{display:block}
+.range-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px}
+.range-input{width:50px;padding:4px 8px;border:0.5px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:inherit;text-align:center;outline:none}
+.range-input:focus{border-color:#0F6E56}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:500;display:none;animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── Work Config detail panel ── */
+.wc-detail{display:none;background:#f9f9f7;border-top:0.5px solid #e5e5e5;padding:12px 14px}
+.wc-detail.open{display:block}
+.wc-assign-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #f0f0ee;font-size:12px}
+.wc-assign-row:last-child{border-bottom:none}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16" stroke-linecap="round"/></svg></div>
+    <div class="sb-logo-text">Horizon <span>CMS v1.0</span></div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-group">
+      <div class="sb-item on" data-v="workflow" onclick="go('workflow')">작업 진행 보드 <span class="cnt">11</span></div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">콘텐츠 작업</div>
+      <div class="sb-item" data-v="work-config" onclick="go('work-config')">작업 설정</div>
+      <div class="sb-item" data-v="content-register" onclick="go('content-register')">콘텐츠 등록</div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">검수 & 배포</div>
+      <div class="sb-item" data-v="review" onclick="go('review')">검수 관리 <span class="cnt">3</span></div>
+      <div class="sb-item" data-v="deploy" onclick="go('deploy')">배포 관리</div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">서비스 연결 관리</div>
+      <div class="sb-item" data-v="service-bind" onclick="go('service-bind')">과목코드 바인딩</div>
+      <div class="sb-item" data-v="service-content" onclick="go('service-content')">서비스 콘텐츠 관리</div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">양식 관리</div>
+      <div class="sb-item" data-v="form-manage" onclick="go('form-manage')">입력 양식 관리</div>
+      <div class="sb-item" data-v="curriculum" onclick="go('curriculum')">커리큘럼 관리</div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">채점 시뮬레이션</div>
+      <div class="sb-item" data-v="scoring-sim" onclick="go('scoring-sim')">채점 시뮬레이션 관리</div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-label">설정</div>
+      <div class="sb-item" data-v="settings" onclick="go('settings')">시스템 관리</div>
+    </div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user"><div class="sb-avatar">SC</div><div><div class="sb-uname">Shawn</div><div class="sb-uemail">sangcheol.kim</div></div></div>
+  </div>
+</aside>
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="pgTitle">작업 진행 보드</div>
+    <div class="tb-stats" id="pgStats"><span>커리큘럼 <strong>4</strong></span><span>작업 <strong>11</strong></span><span>미배정 <strong>2</strong></span></div>
+    <div class="tb-search" id="cmdOpen" onclick="openCmd()">검색 <span style="font-size:11px;opacity:.5;margin-left:6px">Ctrl+K</span></div>
+  </div>
+  <div class="scroll">
+<div class="view on" id="v-workflow">
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="커리큘럼 / 양식 / 담당자 검색...">
+    <select class="filter-select"><option>전체 단계</option><option>배정</option><option>등록</option><option>검수</option><option>배포</option></select>
+    <select class="filter-select"><option>전체 커리큘럼</option><option>수학 기초 과정</option><option>영어 회화 과정</option></select>
+    <select class="filter-select"><option>전체 담당자</option><option>홍길동</option><option>김철수</option></select>
+  </div>
+  <div class="kanban">
+    <div class="k-col">
+      <div class="k-head">담당 배정 <span class="k-cnt">2</span></div>
+      <div class="k-card">
+        <div class="k-card-top"><div class="k-card-name">과학 탐구 과정</div><div class="k-card-depth">커리큘럼명 → 과정(4) → <b>세트(40)</b> → 콘텐츠</div></div>
+        <div class="form-row" onclick="showToast('배정 필요')"><div class="form-bar bar-nd"></div><span class="form-name">웹콘텐츠</span><span class="form-sys">[ND]</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#e5e5e5"></div></div></div><span class="form-count">0/40</span><span class="form-assignee" style="color:#A32D2D">미배정</span></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-top"><div class="k-card-name">수학 심화 과정</div><div class="k-card-depth">커리큘럼명 → 과정(6) → <b>세트(60)</b> → 콘텐츠</div></div>
+        <div class="form-row" onclick="showToast('배정 필요')"><div class="form-bar bar-nh"></div><span class="form-name">영상강의</span><span class="form-sys">[NH]</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#e5e5e5"></div></div></div><span class="form-count">0/60</span><span class="form-assignee" style="color:#A32D2D">미배정</span></div>
+      </div>
+    </div>
+    <div class="k-col">
+      <div class="k-head">콘텐츠 등록 <span class="k-cnt">5</span></div>
+      <div class="k-card">
+        <div class="k-card-top">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div class="k-card-name">수학 기초 과정</div><span style="font-size:11px;color:#0F6E56;font-weight:500">57%</span></div>
+          <div class="k-card-depth">커리큘럼명 → 과정(8) → <b>세트(80)</b> → 콘텐츠</div>
+          <div style="height:3px;background:#f0f0ee;border-radius:2px;margin-top:4px"><div style="width:57%;height:100%;background:#0F6E56;border-radius:2px"></div></div>
+        </div>
+        <div class="form-row" onclick="openEditor('math-ans')"><div class="form-bar bar-nd"></div><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="badge b-urgent" style="font-size:10px;padding:1px 6px">긴급</span><span class="form-count">28/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span class="form-assignee">홍길동</span></div>
+        <div class="form-row" onclick="openEditor('math-cbt')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">12/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:24%;background:#A32D2D"></div></div></div><span class="form-assignee">이지은</span></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-top">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div class="k-card-name">영어 회화 과정</div><span style="font-size:11px;color:#0F6E56;font-weight:500">35%</span></div>
+          <div class="k-card-depth">커리큘럼명 → 과정(6) → <b>세트(60)</b> → 콘텐츠</div>
+          <div style="height:3px;background:#f0f0ee;border-radius:2px;margin-top:4px"><div style="width:35%;height:100%;background:#0F6E56;border-radius:2px"></div></div>
+        </div>
+        <div class="form-row" onclick="openEditor('eng-an2')"><div class="form-bar bar-nh"></div><span class="form-name">자동채점</span><span class="form-sys">[NH]</span><span class="form-count">21/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#0F6E56"></div></div></div><span class="form-assignee">이영희</span></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-top"><div class="k-card-name">과학 탐구 과정</div><div class="k-card-depth">과정(4) → <b>세트(40)</b></div></div>
+        <div class="form-row" onclick="openEditor('sci-web')"><div class="form-bar bar-nd"></div><span class="form-name">웹콘텐츠</span><span class="form-sys">[ND]</span><span class="form-count">15/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:38%;background:#0F6E56"></div></div></div><span class="form-assignee">최유나</span></div>
+      </div>
+    </div>
+    <div class="k-col">
+      <div class="k-head">검수 <span class="k-cnt">3</span></div>
+      <div class="k-card">
+        <div class="k-card-top"><div style="display:flex;justify-content:space-between"><div class="k-card-name">수학 기초 과정</div><span class="badge b-wait" style="font-size:10px">2건 대기</span></div></div>
+        <div class="form-row" onclick="openReview('math-ans-rv')"><div class="form-bar bar-nd"></div><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count">40/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김철수</span><button class="btn btn-sm btn-p" style="font-size:10px;padding:2px 8px;margin-left:4px">검수</button></div>
+        <div class="form-row" onclick="openReview('math-cbt-rv')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">25/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">이지은</span><button class="btn btn-sm btn-p" style="font-size:10px;padding:2px 8px;margin-left:4px">검수</button></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-top"><div style="display:flex;justify-content:space-between"><div class="k-card-name">영어 회화 과정</div><span class="badge b-prog" style="font-size:10px">검수 중</span></div></div>
+        <div class="form-row" onclick="openReview('eng-flc-rv')"><div class="form-bar bar-nh"></div><span class="form-name">플래시카드</span><span class="form-sys">[NH]</span><span class="form-count">60/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김영희</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px;margin-left:4px">확인</button></div>
+      </div>
+    </div>
+    <div class="k-col">
+      <div class="k-head">배포 <span class="k-cnt">1</span></div>
+      <div class="k-card">
+        <div class="k-card-top"><div class="k-card-name">국어 독해 과정</div></div>
+        <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">30/30</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">박민수</span><span class="badge b-ready" style="font-size:10px">배포 준비</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-work-config">
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="커리큘럼 / 담당자 검색...">
+    <select class="filter-select"><option>전체 과목</option><option>수학</option><option>영어</option><option>국어</option></select>
+    <select class="filter-select"><option>전체 시스템</option><option>뉴드림스</option><option>눈높이</option><option>성장판</option></select>
+    <select class="filter-select"><option>전체 상태</option><option>진행 중</option><option>미배정</option><option>완료</option></select>
+  </div>
+  <div class="g3">
+    <div class="card" id="wc-card-1">
+      <div class="card-top">
+        <div class="card-top-row"><span class="card-name">수학 기초 과정</span><span class="card-pct">57%</span></div>
+        <div class="card-meta"><span class="badge b-active">활성</span><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div>
+        <div class="depth-flow"><span class="dp">커리큘럼명(1)</span><span class="darr">→</span><span class="dp">과정(8)</span><span class="darr">→</span><span class="dp dp-s">세트(80)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div>
+      </div>
+      <div class="form-row" onclick="toggleWcDetail('wc1-d1')"><div class="form-bar bar-nd"></div><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count">28/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span class="form-assignee">홍길동</span><span style="font-size:11px;color:#aeaeb2">▼</span></div>
+      <div class="wc-detail" id="wc1-d1">
+        <div style="font-size:11px;color:#86868b;margin-bottom:8px">세트 범위 배정</div>
+        <div class="wc-assign-row"><span style="font-weight:500">홍길동</span><span style="margin-left:auto">1 ~ 40세트</span><div class="prog" style="max-width:80px"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span style="font-size:11px;color:#86868b">28/40</span></div>
+        <div class="wc-assign-row"><span style="font-weight:500">김철수</span><span style="margin-left:auto">41 ~ 80세트</span><div class="prog" style="max-width:80px"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span style="font-size:11px;color:#86868b;color:#27500A">80/80</span></div>
+        <div style="margin-top:8px"><button class="btn btn-sm" onclick="event.stopPropagation();showToast('담당자 배정 모달')">+ 담당자 추가</button></div>
+      </div>
+      <div class="form-row" onclick="toggleWcDetail('wc1-d2')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">12/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:24%;background:#A32D2D"></div></div></div><span class="form-assignee">이지은</span><span style="font-size:11px;color:#aeaeb2">▼</span></div>
+      <div class="wc-detail" id="wc1-d2">
+        <div style="font-size:11px;color:#86868b;margin-bottom:8px">세트 범위 배정</div>
+        <div class="wc-assign-row"><span style="font-weight:500">이지은</span><span style="margin-left:auto">전체 (1~50)</span><div class="prog" style="max-width:80px"><div class="prog-bar"><div class="prog-fill" style="width:24%;background:#A32D2D"></div></div></div><span style="font-size:11px;color:#86868b">12/50</span></div>
+        <div style="margin-top:8px"><button class="btn btn-sm" onclick="event.stopPropagation();showToast('담당자 배정 모달')">+ 담당자 추가</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-row"><span class="card-name">영어 회화 과정</span><span class="card-pct">68%</span></div>
+        <div class="card-meta"><span class="badge b-active">활성</span><span class="badge b-nd" style="font-size:10px">영어</span><span>초등 4학년</span></div>
+        <div class="depth-flow"><span class="dp">커리큘럼명(1)</span><span class="darr">→</span><span class="dp">과정(6)</span><span class="darr">→</span><span class="dp dp-s">세트(60)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div>
+      </div>
+      <div class="form-row" onclick="toggleWcDetail('wc2-d1')"><div class="form-bar bar-nh"></div><span class="form-name">자동채점</span><span class="form-sys">[NH]</span><span class="form-count">21/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#0F6E56"></div></div></div><span class="form-assignee">이영희</span><span style="font-size:11px;color:#aeaeb2">▼</span></div>
+      <div class="wc-detail" id="wc2-d1">
+        <div style="font-size:11px;color:#86868b;margin-bottom:8px">세트 범위 배정</div>
+        <div class="wc-assign-row"><span style="font-weight:500">이영희</span><span style="margin-left:auto">전체 (1~60)</span><div class="prog" style="max-width:80px"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#0F6E56"></div></div></div><span style="font-size:11px;color:#86868b">21/60</span></div>
+      </div>
+      <div class="form-row" style="background:#f0faf5"><div class="form-bar bar-nd"></div><span class="form-name">플래시카드</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#27500A">60/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김영희</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-row"><span class="card-name">국어 독해 과정</span><span class="card-pct">60%</span></div>
+        <div class="card-meta"><span class="badge b-active">활성</span><span class="badge b-nd" style="font-size:10px">국어</span><span>중등 2학년</span></div>
+        <div class="depth-flow"><span class="dp">커리큘럼명(1)</span><span class="darr">→</span><span class="dp">과정(5)</span><span class="darr">→</span><span class="dp dp-s">세트(50)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div>
+      </div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">30/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:60%;background:#0F6E56"></div></div></div><span class="form-assignee">박민수</span></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-content-register">
+  <!-- Header -->
+  <div class="cr-header">
+    <div><span class="cr-title">콘텐츠 등록</span><span class="cr-subtitle">전체 커리큐럼 기반 콘텐츠 등록 현황</span></div>
+    <div class="cr-stats">
+      <span class="filter-badge b-wait">등록 대기 4</span>
+      <span class="filter-badge b-done">배포 완료 2</span>
+      <button class="btn btn-p" onclick="showToast('신규 등록')">+ 신규 등록</button>
+    </div>
+  </div>
+
+  <!-- 3-Tab Switcher -->
+  <div class="tabs" id="crTabs">
+    <button class="tab on" data-tab="cr-all" onclick="switchCrTab(this,'cr-all')"><span style="margin-right:4px">☰</span> 전체</button>
+    <button class="tab" data-tab="cr-my" onclick="switchCrTab(this,'cr-my')"><span style="margin-right:4px">◉</span> 내 작업</button>
+    <button class="tab" data-tab="cr-team" onclick="switchCrTab(this,'cr-team')"><span style="margin-right:4px">◣</span> 팀 콘텐츠</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <select class="filter-select"><option>전체 단계</option><option>담당 배정</option><option>콘텐츠 등록</option><option>검수</option><option>배포</option></select>
+    <select class="filter-select"><option>전체 커리큐럼</option><option>수학 기초 과정</option><option>영어 회화 과정</option><option>국어 독해 과정</option></select>
+    <select class="filter-select"><option>전체 양식</option><option>정답 해설</option><option>자동채점</option><option>핵심점검</option><option>플래시카드</option></select>
+    <select class="filter-select" id="crAssigneeFilter"><option>전체 담당자</option><option>미배정</option><option>홍길동</option><option>김철수</option><option>이영희</option><option>이지은</option></select>
+    <div class="filter-spacer"></div>
+    <span id="crMyBadge" style="display:none" class="filter-badge" style="background:#E6F1FB;color:#0C447C">홍길동님의 작업</span>
+    <span id="crTeamBadge" style="display:none" class="filter-badge" style="background:#EEEDFE;color:#3C3489">콘텐츠팀</span>
+    <span style="font-size:12px;color:#86868b">7건</span>
+  </div>
+
+  <!-- Tab Panes -->
+  <div id="cr-pane-all">
+    <!-- Card Grid (curriculum-grouped) -->
+    <div class="g3">
+      <!-- Card 1: 수학 기초 과정 -->
+      <div class="card" style="border-left:3px solid #0F6E56">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">수학 기초 과정</span><span class="card-pct">57%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div>
+          <div class="depth-flow" style="margin-top:6px"><span class="dp">커리큐럼명 1</span><span class="darr">▶</span><span class="dp">과정 8</span><span class="darr">▶</span><span class="dp dp-s">세트 80</span><span class="darr">▶</span><span class="dp">콘텐츠</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('math-ans-1')"><div class="form-bar bar-nd"></div><span class="form-name">정답·해설</span><span class="form-sys">[ND]</span><span class="form-count">28/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span class="form-assignee">홍길동</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('math-ans-2')" style="background:#f0faf5"><div class="form-bar bar-nd"></div><span class="form-name">정답·해설</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#27500A">80/80 ✔</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김철수</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('math-cbt')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">12/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:24%;background:#A32D2D"></div></div></div><span class="form-assignee">이지은</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('math-an2')"><div class="form-bar bar-sj"></div><span class="form-name">자동채점</span><span class="form-sys">[SJ]</span><span class="form-count">0/80</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%"></div></div></div><span class="form-assignee" style="color:#A32D2D">미배정</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+
+      <!-- Card 2: 영어 회화 과정 -->
+      <div class="card" style="border-left:3px solid #0F6E56">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">영어 회화 과정</span><span class="card-pct">68%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">영어</span><span>초등 4학년</span></div>
+          <div class="depth-flow" style="margin-top:6px"><span class="dp">커리큐럼명 1</span><span class="darr">▶</span><span class="dp">과정 6</span><span class="darr">▶</span><span class="dp dp-s">세트 60</span><span class="darr">▶</span><span class="dp">콘텐츠</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('eng-an2')"><div class="form-bar bar-nh"></div><span class="form-name">자동채점</span><span class="form-sys">[NH]</span><span class="form-count">21/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#0F6E56"></div></div></div><span class="form-assignee">이영희</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('eng-flc')" style="background:#f0faf5"><div class="form-bar bar-nd"></div><span class="form-name">플래시카드</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#27500A">60/60 ✔</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김영희</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+
+      <!-- Card 3: 국어 독해 과정 -->
+      <div class="card" style="border-left:3px solid #185FA5">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">국어 독해 과정</span><span class="card-pct">60%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">국어</span><span>중등 2학년</span></div>
+          <div class="depth-flow" style="margin-top:6px"><span class="dp">커리큐럼명 1</span><span class="darr">▶</span><span class="dp">과정 5</span><span class="darr">▶</span><span class="dp dp-s">세트 50</span><span class="darr">▶</span><span class="dp">콘텐츠</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('kor-an2')"><div class="form-bar bar-nd"></div><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">30/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:60%;background:#0F6E56"></div></div></div><span class="form-assignee">박민수</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Work pane (hidden by default) -->
+  <div id="cr-pane-my" style="display:none">
+    <div class="g3">
+      <div class="card" style="border-left:3px solid #0F6E56">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">수학 기초 과정</span><span class="card-pct">70%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('my-ans')"><div class="form-bar bar-nd"></div><span class="form-name">정답·해설</span><span class="form-sys">[ND]</span><span class="form-count">28/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span class="form-assignee">홍길동</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team pane (hidden by default) -->
+  <div id="cr-pane-team" style="display:none">
+    <div class="g3">
+      <div class="card" style="border-left:3px solid #0F6E56">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">수학 기초 과정</span><span class="card-pct">57%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('t1')"><div class="form-bar bar-nd"></div><span class="form-name">정답·해설</span><span class="form-sys">[ND]</span><span class="form-count">28/40</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0F6E56"></div></div></div><span class="form-assignee">홍길동</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('t2')" style="background:#f0faf5"><div class="form-bar bar-nd"></div><span class="form-name">정답·해설</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#27500A">80/80 ✔</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#3B6D11"></div></div></div><span class="form-assignee">김철수</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+        <div class="form-row" onclick="openEditor('t3')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">12/50</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:24%;background:#A32D2D"></div></div></div><span class="form-assignee">이지은</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+      <div class="card" style="border-left:3px solid #0F6E56">
+        <div class="card-top">
+          <div class="card-top-row"><span class="card-name">영어 회화 과정</span><span class="card-pct">35%</span></div>
+          <div class="card-meta"><span class="badge b-nd" style="font-size:10px">영어</span></div>
+        </div>
+        <div class="form-row" onclick="openEditor('t4')"><div class="form-bar bar-nh"></div><span class="form-name">자동채점</span><span class="form-sys">[NH]</span><span class="form-count">21/60</span><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#0F6E56"></div></div></div><span class="form-assignee">이영희</span><span style="font-size:11px;color:#aeaeb2">▶</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-review">
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="커리큘럼 / 과목 / 담당자 검색...">
+    <select class="filter-select"><option>전체 상태</option><option>대기</option><option>검수 중</option><option>완료</option></select>
+    <div class="filter-spacer"></div>
+    <span class="filter-badge b-wait">대기 2</span><span class="filter-badge b-prog">검수 중 1</span><span class="filter-badge b-done">완료 0</span>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-row"><span class="card-name">수학 기초 과정</span><span class="badge b-wait">2건 대기</span></div>
+        <div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div>
+        <div class="depth-flow"><span class="dp">커리큘럼명</span><span class="darr">→</span><span class="dp">과정(8)</span><span class="darr">→</span><span class="dp dp-s">세트(80)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div>
+      </div>
+      <div class="form-row" onclick="openReview('math-ans-rv')"><div class="form-bar bar-nd"></div><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count">40/40</span><span class="form-assignee">김철수</span><button class="btn btn-sm btn-p" style="font-size:10px;padding:2px 8px">검수 시작</button></div>
+      <div class="form-row" onclick="openReview('math-cbt-rv')"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">25/50</span><span class="form-assignee">이지은</span><button class="btn btn-sm btn-p" style="font-size:10px;padding:2px 8px">검수 시작</button></div>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <div class="card-top-row"><span class="card-name">영어 회화 과정</span><span class="badge b-prog">검수 중</span></div>
+        <div class="card-meta"><span class="badge b-nd" style="font-size:10px">영어</span><span>초등 4학년</span></div>
+        <div class="depth-flow"><span class="dp">커리큘럼명</span><span class="darr">→</span><span class="dp">과정(6)</span><span class="darr">→</span><span class="dp dp-s">세트(60)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div>
+      </div>
+      <div class="form-row" onclick="openReview('eng-flc-rv')"><div class="form-bar bar-nh"></div><span class="form-name">플래시카드</span><span class="form-sys">[NH]</span><span class="form-count">60/60</span><span class="form-assignee">김영희</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px">확인 &gt;</button></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-deploy">
+  <div class="tabs" id="deployTabs">
+    <button class="tab on" onclick="switchDeployTab(this,0)">배포 대기</button><button class="tab" onclick="switchDeployTab(this,1)">스케줄</button><button class="tab" onclick="switchDeployTab(this,2)">배포 이력</button>
+  </div>
+  <div id="deploy-pane-0">
+    <div class="legend"><span><span class="legend-dot" style="background:#BA7517"></span>배포 예정</span><span><span class="legend-dot" style="background:#27500A"></span>서비스 중</span><span><span class="legend-dot" style="background:#aeaeb2"></span>미배포</span></div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-top"><div class="card-top-row"><span class="card-name">수학 기초 과정</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div><div class="depth-flow"><span class="dp">커리큘럼명</span><span class="darr">→</span><span class="dp">과정(8)</span><span class="darr">→</span><span class="dp dp-s">세트(80)</span><span class="darr">→</span><span class="dp">콘텐츠</span></div></div>
+        <div class="form-row" style="background:#fff8f0"><div class="form-bar" style="background:#BA7517"></div><span class="dot dot-rev"></span><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count">김철수 41~80</span></div>
+        <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#86868b">v1.2 서비스 중</span></div>
+        <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count" style="color:#86868b">v1.0 서비스 중</span></div>
+        <div style="padding:8px 14px;border-top:0.5px solid #f0f0ee"><select class="filter-select" style="width:100%;font-size:11px;padding:4px 8px"><option>스케줄 배정...</option><option>5월 2주차 정기 배포</option><option>긴급 핫픽스</option></select></div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-top-row"><span class="card-name">국어 독해 과정</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">국어</span><span>중등 2학년</span></div></div>
+        <div class="form-row" style="background:#fff8f0"><div class="form-bar" style="background:#BA7517"></div><span class="dot dot-rev"></span><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">박민수 전체</span></div>
+        <div style="padding:8px 14px;border-top:0.5px solid #f0f0ee"><select class="filter-select" style="width:100%;font-size:11px;padding:4px 8px"><option>스케줄 배정...</option><option>5월 2주차 정기 배포</option></select></div>
+      </div>
+    </div>
+  </div>
+  <div id="deploy-pane-1" style="display:none">
+    <div class="g3">
+      <div class="card"><div style="padding:14px"><div style="font-size:13px;font-weight:500;margin-bottom:6px">5월 2주차 정기 배포</div><div style="font-size:12px;color:#86868b;margin-bottom:4px">2026-05-14 09:00</div><div style="font-size:11px;color:#86868b">배포 대상: 3건</div><div style="margin-top:8px"><button class="btn btn-sm btn-p" onclick="showToast('배포 실행')">배포 실행</button></div></div></div>
+      <div class="card"><div style="padding:14px"><div style="font-size:13px;font-weight:500;margin-bottom:6px">긴급 핫픽스</div><div style="font-size:12px;color:#86868b;margin-bottom:4px">즉시 배포</div><div style="font-size:11px;color:#86868b">배포 대상: 1건</div><div style="margin-top:8px"><button class="btn btn-sm btn-p" onclick="showToast('배포 실행')">배포 실행</button></div></div></div>
+    </div>
+  </div>
+  <div id="deploy-pane-2" style="display:none">
+    <div class="tbl">
+      <div class="tbl-head" style="grid-template-columns:0.5fr 1.5fr 1fr 0.8fr 0.8fr 0.6fr"><span>ID</span><span>배포명</span><span>커리큘럼</span><span>배포일</span><span>상태</span><span>액션</span></div>
+      <div class="tbl-row" style="grid-template-columns:0.5fr 1.5fr 1fr 0.8fr 0.8fr 0.6fr"><span style="color:#86868b">D003</span><span style="font-weight:500">5월 1주차 정기 배포</span><span style="color:#86868b">수학 기초 과정</span><span style="color:#86868b">2026-05-07</span><span><span class="badge b-done">완료</span></span><span><button class="btn btn-sm" onclick="showToast('롤백 기능')">롤백</button></span></div>
+      <div class="tbl-row" style="grid-template-columns:0.5fr 1.5fr 1fr 0.8fr 0.8fr 0.6fr"><span style="color:#86868b">D002</span><span style="font-weight:500">4월 정기 배포</span><span style="color:#86868b">영어 회화 과정</span><span style="color:#86868b">2026-04-28</span><span><span class="badge b-done">완료</span></span><span><button class="btn btn-sm" onclick="showToast('롤백 기능')">롤백</button></span></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-service-bind">
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="커리큘럼 / 과목코드 검색...">
+    <select class="filter-select"><option>전체</option><option>연결됨</option><option>미연결</option></select>
+    <select class="filter-select"><option>전체 시스템</option></select>
+    <div class="filter-spacer"></div>
+    <span class="filter-badge b-done">연결 5</span><span class="filter-badge b-draft">미연결 1</span><span class="filter-badge b-gray">과목코드 29개</span>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">수학 기초 과정</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span style="margin-left:auto"><span class="code-pill b-nd">M 수학</span></span></div>
+      <div class="form-row"><div class="form-bar bar-nh"></div><span class="form-name">정답 해설</span><span class="form-sys">[NH]</span><span style="margin-left:auto"><span class="code-pill b-nh">M 수학</span></span></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span style="margin-left:auto"><span class="code-pill b-nd">M 수학</span></span></div>
+      <div class="form-row"><div class="form-bar bar-sj"></div><span class="form-name">자동채점</span><span class="form-sys">[SJ]</span><span style="margin-left:auto"><span class="code-pill b-sj">M 수학</span></span></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span style="margin-left:auto"><span class="code-pill b-nd">M 수학</span></span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">영어 회화 과정</span><span class="badge b-draft">1건 미연결</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">영어</span><span>초등 4학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">플래시카드</span><span class="form-sys">[ND]</span><span style="margin-left:auto"><span class="code-pill b-nd">E 영어</span></span></div>
+      <div class="form-row"><div class="form-bar bar-nh"></div><span class="form-name">웹콘텐츠</span><span class="form-sys">[NH]</span><span style="margin-left:auto"><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();openBindModal()">+ 연결</button></span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">국어 독해 과정</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">국어</span><span>중등 2학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span style="margin-left:auto"><span class="code-pill b-nd">K 국어</span></span></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-service-content">
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="서비스 콘텐츠 검색...">
+    <select class="filter-select"><option>전체 상태</option><option>정상</option><option>조치 필요</option></select>
+    <select class="filter-select"><option>전체 시스템</option></select>
+    <div class="filter-spacer"></div>
+    <span class="filter-badge b-done">정상 4</span><span class="filter-badge b-wait">조치 필요 1</span>
+  </div>
+  <div class="legend"><span><span class="legend-dot" style="background:#27500A"></span>정상</span><span><span class="legend-dot" style="background:#BA7517"></span>수정 중</span><span><span class="legend-dot" style="background:#185FA5"></span>점검</span><span><span class="legend-dot" style="background:#aeaeb2"></span>대기</span></div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">수학 기초 과정</span><span style="font-size:11px;color:#86868b">v1.2 / 2026-03-27</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">수학</span><span>중등 1학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">정답 해설</span><span class="form-sys">[ND]</span><span class="form-count">v1.2</span><span class="form-assignee">홍길동</span><span class="code-pill b-nd" style="font-size:10px">M</span></div>
+      <div class="form-row"><div class="form-bar bar-nh"></div><span class="dot dot-live"></span><span class="form-name">정답 해설</span><span class="form-sys">[NH]</span><span class="form-count">v1.0</span><span class="form-assignee">홍길동</span><span class="code-pill b-nh" style="font-size:10px">M</span></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">v1.0</span><span class="form-assignee">이영희</span><span class="code-pill b-nd" style="font-size:10px">M</span></div>
+      <div class="form-row"><div class="form-bar bar-sj"></div><span class="dot dot-rev"></span><span class="form-name">자동채점</span><span class="form-sys">[SJ]</span><span class="form-count" style="color:#BA7517">수정 중</span><span class="form-assignee">이영희</span><button class="btn btn-sm" style="font-size:10px;padding:2px 6px;margin-left:auto" onclick="event.stopPropagation();showToast('수정 작업 생성됨')">수정 작업 생성</button></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">핵심점검</span><span class="form-sys">[ND]</span><span class="form-count">v1.0</span><span class="form-assignee">이지은</span><span class="code-pill b-nd" style="font-size:10px">M</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">영어 회화 과정</span><span style="font-size:11px;color:#86868b">v1.0 / 2026-04-10</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">영어</span><span>초등 4학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">플래시카드</span><span class="form-sys">[ND]</span><span class="form-count">v1.0</span><span class="form-assignee">김영희</span><span class="code-pill b-nd" style="font-size:10px">E</span></div>
+      <div class="form-row"><div class="form-bar bar-nh"></div><span class="dot dot-chk"></span><span class="form-name">웹콘텐츠</span><span class="form-sys">[NH]</span><span class="form-count" style="color:#185FA5">점검 중</span><span class="form-assignee">최유나</span><span class="code-pill b-nh" style="font-size:10px">E</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><div class="card-top-row"><span class="card-name">국어 독해 과정</span><span style="font-size:11px;color:#86868b">v1.1 / 2026-04-28</span></div><div class="card-meta"><span class="badge b-nd" style="font-size:10px">국어</span><span>중등 2학년</span></div></div>
+      <div class="form-row"><div class="form-bar bar-nd"></div><span class="dot dot-live"></span><span class="form-name">자동채점</span><span class="form-sys">[ND]</span><span class="form-count">v1.1</span><span class="form-assignee">박민수</span><span class="code-pill b-nd" style="font-size:10px">K</span></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-form-manage">
+  <div id="fm-list">
+    <div class="filter-bar">
+      <input class="filter-input" placeholder="양식 검색...">
+      <select class="filter-select"><option>전체 상태</option><option>활성</option><option>초안</option></select>
+      <select class="filter-select"><option>전체 시스템</option></select>
+      <div class="filter-spacer"></div>
+      <button class="btn" onclick="openFormEditor('new')">+ 새 양식</button>
+    </div>
+    <div class="g3">
+<div class="card" style="cursor:pointer;" onclick="openFormEditor('fm0')">
+  <div style="padding:12px 14px">
+    <div style="display:flex;gap:4px;margin-bottom:6px"><span class="badge b-nd" style="font-size:10px">ND</span><span class="badge b-nh" style="font-size:10px">NH</span><span class="badge b-gray" style="font-size:10px">ANS</span></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px">정답 해설 입력 양식</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px"><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>문항번호<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>정답<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>배점</span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>해설</span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>비고</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#86868b">
+      <span>필드 5개 / 2개 커리큐럼 사용</span><span class="badge b-active">활성</span>
+    </div></div></div>
+<div class="card" style="cursor:pointer;" onclick="openFormEditor('fm1')">
+  <div style="padding:12px 14px">
+    <div style="display:flex;gap:4px;margin-bottom:6px"><span class="badge b-nd" style="font-size:10px">ND</span><span class="badge b-sj" style="font-size:10px">SJ</span><span class="badge b-gray" style="font-size:10px">AN2</span></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px">자동채점 입력 양식</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px"><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>문항번호<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>정답<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#aeaeb2"></span>배점</span><span class="field-chip"><span class="field-dot" style="background:#aeaeb2"></span>오답 유형</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#86868b">
+      <span>필드 4개 / 2개 커리큐럼 사용</span><span class="badge b-active">활성</span>
+    </div></div></div>
+<div class="card" style="cursor:pointer;" onclick="openFormEditor('fm2')">
+  <div style="padding:12px 14px">
+    <div style="display:flex;gap:4px;margin-bottom:6px"><span class="badge b-nd" style="font-size:10px">ND</span><span class="badge b-gray" style="font-size:10px">CBT</span></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px">핵심점검 CBT 양식</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px"><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>문항번호<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>문제<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>보기<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>정답<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>해설</span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>난이도</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#86868b">
+      <span>필드 6개 / 1개 커리큐럼 사용</span><span class="badge b-active">활성</span>
+    </div></div></div>
+<div class="card" style="cursor:pointer;" onclick="openFormEditor('fm3')">
+  <div style="padding:12px 14px">
+    <div style="display:flex;gap:4px;margin-bottom:6px"><span class="badge b-nd" style="font-size:10px">ND</span><span class="badge b-gray" style="font-size:10px">FLC</span></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px">플래시카드 양식</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px"><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>앞면<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>뒷면<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#aeaeb2"></span>이미지</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#86868b">
+      <span>필드 3개 / 1개 커리큐럼 사용</span><span class="badge b-active">활성</span>
+    </div></div></div>
+<div class="card" style="cursor:pointer;opacity:.7;" onclick="openFormEditor('fm4')">
+  <div style="padding:12px 14px">
+    <div style="display:flex;gap:4px;margin-bottom:6px"><span class="badge b-nh" style="font-size:10px">NH</span><span class="badge b-gray" style="font-size:10px">STDG</span></div>
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px">영상강의 양식</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px"><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>강좌명<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#0C447C"></span>영상URL<span style="color:#A32D2D">*</span></span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>DRM</span><span class="field-chip"><span class="field-dot" style="background:#3C3489"></span>외 5개</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#86868b">
+      <span>필드 8개 / 미사용</span><span class="badge b-draft">초안</span>
+    </div></div></div>
+    </div></div>
+  <div id="fm-editor" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button class="btn" onclick="closeFormEditor()">&larr; 뒤로</button>
+      <span style="font-size:15px;font-weight:500" id="feTitle">새 양식 추가</span>
+      <div class="filter-spacer"></div>
+      <button class="btn" onclick="closeFormEditor()">취소</button>
+      <button class="btn btn-p" onclick="closeFormEditor();showToast('저장됨')">저장</button>
+    </div>
+    <div style="display:flex;gap:16px">
+      <div style="width:300px;background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 200px)">
+        <div style="padding:12px 14px;border-bottom:0.5px solid #e5e5e5;font-size:12px;font-weight:500;color:#86868b">필드 풀</div>
+        <div style="padding:8px 14px"><input class="fe-left-search" placeholder="필드 검색..."></div>
+        <div class="fe-cat-bar"><button class="fe-cat on">전체</button><button class="fe-cat">기본정보</button><button class="fe-cat">콘텐츠</button><button class="fe-cat">평가</button><button class="fe-cat">미디어</button></div>
+        <div class="fe-pool">
+          <div class="fe-pool-item" onclick="showToast('+ 문항번호 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">문항번호</span><span class="fe-pool-desc">문항 일련번호</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 정답 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">정답</span><span class="fe-pool-desc">정답 텍스트</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 배점 추가됨')"><span class="fe-pool-type" style="background:#E1F5EE;color:#085041">number</span><span class="fe-pool-name">배점</span><span class="fe-pool-desc">문항 배점</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 해설 추가됨')"><span class="fe-pool-type" style="background:#EEEDFE;color:#3C3489">textarea</span><span class="fe-pool-name">해설</span><span class="fe-pool-desc">상세 해설 입력</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 비고 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">비고</span><span class="fe-pool-desc">추가 메모</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 오답 유형 추가됨')"><span class="fe-pool-type" style="background:#FAEEDA;color:#633806">select</span><span class="fe-pool-name">오답 유형</span><span class="fe-pool-desc">오답 분류</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 문제 추가됨')"><span class="fe-pool-type" style="background:#EEEDFE;color:#3C3489">textarea</span><span class="fe-pool-name">문제</span><span class="fe-pool-desc">문제 본문</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 보기 추가됨')"><span class="fe-pool-type" style="background:#EEEDFE;color:#3C3489">textarea</span><span class="fe-pool-name">보기</span><span class="fe-pool-desc">선택지</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 난이도 추가됨')"><span class="fe-pool-type" style="background:#FAEEDA;color:#633806">select</span><span class="fe-pool-name">난이도</span><span class="fe-pool-desc">상/중/하</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 앞면 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">앞면</span><span class="fe-pool-desc">카드 앞면</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 뒷면 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">뒷면</span><span class="fe-pool-desc">카드 뒷면</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 이미지 추가됨')"><span class="fe-pool-type" style="background:#FCEBEB;color:#791F1F">file</span><span class="fe-pool-name">이미지</span><span class="fe-pool-desc">이미지 첨부</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 강좌명 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">강좌명</span><span class="fe-pool-desc">강좌명</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ 영상URL 추가됨')"><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C">text</span><span class="fe-pool-name">영상URL</span><span class="fe-pool-desc">영상 URL</span></div>
+          <div class="fe-pool-item" onclick="showToast('+ DRM 추가됨')"><span class="fe-pool-type" style="background:#FAEEDA;color:#633806">select</span><span class="fe-pool-name">DRM</span><span class="fe-pool-desc">DRM 유형</span></div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div class="fe-info-card">
+          <div class="fe-info-title">기본 정보</div>
+          <div class="fe-row"><div style="flex:1"><label>양식 이름</label><input value="정답 해설 입력 양식"></div><div style="flex:1"><label>유형 코드</label><input value="ANS" style="color:#86868b" disabled></div></div>
+          <div class="fe-row"><div style="flex:1"><label>상태</label><select><option>활성</option><option>초안</option></select></div><div style="flex:1"><label>연계 시스템</label><div style="display:flex;gap:4px;margin-top:4px"><span class="fe-sys-toggle on">ND</span><span class="fe-sys-toggle on">NH</span><span class="fe-sys-toggle">SJ</span><span class="fe-sys-toggle">NH365</span></div></div></div>
+        </div>
+        <div class="fe-composed">
+          <div class="fe-comp-head"><span>양식 구성 (5개 필드)</span><span style="font-size:11px;color:#aeaeb2">드래그로 순서 변경</span></div>
+          <div class="fe-comp-row"><span class="fe-comp-idx">1</span><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C;font-size:10px;padding:2px 6px">text</span><span class="fe-comp-title"><input value="문항번호"></span><span class="badge b-urgent" style="font-size:10px;padding:1px 4px">필수</span><div class="fe-comp-act"><button>복제</button><button>삭제</button></div></div>
+          <div class="fe-comp-row"><span class="fe-comp-idx">2</span><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C;font-size:10px;padding:2px 6px">text</span><span class="fe-comp-title"><input value="정답"></span><span class="badge b-urgent" style="font-size:10px;padding:1px 4px">필수</span><div class="fe-comp-act"><button>복제</button><button>삭제</button></div></div>
+          <div class="fe-comp-row"><span class="fe-comp-idx">3</span><span class="fe-pool-type" style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 6px">number</span><span class="fe-comp-title"><input value="배점"></span><div class="fe-comp-act"><button>복제</button><button>삭제</button></div></div>
+          <div class="fe-comp-row"><span class="fe-comp-idx">4</span><span class="fe-pool-type" style="background:#EEEDFE;color:#3C3489;font-size:10px;padding:2px 6px">textarea</span><span class="fe-comp-title"><input value="해설"></span><div class="fe-comp-act"><button>복제</button><button>삭제</button></div></div>
+          <div class="fe-comp-row"><span class="fe-comp-idx">5</span><span class="fe-pool-type" style="background:#E6F1FB;color:#0C447C;font-size:10px;padding:2px 6px">text</span><span class="fe-comp-title"><input value="비고"></span><div class="fe-comp-act"><button>복제</button><button>삭제</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-curriculum">
+  <div id="cur-list">
+    <div class="filter-bar">
+      <input class="filter-input" placeholder="커리큘럼 검색...">
+      <select class="filter-select"><option>전체 과목</option></select>
+      <select class="filter-select"><option>전체 상태</option><option>활성</option><option>설정 필요</option></select>
+      <select class="filter-select"><option>전체 연결 상태</option></select>
+      <select class="filter-select"><option>이름순</option><option>수정일순</option><option>과목순</option></select>
+      <div class="filter-spacer"></div>
+      <button class="btn" onclick="openCurBuilder()">+ 새 커리큘럼</button>
+    </div>
+    <div class="tbl">
+      <div class="tbl-head" style="grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1fr 0.8fr"><span>커리큘럼</span><span>과목</span><span>학년</span><span>작성자</span><span>양식</span><span>작업 상태</span><span>상태</span><span>과목코드 연결</span><span>수정일</span></div>
+      <div class="tbl-row" style="grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1fr 0.8fr" onclick="openTreeEditor()">
+        <span><span style="font-weight:500">수학 기초 과정</span><br><span style="font-size:11px;color:#86868b">1 → 8 → <b>80</b> → 콘텐츠</span></span>
+        <span style="color:#86868b">수학</span><span style="color:#86868b">중등 1</span><span style="color:#86868b">관리자</span>
+        <span style="display:flex;gap:3px;flex-wrap:wrap"><span class="badge b-nd" style="font-size:10px">정답해설</span><span class="badge b-nd" style="font-size:10px">자동채점</span><span style="font-size:10px;color:#86868b">+1</span></span>
+        <span><span class="badge b-prog">진행 중</span></span><span><span class="badge b-active">활성</span></span>
+        <span><span class="code-pill b-nd">M 수학</span></span><span style="color:#86868b">05-06</span>
+      </div>
+      <div class="tbl-row" style="grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1fr 0.8fr" onclick="openTreeEditor()">
+        <span><span style="font-weight:500">영어 회화 과정</span><br><span style="font-size:11px;color:#86868b">1 → 6 → <b>60</b> → 콘텐츠</span></span>
+        <span style="color:#86868b">영어</span><span style="color:#86868b">초등 4</span><span style="color:#86868b">관리자</span>
+        <span style="display:flex;gap:3px;flex-wrap:wrap"><span class="badge b-nd" style="font-size:10px">플래시카드</span><span class="badge b-nh" style="font-size:10px">웹콘텐츠</span></span>
+        <span><span class="badge b-prog">진행 중</span></span><span><span class="badge b-draft">설정 필요</span></span>
+        <span><span class="code-pill b-nd">E</span> <span style="font-size:10px;color:#A32D2D">1건 미연결</span></span><span style="color:#86868b">05-03</span>
+      </div>
+      <div class="tbl-row" style="grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1fr 0.8fr" onclick="openTreeEditor()">
+        <span><span style="font-weight:500">국어 독해 과정</span><br><span style="font-size:11px;color:#86868b">1 → 5 → <b>50</b> → 콘텐츠</span></span>
+        <span style="color:#86868b">국어</span><span style="color:#86868b">중등 2</span><span style="color:#86868b">관리자</span>
+        <span style="display:flex;gap:3px"><span class="badge b-nd" style="font-size:10px">자동채점</span></span>
+        <span><span class="badge b-prog">진행 중</span></span><span><span class="badge b-active">활성</span></span>
+        <span><span class="code-pill b-nd">K 국어</span></span><span style="color:#86868b">04-28</span>
+      </div>
+      <div class="tbl-row" style="grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1fr 0.8fr" onclick="openTreeEditor()">
+        <span><span style="font-weight:500">과학 탐구 과정</span><br><span style="font-size:11px;color:#86868b">1 → 4 → <b>40</b> → 콘텐츠</span></span>
+        <span style="color:#86868b">과학</span><span style="color:#86868b">초등 5</span><span style="color:#86868b">관리자</span>
+        <span style="display:flex;gap:3px"><span class="badge b-nd" style="font-size:10px">웹콘텐츠</span></span>
+        <span><span class="badge b-gray">미시작</span></span><span><span class="badge b-draft">설정 필요</span></span>
+        <span style="color:#A32D2D;font-size:11px">미연결</span><span style="color:#86868b">04-22</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:4px;margin-top:14px"><button class="btn btn-sm" style="font-weight:500;background:#0F6E56;color:#fff;border-color:#0F6E56">1</button><button class="btn btn-sm">2</button><button class="btn btn-sm">3</button></div>
+  </div>
+  <div id="cur-builder" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button class="btn" onclick="closeCurBuilder()">&larr; 뒤로</button>
+      <span style="font-size:15px;font-weight:500">새 커리큘럼 생성</span>
+      <span class="badge b-gray">표준 학습 구조</span>
+      <div class="filter-spacer"></div>
+      <button class="btn" onclick="closeCurBuilder()">취소</button>
+      <button class="btn btn-p" onclick="closeCurBuilder();showToast('저장됨')">저장</button>
+    </div>
+    <div style="display:flex;gap:16px">
+      <div style="flex:1">
+        <div class="cb-section">
+          <div class="cb-section-title">① 기본 정보</div>
+          <div class="fe-row"><div style="flex:1"><label>커리큘럼명</label><input placeholder="예: 수학 기초 과정"></div></div>
+          <div class="fe-row"><div style="flex:1"><label>과목</label><select><option>수학</option><option>영어</option><option>국어</option><option>과학</option></select></div><div style="flex:1"><label>학년</label><select><option>초등 1학년</option><option>중등 1학년</option><option>고등 1학년</option></select></div></div>
+        </div>
+        <div class="cb-section">
+          <div class="cb-section-title">② 단계 구조 설계 <button class="btn btn-sm" style="margin-left:auto" onclick="showToast('단계 추가')">+ 단계 추가</button></div>
+          <div class="cb-depth-row"><span class="cb-depth-badge" style="background:#0C447C">1D</span><input class="cb-depth-input" value="커리큘럼명"><input class="cb-depth-count" value="1"><span style="font-size:11px;color:#86868b">고정</span></div>
+          <div class="cb-depth-row"><span class="cb-depth-badge" style="background:#3C3489">2D</span><input class="cb-depth-input" value="과정"><input class="cb-depth-count" value="8"></div>
+          <div class="cb-depth-row" style="background:#f0f7f4;border-radius:6px;padding:8px"><span class="cb-depth-badge" style="background:#0F6E56">3D</span><input class="cb-depth-input" value="세트"><input class="cb-depth-count" value="80"><span class="badge b-prog" style="font-size:10px">분할 기준</span></div>
+          <div class="cb-depth-row"><span class="cb-depth-badge" style="background:#BA7517">4D</span><input class="cb-depth-input" value="콘텐츠"><input class="cb-depth-count" value="" placeholder="자동"></div>
+        </div>
+        <div class="cb-section">
+          <div class="cb-section-title">③ 양식 연결 <button class="btn btn-sm" style="margin-left:auto" onclick="showToast('양식 추가')">+ 양식 추가</button></div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap"><span class="badge b-nd" style="padding:4px 10px;cursor:pointer">정답 해설 [ND]</span><span class="badge b-nd" style="padding:4px 10px;cursor:pointer">자동채점 [ND]</span><span class="badge b-sj" style="padding:4px 10px;cursor:pointer">자동채점 [SJ]</span><span class="badge b-nd" style="padding:4px 10px;cursor:pointer">핵심점검 [ND]</span></div>
+        </div>
+      </div>
+      <div style="width:300px;background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;padding:16px;flex-shrink:0;align-self:flex-start">
+        <div style="font-size:12px;font-weight:500;color:#86868b;margin-bottom:12px">실시간 미리보기</div>
+        <div class="cb-preview-card">
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">(커리큘럼명)</div>
+          <div class="cb-preview-bar" style="background:#0C447C;width:100%">커리큘럼명 (1)</div>
+          <div class="cb-preview-bar" style="background:#3C3489;width:80%">과정 (8)</div>
+          <div class="cb-preview-bar" style="background:#0F6E56;width:60%;border:2px solid #0F6E56">세트 (80) ← 분할</div>
+          <div class="cb-preview-bar" style="background:#BA7517;width:40%">콘텐츠</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px"><span class="badge b-nd" style="font-size:10px">정답 해설</span><span class="badge b-nd" style="font-size:10px">자동채점</span><span class="badge b-sj" style="font-size:10px">자동채점</span><span class="badge b-nd" style="font-size:10px">핵심점검</span></div>
+        <div style="margin-top:12px"><button class="btn btn-sm" style="width:100%;justify-content:center" onclick="closeCurBuilder();openTreeEditor()">상세 편집 (트리 편집기) &rarr;</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="cur-tree" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button class="btn" onclick="closeTreeEditor()">&larr; 뒤로</button>
+      <span style="font-size:15px;font-weight:500">트리 편집기</span>
+      <span class="badge b-gray">수학 기초 과정</span>
+      <span class="badge b-prog" style="font-size:11px">42 노드</span>
+      <div class="filter-spacer"></div>
+      <button class="btn" onclick="showToast('모두 접기')">접기</button>
+      <button class="btn" onclick="showToast('모두 펼치기')">펼치기</button>
+    </div>
+    <div style="background:#fff;border:0.5px solid #e5e5e5;border-radius:10px;overflow:hidden">
+      <div class="te-search"><input class="filter-input" placeholder="노드 검색..." style="width:100%"></div>
+      <div class="te-tree" style="padding:12px 16px">
+        <div class="te-node" style="margin-left:0">
+          <div class="te-node-row"><span class="te-toggle">▼</span><span class="te-icon" style="background:#0C447C">1D</span><span class="te-label" style="font-weight:500">수학 기초 과정</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button></div></div>
+          <div class="te-node">
+            <div class="te-node-row"><span class="te-toggle">▼</span><span class="te-icon" style="background:#3C3489">2D</span><span class="te-label">기초수학 A</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">1세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">2세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">3세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+          </div>
+          <div class="te-node">
+            <div class="te-node-row"><span class="te-toggle">▼</span><span class="te-icon" style="background:#3C3489">2D</span><span class="te-label">기초수학 B</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">11세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">12세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+            <div class="te-node">
+              <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#0F6E56">3D</span><span class="te-label">13세트</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+            </div>
+          </div>
+          <div class="te-node">
+            <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#3C3489">2D</span><span class="te-label">기초수학 C</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+          </div>
+          <div class="te-node">
+            <div class="te-node-row"><span class="te-toggle">▶</span><span class="te-icon" style="background:#3C3489">2D</span><span class="te-label">응용수학 A</span><div class="te-actions"><button class="te-act-btn" onclick="event.stopPropagation();showToast('하위 추가')">+ 하위</button><button class="te-act-btn" onclick="event.stopPropagation();showToast('삭제')">삭제</button></div></div>
+          </div>
+        </div>
+        <div class="te-add-root" onclick="showToast('최상위 항목 추가')">+ 최상위 항목 추가</div>
+      </div></div></div>
+</div>
+<div class="view" id="v-scoring-sim">
+  <div class="stat-cards">
+    <div class="stat-card"><div class="stat-label">전체 시뮬레이션</div><div class="stat-val">10</div></div>
+    <div class="stat-card"><div class="stat-label">활성</div><div class="stat-val" style="color:#0F6E56">7</div></div>
+    <div class="stat-card"><div class="stat-label">비활성</div><div class="stat-val" style="color:#86868b">2</div></div>
+    <div class="stat-card"><div class="stat-label">오류</div><div class="stat-val" style="color:#A32D2D">1</div></div>
+  </div>
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="시뮬레이션 검색...">
+    <button class="btn btn-sm" style="font-weight:500;background:#0F6E56;color:#fff;border-color:#0F6E56">전체</button>
+    <button class="btn btn-sm">활성</button><button class="btn btn-sm">비활성</button>
+    <div class="filter-spacer"></div>
+    <button class="btn" onclick="showToast('신규 시뮬레이션')">+ 새 시뮬레이션</button>
+  </div>
+  <div class="tbl">
+    <div class="tbl-head" style="grid-template-columns:0.4fr 1.5fr 1fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr"><span>NO</span><span>유형</span><span>설명</span><span>레코드</span><span>최종 수정</span><span>수정자</span><span>상태</span><span>액션</span></div>
+    <div class="tbl-row" style="grid-template-columns:0.4fr 1.5fr 1fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr"><span style="color:#86868b">10</span><span style="font-weight:500">수학 중1 기말 채점</span><span style="color:#86868b">기말고사 자동채점</span><span style="color:#86868b">50</span><span style="color:#86868b">2026-05-06</span><span style="color:#86868b">관리자</span><span><span class="badge b-active">활성</span></span><span><button class="btn btn-sm" onclick="showToast('Excel 다운로드')">Excel</button></span></div>
+    <div class="tbl-row" style="grid-template-columns:0.4fr 1.5fr 1fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr"><span style="color:#86868b">9</span><span style="font-weight:500">영어 초4 중간 채점</span><span style="color:#86868b">중간고사 자동채점</span><span style="color:#86868b">40</span><span style="color:#86868b">2026-05-05</span><span style="color:#86868b">관리자</span><span><span class="badge b-active">활성</span></span><span><button class="btn btn-sm" onclick="showToast('Excel 다운로드')">Excel</button></span></div>
+    <div class="tbl-row" style="grid-template-columns:0.4fr 1.5fr 1fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr"><span style="color:#86868b">8</span><span style="font-weight:500">국어 중2 단원평가</span><span style="color:#86868b">단원별 평가 채점</span><span style="color:#86868b">30</span><span style="color:#86868b">2026-05-04</span><span style="color:#86868b">관리자</span><span><span class="badge b-prog">진행 중</span></span><span><button class="btn btn-sm" onclick="showToast('Excel 다운로드')">Excel</button></span></div>
+    <div class="tbl-row" style="grid-template-columns:0.4fr 1.5fr 1fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr"><span style="color:#86868b">7</span><span style="font-weight:500">과학 초5 실험평가</span><span style="color:#86868b">실험보고서 채점</span><span style="color:#86868b">25</span><span style="color:#86868b">2026-05-03</span><span style="color:#86868b">관리자</span><span><span class="badge b-urgent">오류</span></span><span><button class="btn btn-sm" onclick="showToast('Excel 다운로드')">Excel</button></span></div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:4px;margin-top:14px"><button class="btn btn-sm" style="font-weight:500;background:#0F6E56;color:#fff;border-color:#0F6E56">1</button><button class="btn btn-sm">2</button></div>
+</div>
+<div class="view" id="v-settings">
+  <div class="settings-tabs" id="setTabs">
+    <button class="s-tab on" onclick="switchSetTab(this)">멤버 관리</button>
+    <button class="s-tab" onclick="switchSetTab(this)">수신 관리</button>
+    <button class="s-tab" onclick="switchSetTab(this)">공지사항</button>
+    <button class="s-tab" onclick="switchSetTab(this)">시스템 연동</button>
+    <button class="s-tab" onclick="switchSetTab(this)">권한 관리</button>
+    <button class="s-tab" onclick="switchSetTab(this)">감사 로그</button>
+  </div>
+  <div class="tbl">
+    <div class="tbl-head" style="grid-template-columns:1fr 1.5fr 0.8fr 0.8fr 0.8fr 0.6fr 0.5fr"><span>이름</span><span>이메일</span><span>역할</span><span>팀</span><span>가입일</span><span>상태</span><span>편집</span></div>
+    <div class="tbl-row" style="grid-template-columns:1fr 1.5fr 0.8fr 0.8fr 0.8fr 0.6fr 0.5fr"><span style="font-weight:500">Shawn</span><span style="color:#86868b">sangcheol.kim@daekyo.co.kr</span><span><span class="badge b-ready">관리자</span></span><span style="color:#86868b">기획팀</span><span style="color:#86868b">2025-01-15</span><span><span class="badge b-active">활성</span></span><span><button class="btn btn-sm" onclick="showToast('편집 모달')">편집</button></span></div>
+    <div class="tbl-row" style="grid-template-columns:1fr 1.5fr 0.8fr 0.8fr 0.8fr 0.6fr 0.5fr"><span style="font-weight:500">홍길동</span><span style="color:#86868b">hong@daekyo.co.kr</span><span><span class="badge b-prog">작업자</span></span><span style="color:#86868b">콘텐츠팀</span><span style="color:#86868b">2025-03-01</span><span><span class="badge b-active">활성</span></span><span><button class="btn btn-sm" onclick="showToast('편집 모달')">편집</button></span></div>
+    <div class="tbl-row" style="grid-template-columns:1fr 1.5fr 0.8fr 0.8fr 0.8fr 0.6fr 0.5fr"><span style="font-weight:500">김영희</span><span style="color:#86868b">kimyh@daekyo.co.kr</span><span><span class="badge b-wait">검수자</span></span><span style="color:#86868b">콘텐츠팀</span><span style="color:#86868b">2025-03-15</span><span><span class="badge b-active">활성</span></span><span><button class="btn btn-sm" onclick="showToast('편집 모달')">편집</button></span></div>
+  </div>
+</div>
+  </div></div></div>
+<!-- ═══ CONTENT EDITOR OVERLAY ═══ -->
+<div class="fs-overlay" id="editorOverlay">
+  <!-- Header -->
+  <div class="fs-header">
+    <button class="btn btn-sm" onclick="closeEditor()" style="margin-right:4px">← 나가기</button>
+    <div class="fs-header-title">
+      <span>수학 기초 과정</span>
+      <span style="color:#86868b;font-weight:400;font-size:12px">› 정답·해설</span>
+      <span class="badge b-nd" style="font-size:10px">v1.2</span>
+      <span style="font-size:12px;color:#86868b;margin-left:4px">— 3세트</span>
+    </div>
+    <button class="btn btn-sm" onclick="togglePreview()" title="미리보기">👁 미리보기</button>
+    <button class="btn btn-sm" onclick="showToast('테마 전환')" title="테마">🌙</button>
+    <button class="btn btn-p btn-sm" onclick="showToast('저장 완료')">저장 후 나가기</button>
+  </div>
+
+  <!-- Connection Banner -->
+  <div class="fs-conn">
+    <span class="badge b-nd" style="font-size:10px">뉴드림스</span>
+    <span style="font-weight:500;cursor:pointer;color:#0F6E56">수학 기초 과정</span>
+    <span class="fs-conn-sep">›</span>
+    <span style="font-weight:500">정답·해설</span>
+    <span class="badge b-nd" style="font-size:10px">수학</span>
+    <span style="font-size:11px;color:#86868b">중등 1학년</span>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:#636366">홍길동 · 1~40세트</span>
+  </div>
+
+  <!-- Body: 3-panel -->
+  <div class="fs-body">
+
+    <!-- LEFT PANEL: Course/Set Navigation -->
+    <div class="fs-left">
+      <div class="fs-assignee">
+        <div class="fs-avatar">홍</div>
+        <div class="fs-ainfo">
+          <div class="fs-aname">홍길동</div>
+          <div class="fs-aprog">28 / 40 세트 완료</div>
+        </div>
+        <svg class="fs-ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#f0f0ee" stroke-width="3"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#0F6E56" stroke-width="3" stroke-dasharray="70 30" stroke-dashoffset="25" stroke-linecap="round"/><text x="18" y="20" text-anchor="middle" font-size="9" fill="#0F6E56" font-weight="500">70%</text></svg>
+      </div>
+      <div class="fs-batch">
+        <button class="fs-batch-btn" onclick="this.classList.toggle('active');showToast('전체 일괄 모드')">☰ 전체 일괄</button>
+      </div>
+      <div class="fs-tree">
+        <div class="fs-course">
+          <div class="fs-course-head" onclick="selectCourse(this,'기초수학 A')">
+            <span class="fs-course-arr open">▶</span>
+            <span class="fs-course-icon">📂</span>
+            <span class="fs-course-name">기초수학 A</span>
+            <div class="fs-course-micro"><div class="fs-course-micro-fill" style="width:80%"></div></div>
+            <span class="fs-course-cnt">8/10</span>
+          </div>
+          <div class="fs-sets">
+            <div class="fs-set" onclick="selectSet(this)" style="color:#27500A"><span class="fs-set-icon">✓</span><span class="fs-set-name">1세트</span></div>
+            <div class="fs-set" onclick="selectSet(this)" style="color:#27500A"><span class="fs-set-icon">✓</span><span class="fs-set-name">2세트</span></div>
+            <div class="fs-set active" onclick="selectSet(this)"><span class="fs-set-icon">●</span><span class="fs-set-name">3세트</span><span class="badge b-prog" style="font-size:9px">진행중</span></div>
+            <div class="fs-set" onclick="selectSet(this)"><span class="fs-set-icon">○</span><span class="fs-set-name">4세트</span></div>
+            <div class="fs-set" onclick="selectSet(this)"><span class="fs-set-icon">○</span><span class="fs-set-name">5세트</span></div>
+          </div>
+        </div>
+        <div class="fs-course">
+          <div class="fs-course-head" onclick="selectCourse(this,'기초수학 B')">
+            <span class="fs-course-arr">▶</span>
+            <span class="fs-course-icon">📁</span>
+            <span class="fs-course-name">기초수학 B</span>
+            <div class="fs-course-micro"><div class="fs-course-micro-fill" style="width:60%"></div></div>
+            <span class="fs-course-cnt">6/10</span>
+          </div>
+          <div class="fs-sets" style="display:none">
+            <div class="fs-set" onclick="selectSet(this)" style="color:#27500A"><span class="fs-set-icon">✓</span><span class="fs-set-name">1세트</span></div>
+            <div class="fs-set" onclick="selectSet(this)"><span class="fs-set-icon">●</span><span class="fs-set-name">2세트</span></div>
+            <div class="fs-set" onclick="selectSet(this)"><span class="fs-set-icon">○</span><span class="fs-set-name">3세트</span></div>
+          </div>
+        </div>
+        <div class="fs-course">
+          <div class="fs-course-head" onclick="selectCourse(this,'기초수학 C')">
+            <span class="fs-course-arr">▶</span>
+            <span class="fs-course-icon">📁</span>
+            <span class="fs-course-name">기초수학 C</span>
+            <div class="fs-course-micro"><div class="fs-course-micro-fill" style="width:40%"></div></div>
+            <span class="fs-course-cnt">4/10</span>
+          </div>
+          <div class="fs-sets" style="display:none">
+            <div class="fs-set" onclick="selectSet(this)"><span class="fs-set-icon">○</span><span class="fs-set-name">1세트</span></div>
+          </div>
+        </div>
+        <div class="fs-course">
+          <div class="fs-course-head" onclick="selectCourse(this,'기초수학 D')">
+            <span class="fs-course-arr">▶</span>
+            <span class="fs-course-icon">📁</span>
+            <span class="fs-course-name">기초수학 D</span>
+            <div class="fs-course-micro"><div class="fs-course-micro-fill" style="width:100%"></div></div>
+            <span class="fs-course-cnt">10/10</span>
+          </div>
+          <div class="fs-sets" style="display:none">
+            <div class="fs-set" onclick="selectSet(this)" style="color:#27500A"><span class="fs-set-icon">✓</span><span class="fs-set-name">1세트</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="fs-left-bottom">
+        <div class="fs-left-prog">
+          <span>전체 진행</span>
+          <div class="fs-left-prog-bar"><div class="fs-left-prog-fill" style="width:70%"></div></div>
+          <span style="font-weight:500;color:#0F6E56">70%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER PANEL -->
+    <div class="fs-center">
+      <!-- Tab Bar -->
+      <div class="fs-tabs">
+        <button class="fs-tab on" data-t="edit" onclick="switchEditorTab(this,'edit')">✏️ 편집</button>
+        <button class="fs-tab" data-t="excel" onclick="switchEditorTab(this,'excel')">📊 엑셀 일괄처리</button>
+        <button class="fs-tab" data-t="preview" onclick="switchEditorTab(this,'preview')">👁 미리보기</button>
+        <div class="fs-tab-spacer"></div>
+        <span class="fs-tab-save"><span class="fs-tab-save-dot"></span>수정됨</span>
+        <button class="btn btn-sm" onclick="showToast('중간저장 완료')">중간저장</button>
+      </div>
+
+      <!-- View Mode Indicator -->
+      <div class="fs-view-mode" id="fsViewMode" style="display:none">
+        <span class="fs-view-mode-icon" id="fsViewModeIcon">📂</span>
+        <span class="fs-view-mode-text" id="fsViewModeText">기초수학 A — 과정 전체 보기</span>
+        <span class="fs-view-mode-hint">세트를 클릭하면 상세 편집으로 전환됩니다</span>
+      </div>
+      <!-- Workflow Guide -->
+      <div class="fs-content" style="padding:16px">
+        <div class="wf-guide" id="wfGuide">
+          <span style="font-weight:500">작업 가이드</span>
+          <div class="wf-guide-steps">
+            <span class="wf-guide-step active">① 엑셀 일괄처리</span>
+            <span class="wf-guide-step">② 파일 업로드</span>
+            <span class="wf-guide-step">③ 파일 연결</span>
+            <span class="wf-guide-step">④ 미리보기</span>
+          </div>
+          <button class="wf-guide-close" onclick="document.getElementById('wfGuide').style.display='none'">✕</button>
+        </div>
+
+        <!-- EDIT PANE -->
+        <div class="fs-content-pane on" id="pane-edit">
+          <div class="grid-toolbar">
+            <span class="grid-toolbar-title">편집 그리드</span>
+            <span style="font-size:11px;color:#86868b">정답·해설</span>
+            <span class="grid-toolbar-info">5열 · 4행</span>
+            <div style="flex:1"></div>
+            <button class="btn btn-sm" onclick="showToast('행 추가됨')">+ 행 추가</button>
+            <button class="btn btn-sm" onclick="showToast('템플릿 다운로드')">↓ 템플릿</button>
+          </div>
+          <div class="grid-wrap">
+            <table class="grid-table">
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th>문항번호 <span style="color:#A32D2D">*</span></th>
+                  <th>정답 <span style="color:#A32D2D">*</span></th>
+                  <th>배점</th>
+                  <th>해설 <span class="grid-auto">⚡ auto</span></th>
+                  <th>첨부파일</th>
+                  <th style="width:36px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:#aeaeb2;text-align:center">1</td>
+                  <td><input class="grid-input" value="1"></td>
+                  <td><input class="grid-input" value="3"></td>
+                  <td><input class="grid-input" value="2"></td>
+                  <td><input class="grid-input" value="3x + 5 = 14, x = 3" style="color:#BA7517"></td>
+                  <td><span class="grid-file-name">📎 q1_img.png <button style="border:none;background:none;color:#c5c5c5;cursor:pointer">✕</button></span></td>
+                  <td><button class="grid-del">✕</button></td>
+                </tr>
+                <tr>
+                  <td style="color:#aeaeb2;text-align:center">2</td>
+                  <td><input class="grid-input" value="2"></td>
+                  <td><input class="grid-input" value="1"></td>
+                  <td><input class="grid-input" value="3"></td>
+                  <td><input class="grid-input" value="도형의 넓이 = 밑변 × 높이" style="color:#BA7517"></td>
+                  <td><button class="grid-file-btn">파일 선택</button></td>
+                  <td><button class="grid-del">✕</button></td>
+                </tr>
+                <tr>
+                  <td style="color:#aeaeb2;text-align:center">3</td>
+                  <td><input class="grid-input" value="3"></td>
+                  <td><input class="grid-input" value="4"></td>
+                  <td><input class="grid-input" value="2"></td>
+                  <td><input class="grid-input" placeholder="자동 생성 대기" style="color:#BA7517" readonly></td>
+                  <td><button class="grid-file-btn">파일 선택</button></td>
+                  <td><button class="grid-del">✕</button></td>
+                </tr>
+                <tr>
+                  <td style="color:#aeaeb2;text-align:center">4</td>
+                  <td><input class="grid-input" value="4"></td>
+                  <td><input class="grid-input" value="2"></td>
+                  <td><input class="grid-input" value="4"></td>
+                  <td><input class="grid-input" value="분수의 덧셈: 통분 후 계산" style="color:#BA7517"></td>
+                  <td><span class="grid-file-name">📎 q4_sol.pdf <button style="border:none;background:none;color:#c5c5c5;cursor:pointer">✕</button></span></td>
+                  <td><button class="grid-del">✕</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid-footer">
+            <span>4행</span>
+            <span class="grid-req">필수 2개</span>
+            <span>저장: Ctrl+S</span>
+          </div>
+        </div>
+
+        <!-- EXCEL PANE -->
+        <div class="fs-content-pane" id="pane-excel">
+          <div class="excel-steps">
+            <div class="excel-step done"><span class="excel-step-num">✓</span><span class="excel-step-label">템플릿 다운</span></div>
+            <div class="excel-step active"><span class="excel-step-num">2</span><span class="excel-step-label">파일 업로드</span></div>
+            <div class="excel-step"><span class="excel-step-num">3</span><span class="excel-step-label">열 매핑</span></div>
+            <div class="excel-step"><span class="excel-step-num">4</span><span class="excel-step-label">그리드 적용</span></div>
+          </div>
+          <div class="excel-cards">
+            <div class="excel-card">
+              <div class="excel-card-icon">📝</div>
+              <div class="excel-card-title">템플릿 다운로드</div>
+              <div class="excel-card-desc">양식에 맞는 엑셀 템플릿을 다운로드하세요</div>
+              <button class="btn btn-p btn-sm" onclick="showToast('템플릿 다운로드')">↓ 다운로드</button>
+              <div class="excel-summary" style="margin-top:14px">
+                <div class="excel-summary-row"><span>양식</span><span>정답·해설</span></div>
+                <div class="excel-summary-row"><span>범위</span><span>3세트 (1~40)</span></div>
+                <div class="excel-summary-row"><span>열 수</span><span>5개</span></div>
+              </div>
+            </div>
+            <div class="excel-card">
+              <div class="excel-card-icon">📂</div>
+              <div class="excel-card-title">파일 업로드</div>
+              <div class="excel-card-desc">작성한 엑셀 파일을 업로드하세요</div>
+              <button class="btn btn-sm" onclick="showToast('파일 선택')">파일 선택</button>
+              <div style="margin-top:14px;font-size:11px;color:#aeaeb2">지원 형식: .xlsx, .xls, .csv</div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- COURSE GROUP PANE (shown when course is selected, not specific set) -->
+        <div class="fs-content-pane" id="pane-course">
+          <!-- Context bar -->
+          <div class="cg-header">
+            <span class="cg-header-name" id="cgCourseName">기초수학 A</span>
+            <span class="cg-header-range">1~10세트</span>
+            <div style="flex:1"></div>
+            <span class="badge b-prog" style="font-size:10px">8/10 완료</span>
+          </div>
+          <div class="cg-chips" style="margin-bottom:14px">
+            <button class="cg-chip done" onclick="selectSetFromCourse(this,1)">1세트 ✓</button>
+            <button class="cg-chip done" onclick="selectSetFromCourse(this,2)">2세트 ✓</button>
+            <button class="cg-chip prog" onclick="selectSetFromCourse(this,3)">3세트 ●</button>
+            <button class="cg-chip idle" onclick="selectSetFromCourse(this,4)">4세트</button>
+            <button class="cg-chip idle" onclick="selectSetFromCourse(this,5)">5세트</button>
+            <button class="cg-chip idle" onclick="selectSetFromCourse(this,6)">6세트</button>
+            <button class="cg-chip idle" onclick="selectSetFromCourse(this,7)">7세트</button>
+            <button class="cg-chip done" onclick="selectSetFromCourse(this,8)">8세트 ✓</button>
+            <button class="cg-chip done" onclick="selectSetFromCourse(this,9)">9세트 ✓</button>
+            <button class="cg-chip done" onclick="selectSetFromCourse(this,10)">10세트 ✓</button>
+          </div>
+
+          <!-- Set 1 Section (expanded) -->
+          <div class="cg-section">
+            <div class="cg-section-head" onclick="toggleCgSection(this)">
+              <span class="cg-section-arr open">▶</span>
+              <span class="cg-section-name">1세트</span>
+              <span class="cg-section-badge b-done">완료</span>
+              <div class="cg-section-actions">
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('전체화면 편집')">전체화면 →</button>
+              </div>
+            </div>
+            <div class="cg-section-body">
+              <table class="cg-mini-table">
+                <thead><tr><th style="width:50px">#</th><th>문항번호</th><th>정답</th><th>배점</th><th>해설</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td><input class="cg-mini-input" value="1"></td><td><input class="cg-mini-input" value="3"></td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="x=3"></td></tr>
+                  <tr><td>2</td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="1"></td><td><input class="cg-mini-input" value="3"></td><td><input class="cg-mini-input" value="넓이 공식"></td></tr>
+                  <tr><td>3</td><td><input class="cg-mini-input" value="3"></td><td><input class="cg-mini-input" value="4"></td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="통분 계산"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Set 2 Section (expanded) -->
+          <div class="cg-section">
+            <div class="cg-section-head" onclick="toggleCgSection(this)">
+              <span class="cg-section-arr open">▶</span>
+              <span class="cg-section-name">2세트</span>
+              <span class="cg-section-badge b-done">완료</span>
+              <div class="cg-section-actions">
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('전체화면 편집')">전체화면 →</button>
+              </div>
+            </div>
+            <div class="cg-section-body">
+              <table class="cg-mini-table">
+                <thead><tr><th style="width:50px">#</th><th>문항번호</th><th>정답</th><th>배점</th><th>해설</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td><input class="cg-mini-input" value="1"></td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="인수분해"></td></tr>
+                  <tr><td>2</td><td><input class="cg-mini-input" value="2"></td><td><input class="cg-mini-input" value="3"></td><td><input class="cg-mini-input" value="3"></td><td><input class="cg-mini-input" value="방정식 풀이"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Set 3 Section (in progress, collapsed) -->
+          <div class="cg-section">
+            <div class="cg-section-head" onclick="toggleCgSection(this)">
+              <span class="cg-section-arr">▶</span>
+              <span class="cg-section-name">3세트</span>
+              <span class="cg-section-badge b-prog">진행중</span>
+              <div class="cg-section-actions">
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('+ 열 추가')">+ 열</button>
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('전체화면 편집')">전체화면 →</button>
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('엑셀 업로드')">엑셀</button>
+              </div>
+            </div>
+            <div class="cg-section-body" style="display:none">
+              <table class="cg-mini-table">
+                <thead><tr><th style="width:50px">#</th><th>문항번호</th><th>정답</th><th>배점</th><th>해설</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td><input class="cg-mini-input" value="1"></td><td><input class="cg-mini-input" value=""></td><td><input class="cg-mini-input" value=""></td><td><input class="cg-mini-input" value=""></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Set 4 Section (idle, collapsed) -->
+          <div class="cg-section">
+            <div class="cg-section-head" onclick="toggleCgSection(this)">
+              <span class="cg-section-arr">▶</span>
+              <span class="cg-section-name">4세트</span>
+              <span class="cg-section-badge b-gray">미시작</span>
+              <div class="cg-section-actions">
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('전체화면 편집')">전체화면 →</button>
+              </div>
+            </div>
+            <div class="cg-section-body" style="display:none">
+              <div style="padding:20px;text-align:center;color:#aeaeb2;font-size:12px">데이터가 없습니다. 행을 추가하거나 엑셀을 업로드하세요.</div>
+            </div>
+          </div>
+
+          <!-- Set 5 (idle) -->
+          <div class="cg-section">
+            <div class="cg-section-head" onclick="toggleCgSection(this)">
+              <span class="cg-section-arr">▶</span>
+              <span class="cg-section-name">5세트</span>
+              <span class="cg-section-badge b-gray">미시작</span>
+              <div class="cg-section-actions">
+                <button class="btn btn-sm" onclick="event.stopPropagation();showToast('전체화면 편집')">전체화면 →</button>
+              </div>
+            </div>
+            <div class="cg-section-body" style="display:none">
+              <div style="padding:20px;text-align:center;color:#aeaeb2;font-size:12px">데이터가 없습니다.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVIEW PANE -->
+        <div class="fs-content-pane" id="pane-preview">
+          <div class="preview-header">
+            <span class="badge b-nd" style="font-size:10px">ANS</span>
+            <span class="badge b-nd" style="font-size:10px">뉴드림스</span>
+            <span style="font-size:13px;font-weight:500">기초수학 A</span>
+            <div style="flex:1"></div>
+            <select class="filter-select" style="font-size:11px"><option>3세트</option></select>
+            <select class="filter-select" style="font-size:11px"><option>페이지 1</option><option>페이지 2</option></select>
+          </div>
+          <div class="preview-card">
+            <div class="preview-card-head"><span style="background:#0C447C;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">1번</span> 문항 1</div>
+            <div class="preview-card-body">
+              <div class="preview-row"><span class="preview-label">정답</span><span class="preview-val" style="font-weight:600;font-size:18px;color:#0F6E56">3</span></div>
+              <div class="preview-row"><span class="preview-label">배점</span><span class="preview-val">2점</span></div>
+              <div class="preview-exp">3x + 5 = 14 → 3x = 9 → x = 3</div>
+              <div style="margin-top:8px"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='60' fill='%23f0f0ee'%3E%3Crect width='200' height='60' rx='6'/%3E%3Ctext x='100' y='34' text-anchor='middle' fill='%23aeaeb2' font-size='12'%3Eq1_img.png%3C/text%3E%3C/svg%3E" style="border-radius:6px;max-width:200px"></div>
+            </div>
+          </div>
+          <div class="preview-card">
+            <div class="preview-card-head"><span style="background:#0C447C;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">2번</span> 문항 2</div>
+            <div class="preview-card-body">
+              <div class="preview-row"><span class="preview-label">정답</span><span class="preview-val" style="font-weight:600;font-size:18px;color:#0F6E56">1</span></div>
+              <div class="preview-row"><span class="preview-label">배점</span><span class="preview-val">3점</span></div>
+              <div class="preview-exp">도형의 넓이 = 밑변 × 높이</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Repository -->
+    <div class="fs-right">
+      <!-- Cloud Toggle -->
+      <div class="repo-section">
+        <div class="repo-title">저장소 선택</div>
+        <div class="repo-cloud">
+          <button class="repo-cloud-btn active" onclick="switchCloud(this,'cdn')">CDN<br><span style="font-size:10px;color:#86868b">문서·이미지</span></button>
+          <button class="repo-cloud-btn" onclick="switchCloud(this,'kollus')">Kollus<br><span style="font-size:10px;color:#86868b">영상·음원</span></button>
+        </div>
+      </div>
+
+      <!-- Folder Tree -->
+      <div class="repo-section" style="flex:1;overflow-y:auto;border-bottom:none">
+        <div class="repo-title">폴더 탐색 <button class="btn btn-sm" style="margin-left:auto;font-size:10px">접기</button></div>
+        <div class="repo-node" onclick="this.classList.toggle('active')" style="padding-left:6px">
+          <span class="repo-node-arr">▶</span>
+          <span class="repo-node-icon">👥</span>
+          <span class="repo-node-name">콘텐츠팀</span>
+        </div>
+        <div style="padding-left:16px">
+          <div class="repo-node" onclick="this.classList.toggle('active')">
+            <span class="repo-node-arr">▶</span>
+            <span class="repo-node-icon">📁</span>
+            <span class="repo-node-name">수학</span>
+          </div>
+          <div style="padding-left:16px">
+            <div class="repo-node active">
+              <span class="repo-node-icon">📦</span>
+              <span class="repo-node-name">기초수학-해답</span>
+              <span class="repo-node-cnt">12</span>
+            </div>
+            <div class="repo-node">
+              <span class="repo-node-icon">📦</span>
+              <span class="repo-node-name">기초수학-이미지</span>
+              <span class="repo-node-cnt">8</span>
+            </div>
+          </div>
+          <div class="repo-node" onclick="this.classList.toggle('active')">
+            <span class="repo-node-arr">▶</span>
+            <span class="repo-node-icon">📁</span>
+            <span class="repo-node-name">영어</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Path -->
+      <div class="repo-path">
+        <span>📂</span>
+        <span>콘텐츠팀 › 수학 › 기초수학-해답</span>
+        <span style="margin-left:auto">파일 12개</span>
+      </div>
+
+      <!-- Upload Area -->
+      <div class="repo-upload">
+        <div class="repo-dropzone">
+          <div class="repo-drop-icon">⬆</div>
+          <div class="repo-drop-text">파일을 드래그하거나</div>
+          <button class="btn btn-sm btn-p" onclick="showToast('파일 선택')">파일 찾기</button>
+          <div class="repo-drop-hint">.jpg, .png, .pdf, .xlsx, .mp4</div>
+        </div>
+      </div>
+
+      <!-- Uploaded Files -->
+      <div class="repo-uploaded">
+        <div class="repo-uploaded-head">✅ 업로드 완료 <span class="badge b-done" style="font-size:9px">4</span></div>
+        <div class="repo-uploaded-hint">파일을 콘텐츠 위치에 드래그하세요</div>
+        <div class="repo-file"><span class="repo-file-icon">🖼</span><span class="repo-file-name">q1_img.png</span><span class="repo-file-size">245KB</span><span class="repo-file-drag">↗</span></div>
+        <div class="repo-file"><span class="repo-file-icon">📄</span><span class="repo-file-name">q4_sol.pdf</span><span class="repo-file-size">1.2MB</span><span class="repo-file-drag">↗</span></div>
+        <div class="repo-file"><span class="repo-file-icon">🖼</span><span class="repo-file-name">q3_diagram.png</span><span class="repo-file-size">380KB</span><span class="repo-file-drag">↗</span></div>
+        <div class="repo-file"><span class="repo-file-icon">🖼</span><span class="repo-file-name">header_math.jpg</span><span class="repo-file-size">520KB</span><span class="repo-file-drag">↗</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fs-overlay" id="reviewOverlay">
+  <div class="fs-header">
+    <button class="btn btn-sm" onclick="closeReview()">&larr; 목록</button>
+    <span class="badge b-nh" style="background:#EEEDFE;color:#3C3489">검수</span>
+    <span class="badge b-nd">ND</span>
+    <div class="fs-header-title">
+      <span>수학 기초 과정</span>
+      <span style="color:#86868b;font-weight:400">/</span>
+      <span>정답 해설</span>
+      <span style="font-size:12px;color:#86868b;font-weight:400">· 김철수</span>
+    </div>
+    <div class="filter-spacer"></div>
+    <button class="btn btn-sm btn-danger" onclick="closeReview();showToast('반려 처리됨')">반려</button>
+    <button class="btn btn-sm btn-p" onclick="closeReview();showToast('승인 완료')">승인</button>
+  </div>
+  <div class="fs-body">
+    <div class="ed-left">
+      <div class="ed-left-head">검수 진행</div>
+      <div class="ed-left-list">
+        <div class="ed-course">
+          <div class="ed-course-head">▼ 기초수학 A (41~80)</div>
+          <div class="ed-set on"><span class="ed-dot" style="background:#3C3489"></span>41세트</div>
+          <div class="ed-set"><span class="ed-dot"></span>42세트</div>
+          <div class="ed-set"><span class="ed-dot"></span>43세트</div>
+          <div class="ed-set"><span class="ed-dot"></span>44세트</div>
+          <div class="ed-set"><span class="ed-dot"></span>45세트</div>
+        </div>
+        <div class="ed-course">
+          <div class="ed-course-head">▶ 기초수학 B (41~80)</div>
+        </div>
+      </div>
+      <div class="ed-bottom-nav"><button class="btn btn-sm">&larr; 이전</button><button class="btn btn-sm">다음 &rarr;</button></div>
+    </div>
+    <div class="rv-content">
+      <div class="rv-card">
+        <div class="rv-card-head"><span style="font-weight:500">문항 1</span><span class="badge b-done">정상</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">문항번호</span><span class="rv-field-val">1</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">정답</span><span class="rv-field-val">3</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">배점</span><span class="rv-field-val">5점</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">해설</span><span class="rv-field-val">주어진 조건에서 x = 3이 성립하므로, 정답은 3번입니다.</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">첨부</span><span class="rv-field-val"><span class="badge b-ready" style="cursor:pointer" onclick="showToast('미디어 미리보기')">📎 math_q1_figure.png</span></span></div>
+      </div>
+      <div class="rv-card">
+        <div class="rv-card-head"><span style="font-weight:500">문항 2</span><span class="badge b-wait">확인 필요</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">문항번호</span><span class="rv-field-val">2</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">정답</span><span class="rv-field-val">1</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">배점</span><span class="rv-field-val">3점</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">해설</span><span class="rv-field-val" style="color:#A32D2D">(미입력)</span></div>
+      </div>
+      <div class="rv-card">
+        <div class="rv-card-head"><span style="font-weight:500">문항 3</span><span class="badge b-done">정상</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">문항번호</span><span class="rv-field-val">3</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">정답</span><span class="rv-field-val">4</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">배점</span><span class="rv-field-val">5점</span></div>
+        <div class="rv-field-row"><span class="rv-field-label">해설</span><span class="rv-field-val">삼각형의 넓이 공식을 적용하면...</span></div>
+      </div>
+      <div class="rv-checklist">
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px">검수 체크리스트</div>
+        <div class="rv-check"><div class="rv-checkbox checked" onclick="this.classList.toggle('checked')">✓</div><span>필수 항목 입력 완료</span></div>
+        <div class="rv-check"><div class="rv-checkbox" onclick="this.classList.toggle('checked')"></div><span>정답 정확성 확인</span></div>
+        <div class="rv-check"><div class="rv-checkbox" onclick="this.classList.toggle('checked')"></div><span>해설 품질 확인</span></div>
+        <div class="rv-check"><div class="rv-checkbox checked" onclick="this.classList.toggle('checked')">✓</div><span>첨부 파일 확인</span></div>
+        <div class="rv-check"><div class="rv-checkbox" onclick="this.classList.toggle('checked')"></div><span>배점 합계 확인</span></div>
+      </div>
+      <div class="rv-comment">
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px">검수 코멘트</div>
+        <textarea placeholder="검수 의견을 입력하세요..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ═══ BIND CODE SELECTOR MODAL ═══ -->
+<div class="modal-ov" id="bindModal">
+  <div class="modal-box" style="width:720px">
+    <div class="modal-head">
+      <div class="modal-head-title">과목코드 바인딩 <span style="font-size:12px;color:#86868b;font-weight:400">· 영어 회화 과정 / 웹콘텐츠 [NH]</span></div>
+      <span class="badge b-prog">연결 1개</span>
+      <button class="modal-close" onclick="closeBindModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input class="filter-input" placeholder="과목코드 검색..." style="width:100%;margin-bottom:12px">
+      <div class="consonant-bar">
+        <button class="consonant-btn on">전체</button>
+        <button class="consonant-btn">ㄱ</button><button class="consonant-btn">ㄴ</button><button class="consonant-btn">ㄷ</button>
+        <button class="consonant-btn">ㅁ</button><button class="consonant-btn">ㅂ</button><button class="consonant-btn">ㅅ</button>
+        <button class="consonant-btn">ㅇ</button><button class="consonant-btn">ㅈ</button><button class="consonant-btn">ㅊ</button>
+        <button class="consonant-btn">ㅋ</button><button class="consonant-btn">ㅌ</button><button class="consonant-btn">ㅍ</button>
+        <button class="consonant-btn">ㅎ</button>
+      </div>
+      <div style="font-size:11px;color:#86868b;margin-bottom:8px">검색 결과: 29개 과목코드</div>
+      <div class="code-row bound"><span class="code-badge">E</span><span class="code-name">영어</span><span class="code-detail">과정 6 / 세트 60</span><span class="badge b-prog" style="font-size:10px">연결됨</span></div>
+      <div class="code-row"><span class="code-badge">E2T</span><span class="code-name">영어2 탭</span><span class="code-detail">과정 4 / 세트 40</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('E2T 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">ET1</span><span class="code-name">영어 탭1</span><span class="code-detail">과정 3 / 세트 30</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('ET1 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">K</span><span class="code-name">국어</span><span class="code-detail">과정 5 / 세트 50</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('K 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">KR</span><span class="code-name">국어 읽기</span><span class="code-detail">과정 4 / 세트 40</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('KR 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">M</span><span class="code-name">수학</span><span class="code-detail">과정 8 / 세트 80</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('M 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">MV</span><span class="code-name">수학 비디오</span><span class="code-detail">과정 4 / 세트 40</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('MV 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">S</span><span class="code-name">과학</span><span class="code-detail">과정 4 / 세트 40</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('S 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">SS</span><span class="code-name">사회</span><span class="code-detail">과정 4 / 세트 40</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('SS 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">C</span><span class="code-name">중국어</span><span class="code-detail">과정 3 / 세트 30</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('C 연결됨')">연결</button></div>
+      <div class="code-row"><span class="code-badge">J</span><span class="code-name">일본어</span><span class="code-detail">과정 3 / 세트 30</span><button class="btn btn-sm" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();showToast('J 연결됨')">연결</button></div>
+    </div>
+    <div class="modal-foot">
+      <span style="font-size:12px;color:#86868b">현재 연결: 1개</span>
+      <div class="filter-spacer"></div>
+      <button class="btn btn-p" onclick="closeBindModal()">완료</button>
+    </div>
+  </div>
+</div>
+<!-- Command Palette -->
+<div class="cmd-ov" id="cmdOv">
+<div class="cmd-box">
+<input class="cmd-inp" type="text" placeholder="어디로 이동할까요?" id="cmdInp" oninput="filterCmd()">
+<div class="cmd-list" id="cmdL">
+<div class="cmd-r" data-go="workflow" onclick="go('workflow');closeCmd()"><div class="cmd-d" style="background:#86868b"></div>작업 진행 보드</div>
+<div class="cmd-r" data-go="work-config" onclick="go('work-config');closeCmd()"><div class="cmd-d" style="background:#0F6E56"></div>작업 설정</div>
+<div class="cmd-r" data-go="content-register" onclick="go('content-register');closeCmd()"><div class="cmd-d" style="background:#0F6E56"></div>콘텐츠 등록</div>
+<div class="cmd-r" data-go="review" onclick="go('review');closeCmd()"><div class="cmd-d" style="background:#BA7517"></div>검수 관리</div>
+<div class="cmd-r" data-go="deploy" onclick="go('deploy');closeCmd()"><div class="cmd-d" style="background:#185FA5"></div>배포 관리</div>
+<div class="cmd-r" data-go="service-bind" onclick="go('service-bind');closeCmd()"><div class="cmd-d" style="background:#639922"></div>과목코드 바인딩</div>
+<div class="cmd-r" data-go="service-content" onclick="go('service-content');closeCmd()"><div class="cmd-d" style="background:#639922"></div>서비스 콘텐츠 관리</div>
+<div class="cmd-r" data-go="form-manage" onclick="go('form-manage');closeCmd()"><div class="cmd-d" style="background:#534AB7"></div>입력 양식 관리</div>
+<div class="cmd-r" data-go="curriculum" onclick="go('curriculum');closeCmd()"><div class="cmd-d" style="background:#534AB7"></div>커리큘럼 관리</div>
+<div class="cmd-r" data-go="scoring-sim" onclick="go('scoring-sim');closeCmd()"><div class="cmd-d" style="background:#86868b"></div>채점 시뮬레이션 관리</div>
+<div class="cmd-r" data-go="settings" onclick="go('settings');closeCmd()"><div class="cmd-d" style="background:#86868b"></div>시스템 관리</div>
+</div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+
+var TITLES={'workflow':'작업 진행 보드','work-config':'작업 설정','content-register':'콘텐츠 등록','review':'검수 관리','deploy':'배포 관리','service-bind':'과목코드 바인딩','service-content':'서비스 콘텐츠 관리','form-manage':'입력 양식 관리','curriculum':'커리큘럼 관리','scoring-sim':'채점 시뮬레이션 관리','settings':'시스템 관리'};
+var STATS={'workflow':'커리큘럼 <strong>4</strong> | 작업 <strong>11</strong> | 미배정 <strong>2</strong>','work-config':'활성 커리큘럼 <strong>3</strong> | 전체 양식 <strong>7</strong>','content-register':'진행 중 <strong>5</strong> | 완료 <strong>2</strong>','review':'대기 <strong>2</strong> | 검수 중 <strong>1</strong>','deploy':'배포 대기 <strong>2</strong> | 스케줄 <strong>3</strong>','service-bind':'연결 <strong>5</strong> | 미연결 <strong>1</strong>','service-content':'정상 <strong>4</strong> | 조치 <strong>1</strong>','form-manage':'활성 <strong>5</strong> | 초안 <strong>3</strong>','curriculum':'전체 <strong>4</strong> | 활성 <strong>2</strong>','scoring-sim':'전체 <strong>10</strong> | 활성 <strong>7</strong>','settings':''};
+
+function go(id){
+  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.toggle('on',i.getAttribute('data-v')===id)});
+  document.querySelectorAll('.view').forEach(function(v){v.classList.toggle('on',v.id==='v-'+id)});
+  document.getElementById('pgTitle').textContent=TITLES[id]||id;
+  document.getElementById('pgStats').innerHTML=STATS[id]||'';
+  // reset sub-views
+  if(id==='form-manage'){document.getElementById('fm-list').style.display='';document.getElementById('fm-editor').style.display='none';}
+  if(id==='curriculum'){document.getElementById('cur-list').style.display='';document.getElementById('cur-builder').style.display='none';document.getElementById('cur-tree').style.display='none';}
+}
+
+// ── Toast ──
+var _toastTimer;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){t.style.display='none'},2000);
+}
+
+// ── Command Palette ──
+function openCmd(){document.getElementById('cmdOv').classList.add('open');document.getElementById('cmdInp').value='';document.getElementById('cmdInp').focus();filterCmd();}
+function closeCmd(){document.getElementById('cmdOv').classList.remove('open');}
+function filterCmd(){
+  var q=document.getElementById('cmdInp').value.toLowerCase();
+  document.querySelectorAll('#cmdL .cmd-r').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(q)>=0?'':'none'});
+}
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openCmd();}
+  if(e.key==='Escape'){closeCmd();closeEditor();closeReview();closeBindModal();}
+});
+document.getElementById('cmdOv').addEventListener('click',function(e){if(e.target===this)closeCmd()});
+
+// ── Tab Switching ──
+function switchTab(el){
+  el.parentElement.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+}
+function switchSetTab(el){
+  el.parentElement.querySelectorAll('.s-tab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+}
+function switchDeployTab(el,idx){
+  el.parentElement.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  for(var i=0;i<3;i++){
+    var p=document.getElementById('deploy-pane-'+i);
+    if(p)p.style.display=i===idx?'':'none';
+  }
+}
+
+// ── Content Editor ──
+function openEditor(id){document.getElementById('editorOverlay').classList.add('open');}
+function closeEditor(){document.getElementById('editorOverlay').classList.remove('open');}
+
+// ── Review Viewer ──
+function openReview(id){document.getElementById('reviewOverlay').classList.add('open');}
+function closeReview(){document.getElementById('reviewOverlay').classList.remove('open');}
+
+// ── Form Editor ──
+function openFormEditor(id){
+  document.getElementById('fm-list').style.display='none';
+  document.getElementById('fm-editor').style.display='';
+  document.getElementById('feTitle').textContent=id==='new'?'새 양식 추가':'양식 편집';
+}
+function closeFormEditor(){
+  document.getElementById('fm-list').style.display='';
+  document.getElementById('fm-editor').style.display='none';
+}
+
+// ── Curriculum Builder ──
+function openCurBuilder(){
+  document.getElementById('cur-list').style.display='none';
+  document.getElementById('cur-builder').style.display='';
+  document.getElementById('cur-tree').style.display='none';
+}
+function closeCurBuilder(){
+  document.getElementById('cur-list').style.display='';
+  document.getElementById('cur-builder').style.display='none';
+}
+
+// ── Tree Editor ──
+function openTreeEditor(){
+  document.getElementById('cur-list').style.display='none';
+  document.getElementById('cur-builder').style.display='none';
+  document.getElementById('cur-tree').style.display='';
+}
+function closeTreeEditor(){
+  document.getElementById('cur-list').style.display='';
+  document.getElementById('cur-tree').style.display='none';
+}
+
+// ── Bind Modal ──
+function openBindModal(){document.getElementById('bindModal').classList.add('open');}
+function closeBindModal(){document.getElementById('bindModal').classList.remove('open');}
+document.getElementById('bindModal').addEventListener('click',function(e){if(e.target===this)closeBindModal()});
+
+// ── Work Config Detail Toggle ──
+function toggleWcDetail(id){
+  var el=document.getElementById(id);
+  if(el)el.classList.toggle('open');
+}
+
+// ── System toggle ──
+document.querySelectorAll('.fe-sys-toggle').forEach(function(el){
+  el.addEventListener('click',function(){this.classList.toggle('on')});
+});
+
+// ── Category filter ──
+document.querySelectorAll('.fe-cat').forEach(function(el){
+  el.addEventListener('click',function(){
+    this.parentElement.querySelectorAll('.fe-cat').forEach(function(c){c.classList.remove('on')});
+    this.classList.add('on');
+  });
+});
+
+// ── Consonant filter ──
+document.querySelectorAll('.consonant-btn').forEach(function(el){
+  el.addEventListener('click',function(){
+    this.parentElement.querySelectorAll('.consonant-btn').forEach(function(c){c.classList.remove('on')});
+    this.classList.add('on');
+  });
+});
+
+// ── Left panel set selection ──
+document.querySelectorAll('.ed-set').forEach(function(el){
+  el.addEventListener('click',function(){
+    this.closest('.ed-left-list').querySelectorAll('.ed-set').forEach(function(s){s.classList.remove('on')});
+    this.classList.add('on');
+  });
+});
+
+
+// ═══ Content Register ═══
+
+// CR tab switching (전체/내 작업/팀)
+function switchCrTab(el, pane) {
+  var tabs = document.querySelectorAll('#crTabs .tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
+  el.classList.add('on');
+  var panes = ['cr-pane-all', 'cr-pane-my', 'cr-pane-team'];
+  var map = {'cr-all': 'cr-pane-all', 'cr-my': 'cr-pane-my', 'cr-team': 'cr-pane-team'};
+  for (var i = 0; i < panes.length; i++) {
+    var p = document.getElementById(panes[i]);
+    if (p) p.style.display = panes[i] === map[pane] ? '' : 'none';
+  }
+  var af = document.getElementById('crAssigneeFilter');
+  var mb = document.getElementById('crMyBadge');
+  var tb = document.getElementById('crTeamBadge');
+  if (af) af.style.display = pane === 'cr-my' ? 'none' : '';
+  if (mb) mb.style.display = pane === 'cr-my' ? '' : 'none';
+  if (tb) tb.style.display = pane === 'cr-team' ? '' : 'none';
+}
+
+// ═══ Fullscreen Editor: Center Panel Switching ═══
+
+var _editorMode = 'set'; // 'course' or 'set'
+
+// Show specific center pane (edit/excel/preview/course)
+function _showCenterPane(paneId) {
+  var panes = ['pane-edit', 'pane-excel', 'pane-preview', 'pane-course'];
+  for (var i = 0; i < panes.length; i++) {
+    var p = document.getElementById(panes[i]);
+    if (p) p.classList.toggle('on', panes[i] === paneId);
+  }
+}
+
+// Editor tab switching (edit/excel/preview) — only when in set mode
+function switchEditorTab(el, tab) {
+  _editorMode = 'set';
+  var tabs = document.querySelectorAll('.fs-tabs .fs-tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
+  el.classList.add('on');
+  // Show tabs bar as active
+  var tabBar = document.querySelector('.fs-tabs');
+  if (tabBar) tabBar.style.opacity = '1';
+  // Update view mode indicator
+  var vm = document.getElementById('fsViewMode');
+  if (vm) vm.style.display = 'none';
+  // Switch pane
+  var map = {'edit': 'pane-edit', 'excel': 'pane-excel', 'preview': 'pane-preview'};
+  _showCenterPane(map[tab]);
+}
+
+// Course header clicked: toggle tree + show course group view
+function selectCourse(el, courseName) {
+  // Toggle tree (expand/collapse sets)
+  var sets = el.nextElementSibling;
+  var arr = el.querySelector('.fs-course-arr');
+  if (sets && sets.classList.contains('fs-sets')) {
+    var isHidden = sets.style.display === 'none';
+    sets.style.display = isHidden ? '' : 'none';
+    if (arr) arr.classList.toggle('open', isHidden);
+  }
+  // Switch center panel to course group view
+  _editorMode = 'course';
+  // Deselect any active set
+  var allSets = document.querySelectorAll('.fs-set');
+  for (var i = 0; i < allSets.length; i++) allSets[i].classList.remove('active');
+  // Dim tab bar (tabs not relevant in course view)
+  var tabs = document.querySelectorAll('.fs-tabs .fs-tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
+  var tabBar = document.querySelector('.fs-tabs');
+  if (tabBar) tabBar.style.opacity = '0.5';
+  // Update course name in course group view
+  var cgName = document.getElementById('cgCourseName');
+  if (cgName) cgName.textContent = courseName;
+  // Show view mode indicator
+  var vm = document.getElementById('fsViewMode');
+  if (vm) {
+    vm.style.display = 'flex';
+    var vmIcon = document.getElementById('fsViewModeIcon');
+    var vmText = document.getElementById('fsViewModeText');
+    if (vmIcon) vmIcon.textContent = '\uD83D\uDCC2';
+    if (vmText) vmText.textContent = courseName + ' \u2014 \uACFC\uC815 \uC804\uCCB4 \uBCF4\uAE30';
+  }
+  // Show course group pane
+  _showCenterPane('pane-course');
+  // Update header set label
+  var headerSetLabel = document.querySelector('.fs-header-title');
+  if (headerSetLabel) {
+    var setSpan = headerSetLabel.querySelectorAll('span');
+    for (var i = 0; i < setSpan.length; i++) {
+      if (setSpan[i].style && setSpan[i].style.marginLeft === '4px') {
+        setSpan[i].textContent = '\u2014 ' + courseName;
+      }
+    }
+  }
+}
+
+// Set clicked in left panel: switch to set editing mode
+function selectSet(el) {
+  var all = document.querySelectorAll('.fs-set');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+  el.classList.add('active');
+  _editorMode = 'set';
+  var setName = el.querySelector('.fs-set-name').textContent;
+  // Restore tab bar
+  var tabBar = document.querySelector('.fs-tabs');
+  if (tabBar) tabBar.style.opacity = '1';
+  var firstTab = document.querySelector('.fs-tab[data-t="edit"]');
+  if (firstTab) {
+    var tabs = document.querySelectorAll('.fs-tabs .fs-tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
+    firstTab.classList.add('on');
+  }
+  // Show edit pane
+  _showCenterPane('pane-edit');
+  // Show view mode as set editing
+  var vm = document.getElementById('fsViewMode');
+  if (vm) {
+    vm.style.display = 'flex';
+    var vmIcon = document.getElementById('fsViewModeIcon');
+    var vmText = document.getElementById('fsViewModeText');
+    if (vmIcon) vmIcon.textContent = '\u270F\uFE0F';
+    if (vmText) vmText.textContent = setName + ' \u2014 \uC0C1\uC138 \uD3B8\uC9D1';
+  }
+  // Update header
+  var headerSetLabel = document.querySelector('.fs-header-title');
+  if (headerSetLabel) {
+    var setSpan = headerSetLabel.querySelectorAll('span');
+    for (var i = 0; i < setSpan.length; i++) {
+      if (setSpan[i].style && setSpan[i].style.marginLeft === '4px') {
+        setSpan[i].textContent = '\u2014 ' + setName;
+      }
+    }
+  }
+  showToast(setName + ' \uD3B8\uC9D1 \uBAA8\uB4DC');
+}
+
+// Set chip in course group view → switch to set edit
+function selectSetFromCourse(el, setNum) {
+  // Find matching set in left tree and activate it
+  var allSets = document.querySelectorAll('.fs-set');
+  for (var i = 0; i < allSets.length; i++) {
+    var nameEl = allSets[i].querySelector('.fs-set-name');
+    if (nameEl && nameEl.textContent === setNum + '\uC138\uD2B8') {
+      selectSet(allSets[i]);
+      return;
+    }
+  }
+  // Fallback
+  _editorMode = 'set';
+  _showCenterPane('pane-edit');
+  showToast(setNum + '\uC138\uD2B8 \uD3B8\uC9D1 \uBAA8\uB4DC');
+}
+
+// Select set by number (from course group "전체화면" button)
+function selectSetByNum(num) {
+  selectSetFromCourse(null, num);
+}
+
+// Course group section accordion
+function toggleCgSection(el) {
+  var body = el.nextElementSibling;
+  var arr = el.querySelector('.cg-section-arr');
+  if (body && body.classList.contains('cg-section-body')) {
+    var isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    if (arr) arr.classList.toggle('open', isHidden);
+  }
+}
+
+// Cloud toggle (CDN/Kollus)
+function switchCloud(el, type) {
+  var btns = el.parentElement.querySelectorAll('.repo-cloud-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active', 'kollus');
+  }
+  if (type === 'kollus') { el.classList.add('kollus'); }
+  else { el.classList.add('active'); }
+  showToast(type === 'cdn' ? 'CDN \uC800\uC7A5\uC18C' : 'Kollus \uC800\uC7A5\uC18C');
+}
+
+// Preview toggle from header button
+function togglePreview() {
+  var tabs = document.querySelectorAll('.fs-tabs .fs-tab');
+  for (var i = 0; i < tabs.length; i++) {
+    if (tabs[i].getAttribute('data-t') === 'preview') {
+      switchEditorTab(tabs[i], 'preview');
+      break;
+    }
+  }
+}
+
+// Legacy compat
+function toggleCourse(el) { selectCourse(el, el.querySelector('.fs-course-name').textContent); }
+</script>
+</body>
+</html>

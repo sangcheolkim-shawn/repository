@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS 2.0 — Design Concept v2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--font:'Pretendard',-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;
+--bg:#F5F5F7;--surface:#FFFFFF;--surface2:#FAFAFA;
+--border:#E8E8ED;--border-h:#D1D1D6;
+--text:#1D1D1F;--text2:#636366;--text3:#8E8E93;--text4:#AEAEB2;
+--blue:#0071E3;--blue-bg:#E6F1FB;--blue-t:#0C447C;
+--teal:#1D9E75;--teal-bg:#E1F5EE;--teal-t:#085041;
+--purple:#534AB7;--purple-bg:#EEEDFE;--purple-t:#3C3489;
+--coral-bg:#FAECE7;--coral-t:#712B13;
+--amber:#BA7517;--amber-bg:#FAEEDA;--amber-t:#633806;
+--red:#A32D2D;--red-bg:#FCEBEB;--red-t:#791F1F;
+--gray-bg:#F1EFE8;--gray-t:#5F5E5A;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden;height:100vh}
+
+.cms{display:flex;height:100vh}
+
+/* Sidebar */
+.sb{width:210px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:18px 18px 14px;font-size:14px;font-weight:500;letter-spacing:-0.2px;display:flex;align-items:center;gap:9px}
+.sb-logo-dot{width:22px;height:22px;border-radius:7px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-t)}
+.sb-group{padding:4px 8px}
+.sb-group-label{font-size:10px;font-weight:500;color:var(--text4);padding:10px 10px 4px;letter-spacing:.04em;text-transform:uppercase}
+.sb-item{padding:8px 10px;border-radius:7px;font-size:12px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .1s;letter-spacing:-0.1px;user-select:none}
+.sb-item:hover{background:var(--bg)}
+.sb-item.active{background:var(--blue-bg);color:var(--blue-t);font-weight:500}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;opacity:.55}
+.sb-item.active svg{opacity:1}
+.sb-spacer{flex:1}
+.sb-user{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-t)}
+.sb-uname{font-size:10px;color:var(--text3)}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:500;letter-spacing:-0.24px;flex:1}
+.topbar-search{padding:6px 12px;border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text3);background:var(--surface2);width:180px;display:flex;align-items:center;gap:5px;cursor:text}
+.content{flex:1;overflow-y:auto;padding:24px 28px;background:var(--bg)}
+
+/* Pills / Badges */
+.pill{display:inline-flex;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:-0.02px}
+.pill-b{background:var(--blue-bg);color:var(--blue-t)}
+.pill-t{background:var(--teal-bg);color:var(--teal-t)}
+.pill-p{background:var(--purple-bg);color:var(--purple-t)}
+.pill-c{background:var(--coral-bg);color:var(--coral-t)}
+.pill-a{background:var(--amber-bg);color:var(--amber-t)}
+.pill-r{background:var(--red-bg);color:var(--red-t)}
+.pill-g{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.stat{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border)}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:5px;letter-spacing:-0.05px}
+.stat-val{font-size:22px;font-weight:500;letter-spacing:-0.3px}
+
+/* Kanban */
+.kanban{display:flex;gap:12px}
+.kcol{flex:1;min-width:0}
+.kcol-head{font-size:11px;font-weight:500;color:var(--text3);padding:7px 8px;margin-bottom:6px;display:flex;align-items:center;gap:6px;letter-spacing:-0.05px}
+.kcol-count{background:var(--bg);padding:1px 6px;border-radius:4px;font-size:10px;color:var(--text4)}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:default;transition:box-shadow .12s}
+.kcard:hover{box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.kcard-top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.kcard-title{font-size:12px;font-weight:500;letter-spacing:-0.1px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kcard-meta{font-size:10px;color:var(--text4);display:flex;align-items:center;gap:5px}
+.kcard-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:6px;overflow:hidden}
+.kcard-fill{height:100%;border-radius:2px}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-weight:500;font-size:10px;color:var(--text4);padding:9px 12px;border-bottom:1px solid var(--border);letter-spacing:.02em}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);letter-spacing:-0.1px}
+.tbl tr:hover td{background:var(--surface2)}
+
+/* Cards */
+.ccard{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.ccard-head{padding:13px 18px;display:flex;align-items:center;gap:10px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.ccard-title{font-size:13px;font-weight:500;flex:1;letter-spacing:-0.15px}
+.ccard-body{padding:12px 18px}
+.ccard-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px}
+.ccard-row+.ccard-row{border-top:1px solid #F2F2F4}
+.ccard-rlabel{color:var(--text3);width:90px;flex-shrink:0;font-size:11px}
+.ccard-rval{flex:1;letter-spacing:-0.1px}
+.bar-sm{height:4px;background:var(--bg);border-radius:2px;flex:1;max-width:120px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px}
+
+/* Depth Pills */
+.depth-pills{display:flex;gap:4px;align-items:center}
+.depth-pill{font-size:10px;color:var(--text4);display:flex;align-items:center;gap:3px}
+.depth-pill span{color:var(--text);font-weight:500}
+.depth-sep{color:var(--border-h);font-size:10px}
+
+/* Tabs / Filters / Buttons */
+.tabs{display:flex;gap:2px;margin-bottom:18px}
+.tab{padding:6px 14px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .1s;letter-spacing:-0.05px}
+.tab:hover{background:var(--surface)}
+.tab.active{background:var(--blue-bg);color:var(--blue-t)}
+.filter-bar{display:flex;gap:8px;margin-bottom:18px;align-items:center}
+.filter-bar select,.filter-bar input{padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:11px;background:var(--surface);color:var(--text);font-family:var(--font);outline:none;transition:border-color .15s}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--blue)}
+.filter-bar input{width:180px}
+.btn-sm{padding:5px 13px;border:1px solid var(--border);border-radius:7px;font-size:11px;background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .1s;letter-spacing:-0.05px}
+.btn-sm:hover{background:var(--bg);border-color:var(--border-h)}
+.btn-primary{background:var(--blue-bg);color:var(--blue-t);border-color:rgba(0,113,227,.15)}
+.btn-primary:hover{background:#D4E8FA}
+
+.media-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:5px;font-size:10px;border:1px solid var(--border);cursor:pointer;transition:all .1s;color:var(--text2)}
+.media-chip:hover{border-color:var(--border-h);background:var(--surface2)}
+
+/* Views */
+.view{display:none}
+.view.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="cms">
+
+<!-- ═══ Sidebar ═══ -->
+<div class="sb">
+<div class="sb-logo"><div class="sb-logo-dot">D</div>CMS 2.0</div>
+
+<div class="sb-group">
+<div class="sb-item active" onclick="go('board',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+작업 보드</div>
+</div>
+
+<div class="sb-group">
+<div class="sb-group-label">콘텐츠 작업</div>
+<div class="sb-item" onclick="go('workconfig',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+작업 설정</div>
+<div class="sb-item" onclick="go('register',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+콘텐츠 등록</div>
+</div>
+
+<div class="sb-group">
+<div class="sb-group-label">검수 · 배포</div>
+<div class="sb-item" onclick="go('review',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+검수 관리</div>
+<div class="sb-item" onclick="go('deploy',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12M8 7l4-4 4 4"/></svg>
+배포 관리</div>
+</div>
+
+<div class="sb-group">
+<div class="sb-group-label">서비스 연결</div>
+<div class="sb-item" onclick="go('bind',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+과목코드 연결</div>
+<div class="sb-item" onclick="go('service',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+서비스 콘텐츠</div>
+</div>
+
+<div class="sb-group">
+<div class="sb-group-label">양식 관리</div>
+<div class="sb-item" onclick="go('form',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+입력 양식</div>
+<div class="sb-item" onclick="go('curriculum',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+커리큘럼</div>
+</div>
+
+<div class="sb-spacer"></div>
+<div class="sb-user">
+<div class="sb-avatar">S</div>
+<div><div style="font-size:12px;font-weight:500">Shawn</div><div class="sb-uname">콘텐츠기획</div></div>
+</div>
+</div>
+
+<!-- ═══ Main ═══ -->
+<div class="main">
+<div class="topbar">
+<div class="topbar-title" id="pageTitle">작업 보드</div>
+<div class="topbar-search">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+검색...
+</div>
+</div>
+<div class="content">
+
+<!-- Board -->
+<div class="view active" id="v-board">
+<div class="stats">
+<div class="stat"><div class="stat-label">전체 작업</div><div class="stat-val">24</div></div>
+<div class="stat"><div class="stat-label">진행 중</div><div class="stat-val" style="color:var(--teal)">8</div></div>
+<div class="stat"><div class="stat-label">검수 대기</div><div class="stat-val" style="color:var(--purple)">5</div></div>
+<div class="stat"><div class="stat-label">이번 주 완료</div><div class="stat-val" style="color:var(--blue)">3</div></div>
+</div>
+<div class="kanban">
+<div class="kcol">
+<div class="kcol-head">배정 <span class="kcol-count">3</span></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-b">뉴드림스</span><span class="kcard-title">수학 기초 · 해답지</span></div><div class="kcard-meta"><span>홍길동</span><span>·</span><span>40세트</span></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-p">눈높이</span><span class="kcard-title">영어 회화 · 플래시카드</span></div><div class="kcard-meta"><span>이영희</span><span>·</span><span>60세트</span></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-t">성장판</span><span class="kcard-title">국어 독해 · 자동채점</span></div><div class="kcard-meta"><span>박민수</span><span>·</span><span>50세트</span></div></div>
+</div>
+<div class="kcol">
+<div class="kcol-head">등록 <span class="kcol-count">4</span></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-b">뉴드림스</span><span class="kcard-title">수학 기초 · 자동채점</span></div><div class="kcard-meta">김철수</div><div class="kcard-bar"><div class="kcard-fill" style="width:70%;background:var(--teal)"></div></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-p">눈높이</span><span class="kcard-title">내신완공 · 영상강의</span></div><div class="kcard-meta">홍길동</div><div class="kcard-bar"><div class="kcard-fill" style="width:45%;background:var(--blue)"></div></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-b">뉴드림스</span><span class="kcard-title">영어 듣기 · 음원</span></div><div class="kcard-meta">이영희</div><div class="kcard-bar"><div class="kcard-fill" style="width:20%;background:var(--blue)"></div></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-t">성장판</span><span class="kcard-title">과학 실험 · 핵심점검</span></div><div class="kcard-meta">박민수</div><div class="kcard-bar"><div class="kcard-fill" style="width:90%;background:var(--teal)"></div></div></div>
+</div>
+<div class="kcol">
+<div class="kcol-head">검수 <span class="kcol-count">2</span></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-b">뉴드림스</span><span class="kcard-title">수학 기초 · 해답지</span></div><div class="kcard-meta">김철수 · 41~80세트</div><div class="kcard-bar"><div class="kcard-fill" style="width:100%;background:var(--teal)"></div></div></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-p">눈높이</span><span class="kcard-title">국어 문법 · 해답지</span></div><div class="kcard-meta">이영희</div><div class="kcard-bar"><div class="kcard-fill" style="width:100%;background:var(--teal)"></div></div></div>
+</div>
+<div class="kcol">
+<div class="kcol-head">배포 <span class="kcol-count">1</span></div>
+<div class="kcard"><div class="kcard-top"><span class="pill pill-b">뉴드림스</span><span class="kcard-title">수학 기초 · 해답지</span></div><div class="kcard-meta">홍길동 · 1~40세트</div><div class="kcard-bar"><div class="kcard-fill" style="width:100%;background:var(--purple)"></div></div></div>
+</div>
+</div>
+</div>
+
+<!-- Work Config -->
+<div class="view" id="v-workconfig">
+<div class="filter-bar">
+<input placeholder="커리큘럼 검색...">
+<select><option>전체 상태</option><option>진행 중</option><option>완료</option></select>
+</div>
+<div class="ccard">
+<div class="ccard-head">
+<div class="ccard-title">수학 기초 과정</div>
+<div class="depth-pills"><div class="depth-pill">커리큘럼명 <span>1</span></div><div class="depth-sep">›</div><div class="depth-pill">과정 <span>8</span></div><div class="depth-sep">›</div><div class="depth-pill" style="color:var(--blue-t);font-weight:500">세트 <span>80</span></div><div class="depth-sep">›</div><div class="depth-pill">콘텐츠 <span>400</span></div></div>
+<span class="pill pill-t" style="margin-left:8px">72%</span>
+</div>
+<div class="ccard-body">
+<div class="ccard-row"><span class="ccard-rlabel">과목 / 학년</span><span class="ccard-rval"><span class="pill pill-b" style="margin-right:4px">수학</span><span class="pill pill-g">중1</span></span></div>
+<div class="ccard-row"><span class="ccard-rlabel">양식</span><span class="ccard-rval"><span class="pill pill-g" style="margin-right:4px">해답지 (A)</span><span class="pill pill-g">자동채점</span></span></div>
+<div class="ccard-row"><span class="ccard-rlabel">홍길동</span><span class="ccard-rval" style="display:flex;align-items:center;gap:8px">해답지 · 1~40세트 <div class="bar-sm"><div class="bar-fill" style="width:70%;background:var(--teal)"></div></div><span style="font-size:10px;color:var(--text4)">70%</span></span></div>
+<div class="ccard-row"><span class="ccard-rlabel">김철수</span><span class="ccard-rval" style="display:flex;align-items:center;gap:8px">해답지 · 41~80세트 <div class="bar-sm"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div><span style="font-size:10px;color:var(--text4)">100%</span></span></div>
+</div>
+</div>
+<div class="ccard">
+<div class="ccard-head">
+<div class="ccard-title">영어 기초 과정</div>
+<div class="depth-pills"><div class="depth-pill">커리큘럼명 <span>1</span></div><div class="depth-sep">›</div><div class="depth-pill">과정 <span>6</span></div><div class="depth-sep">›</div><div class="depth-pill" style="color:var(--blue-t);font-weight:500">세트 <span>60</span></div></div>
+<span class="pill pill-a" style="margin-left:8px">35%</span>
+</div>
+<div class="ccard-body">
+<div class="ccard-row"><span class="ccard-rlabel">과목 / 학년</span><span class="ccard-rval"><span class="pill pill-b" style="margin-right:4px">영어</span><span class="pill pill-g">초5</span></span></div>
+<div class="ccard-row"><span class="ccard-rlabel">양식</span><span class="ccard-rval"><span class="pill pill-g" style="margin-right:4px">플래시카드</span><span class="pill pill-g">음원</span></span></div>
+<div class="ccard-row"><span class="ccard-rlabel">이영희</span><span class="ccard-rval" style="display:flex;align-items:center;gap:8px">플래시카드 · 1~60세트 <div class="bar-sm"><div class="bar-fill" style="width:35%;background:var(--amber)"></div></div><span style="font-size:10px;color:var(--text4)">35%</span></span></div>
+</div>
+</div>
+</div>
+
+<!-- Register -->
+<div class="view" id="v-register">
+<div class="tabs"><div class="tab active">전체</div><div class="tab">내 작업</div><div class="tab">팀 콘텐츠</div></div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">수학 기초 과정</div><span class="pill pill-b">수학</span></div>
+<div class="ccard-body" style="padding:0">
+<table class="tbl">
+<thead><tr><th>양식</th><th>담당자</th><th>범위</th><th>진행률</th><th>상태</th><th></th></tr></thead>
+<tbody>
+<tr><td><span class="pill pill-g">해답지 (A)</span></td><td>홍길동</td><td>1~40세트</td><td style="display:flex;align-items:center;gap:6px"><div class="bar-sm"><div class="bar-fill" style="width:70%;background:var(--teal)"></div></div>70%</td><td><span class="pill pill-t">진행 중</span></td><td><button class="btn-sm">편집</button></td></tr>
+<tr><td><span class="pill pill-g">해답지 (A)</span></td><td>김철수</td><td>41~80세트</td><td style="display:flex;align-items:center;gap:6px"><div class="bar-sm"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div>100%</td><td><span class="pill pill-t">완료</span></td><td><button class="btn-sm">편집</button></td></tr>
+<tr><td><span class="pill pill-g">자동채점</span></td><td>홍길동</td><td>1~80세트</td><td style="display:flex;align-items:center;gap:6px"><div class="bar-sm"><div class="bar-fill" style="width:45%;background:var(--amber)"></div></div>45%</td><td><span class="pill pill-a">진행 중</span></td><td><button class="btn-sm">편집</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Review -->
+<div class="view" id="v-review">
+<div class="stats" style="grid-template-columns:repeat(3,1fr)">
+<div class="stat"><div class="stat-label">검수 대기</div><div class="stat-val" style="color:var(--purple)">5</div></div>
+<div class="stat"><div class="stat-label">승인 완료</div><div class="stat-val" style="color:var(--teal)">12</div></div>
+<div class="stat"><div class="stat-label">반려</div><div class="stat-val" style="color:var(--red)">2</div></div>
+</div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">수학 기초 과정 · 해답지</div><span class="pill pill-b">뉴드림스</span><span class="pill pill-p">검수 대기</span></div>
+<div class="ccard-body">
+<div class="ccard-row"><span class="ccard-rlabel">담당자</span><span class="ccard-rval">김철수 · 41~80세트</span></div>
+<div class="ccard-row"><span class="ccard-rlabel">입력 완성</span><span class="ccard-rval" style="display:flex;align-items:center;gap:8px"><div class="bar-sm"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div>3/3건 완성</span></div>
+<div class="ccard-row"><span class="ccard-rlabel">첨부 파일</span><span class="ccard-rval" style="display:flex;gap:4px;flex-wrap:wrap"><span class="media-chip">🖼️ M1_001_answer.png</span><span class="media-chip">🎥 NH_M1_01_V01.mp4</span><span class="media-chip">🎧 M1_001_narration.mp3</span></span></div>
+<div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end">
+<button class="btn-sm" style="border-color:var(--red-bg);color:var(--red)">반려</button>
+<button class="btn-sm btn-primary">검수 승인</button>
+</div>
+</div>
+</div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">국어 문법 과정 · 해답지</div><span class="pill pill-p">눈높이</span><span class="pill pill-p">검수 대기</span></div>
+<div class="ccard-body">
+<div class="ccard-row"><span class="ccard-rlabel">담당자</span><span class="ccard-rval">이영희 · 1~50세트</span></div>
+<div class="ccard-row"><span class="ccard-rlabel">입력 완성</span><span class="ccard-rval" style="display:flex;align-items:center;gap:8px"><div class="bar-sm"><div class="bar-fill" style="width:66%;background:var(--amber)"></div></div>2/3건 완성</span></div>
+<div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end">
+<button class="btn-sm" style="border-color:var(--red-bg);color:var(--red)">반려</button>
+<button class="btn-sm btn-primary">검수 승인</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Deploy -->
+<div class="view" id="v-deploy">
+<div class="tabs"><div class="tab active">배포 스케줄</div><div class="tab">배포 이력</div></div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">2026년 5월 배포 스케줄</div><span class="pill pill-t">3건 예정</span></div>
+<div class="ccard-body" style="padding:0">
+<table class="tbl">
+<thead><tr><th>배포일</th><th>커리큘럼</th><th>양식</th><th>대상</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td>2026-05-08</td><td>수학 기초 과정</td><td>해답지 (A)</td><td><span class="pill pill-b">뉴드림스</span></td><td><span class="pill pill-a">예정</span></td></tr>
+<tr><td>2026-05-12</td><td>영어 기초 과정</td><td>플래시카드</td><td><span class="pill pill-b">뉴드림스</span></td><td><span class="pill pill-g">준비 중</span></td></tr>
+<tr><td>2026-05-15</td><td>국어 문법 과정</td><td>해답지 (A)</td><td><span class="pill pill-p">눈높이</span></td><td><span class="pill pill-g">준비 중</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Bind -->
+<div class="view" id="v-bind">
+<div class="filter-bar"><input placeholder="커리큘럼 또는 과목코드 검색..."><select><option>전체</option><option>연결 완료</option><option>미연결</option></select></div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">수학 기초 과정</div><span class="pill pill-t">연결 완료</span></div>
+<div class="ccard-body" style="padding:0">
+<table class="tbl">
+<thead><tr><th>양식</th><th>대상 시스템</th><th>과목코드</th><th>범위</th></tr></thead>
+<tbody>
+<tr><td>해답지 (A)</td><td><span class="pill pill-b">뉴드림스</span></td><td><span class="pill pill-b">M 수학</span></td><td>전체</td></tr>
+<tr><td>자동채점</td><td><span class="pill pill-b">뉴드림스</span></td><td><span class="pill pill-b">M 수학</span></td><td>전체</td></tr>
+<tr><td>자동채점</td><td><span class="pill pill-t">성장판</span></td><td><span class="pill pill-t">M 수학</span></td><td>1~4 과정</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">영어 기초 과정</div><span class="pill pill-r">미연결</span></div>
+<div class="ccard-body" style="text-align:center;padding:24px;color:var(--text3);font-size:12px">
+아직 과목코드가 연결되지 않았습니다.
+<div style="margin-top:10px"><button class="btn-sm btn-primary">과목코드 연결</button></div>
+</div>
+</div>
+</div>
+
+<!-- Service -->
+<div class="view" id="v-service">
+<div class="filter-bar"><input placeholder="커리큘럼 검색..."><select><option>전체 상태</option><option>서비스 중</option><option>수정 중</option></select></div>
+<div class="ccard">
+<div class="ccard-head"><div class="ccard-title">수학 기초 과정</div><span class="pill pill-b">v1.2</span><span class="pill pill-t">서비스 중</span></div>
+<div class="ccard-body" style="padding:0">
+<table class="tbl">
+<thead><tr><th>양식</th><th>시스템</th><th>버전</th><th>배포일</th><th>상태</th><th></th></tr></thead>
+<tbody>
+<tr><td>해답지</td><td><span class="pill pill-b">뉴드림스</span></td><td>v1.2</td><td>2026-03-27</td><td><span class="pill pill-t">정상</span></td><td><button class="btn-sm">수정</button></td></tr>
+<tr><td>해답지 (고객용)</td><td><span class="pill pill-p">눈높이</span></td><td>v1.0</td><td>2026-03-27</td><td><span class="pill pill-t">정상</span></td><td><button class="btn-sm">수정</button></td></tr>
+<tr><td>자동채점</td><td><span class="pill pill-b">뉴드림스</span></td><td>v1.0</td><td>2026-03-27</td><td><span class="pill pill-a">수정 중</span></td><td><button class="btn-sm">확인</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Form -->
+<div class="view" id="v-form">
+<div class="filter-bar"><input placeholder="양식 검색..."><span style="flex:1"></span><button class="btn-sm btn-primary">+ 양식 추가</button></div>
+<table class="tbl">
+<thead><tr><th>양식명</th><th>코드</th><th>필드 수</th><th>사용처</th><th>수정일</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td style="font-weight:500">A 해답지 양식</td><td style="font-family:monospace;font-size:11px">ANS-A</td><td>7</td><td>2개 커리큘럼</td><td>2026-03-15</td><td><span class="pill pill-t">사용 중</span></td></tr>
+<tr><td style="font-weight:500">B 해답지 양식</td><td style="font-family:monospace;font-size:11px">ANS-B</td><td>10</td><td>1개 커리큘럼</td><td>2026-04-02</td><td><span class="pill pill-t">사용 중</span></td></tr>
+<tr><td style="font-weight:500">영상강의 양식</td><td style="font-family:monospace;font-size:11px">STDG-NH</td><td>15</td><td>1개 커리큘럼</td><td>2026-04-08</td><td><span class="pill pill-t">사용 중</span></td></tr>
+<tr><td style="font-weight:500">음원 양식</td><td style="font-family:monospace;font-size:11px">AUD-A</td><td>12</td><td>2개 커리큘럼</td><td>2026-05-01</td><td><span class="pill pill-t">사용 중</span></td></tr>
+<tr><td style="font-weight:500">핵심점검 양식</td><td style="font-family:monospace;font-size:11px">CBT-A</td><td>8</td><td>—</td><td>2026-04-15</td><td><span class="pill pill-g">초안</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- Curriculum -->
+<div class="view" id="v-curriculum">
+<div class="filter-bar">
+<input placeholder="커리큘럼 검색...">
+<select><option>전체 과목</option><option>수학</option><option>영어</option><option>국어</option></select>
+<select><option>전체 상태</option><option>활성</option><option>설정 필요</option></select>
+<span style="flex:1"></span>
+<button class="btn-sm btn-primary">+ 새 커리큘럼</button>
+</div>
+<table class="tbl">
+<thead><tr><th>커리큘럼명</th><th>과목</th><th>학년</th><th>단계 구조</th><th>양식</th><th>상태</th><th></th></tr></thead>
+<tbody>
+<tr><td style="font-weight:500">수학 기초 과정</td><td><span class="pill pill-b">수학</span></td><td>중1</td><td><div class="depth-pills"><div class="depth-pill"><span>8</span> 과정</div><div class="depth-sep">›</div><div class="depth-pill"><span>80</span> 세트</div><div class="depth-sep">›</div><div class="depth-pill"><span>400</span> 콘텐츠</div></div></td><td><span class="pill pill-g" style="margin-right:2px">해답지</span><span class="pill pill-g">자동채점</span></td><td><span class="pill pill-t">활성</span></td><td><button class="btn-sm">편집</button></td></tr>
+<tr><td style="font-weight:500">영어 기초 과정</td><td><span class="pill pill-b">영어</span></td><td>초5</td><td><div class="depth-pills"><div class="depth-pill"><span>6</span> 과정</div><div class="depth-sep">›</div><div class="depth-pill"><span>60</span> 세트</div></div></td><td><span class="pill pill-g" style="margin-right:2px">플래시카드</span><span class="pill pill-g">음원</span></td><td><span class="pill pill-t">활성</span></td><td><button class="btn-sm">편집</button></td></tr>
+<tr><td style="font-weight:500">국어 독해 과정</td><td><span class="pill pill-b">국어</span></td><td>중2</td><td><div class="depth-pills"><div class="depth-pill"><span>5</span> 과정</div><div class="depth-sep">›</div><div class="depth-pill"><span>50</span> 세트</div></div></td><td><span class="pill pill-g">자동채점</span></td><td><span class="pill pill-a">설정 필요</span></td><td><button class="btn-sm">편집</button></td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+var titles = {
+  board:'작업 보드', workconfig:'작업 설정', register:'콘텐츠 등록',
+  review:'검수 관리', deploy:'배포 관리', bind:'과목코드 연결',
+  service:'서비스 콘텐츠', form:'입력 양식', curriculum:'커리큘럼'
+};
+function go(id, el) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('v-'+id).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(function(s){ s.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+}
+</script>
+</body>
+</html>

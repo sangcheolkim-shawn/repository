@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS — 고정 필드 + 자유 컨텍스트 프로토타입</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-primary:#2563EB;--c-primary-h:#1D4ED8;--c-primary-l:#EFF6FF;--c-primary-b:#BFDBFE;
+  --c-green:#059669;--c-green-l:#F0FDF4;
+  --c-amber:#D97706;--c-amber-l:#FFF7ED;
+  --c-red:#DC2626;--c-red-l:#FFF1F2;
+  --c-purple:#7C3AED;--c-purple-l:#F5F3FF;
+  --c-gray-50:#F8FAFC;--c-gray-100:#F1F5F9;--c-gray-200:#E2E8F0;--c-gray-300:#CBD5E1;
+  --c-gray-400:#94A3B8;--c-gray-500:#64748B;--c-gray-600:#475569;--c-gray-700:#334155;--c-gray-800:#1E293B;--c-gray-900:#0F172A;
+  --c-bg:#F8F9FA;--c-surface:#FFFFFF;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Pretendard','Noto Sans KR',sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code',monospace;
+  --radius:8px;--radius-sm:6px;--radius-lg:12px;
+  --shadow-sm:0 1px 3px rgba(60,64,67,.12),0 1px 2px rgba(60,64,67,.08);
+  --shadow:0 2px 6px rgba(60,64,67,.12),0 1px 3px rgba(60,64,67,.08);
+  --shadow-lg:0 8px 20px rgba(60,64,67,.12),0 3px 6px rgba(60,64,67,.08);
+}
+body{font-family:var(--font-sans);background:var(--c-bg);color:var(--c-gray-900);font-size:13px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+
+/* ═══ Layout ═══ */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:260px;background:#0F172A;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid rgba(255,255,255,.04)}
+.sb-header{padding:16px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-title{font-size:13px;font-weight:700;color:#F1F5F9;letter-spacing:-.01em}
+.sb-sub{font-size:10px;color:#64748B;margin-top:2px}
+.sb-section{padding:16px 10px 6px;font-size:9.5px;font-weight:600;color:#3D5166;text-transform:uppercase;letter-spacing:.1em}
+.sb-list{flex:1;overflow-y:auto;padding:4px 8px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all .12s;margin-bottom:1px;color:#64748B;font-size:12px;font-weight:500}
+.sb-item:hover{background:rgba(255,255,255,.05)}
+.sb-item.active{background:rgba(37,99,235,.18);color:#93C5FD;font-weight:600}
+.sb-item .icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{font-size:10px;background:rgba(255,255,255,.08);color:#64748B;padding:1px 7px;border-radius:8px;font-weight:600;margin-left:auto}
+.sb-item.active .sb-badge{background:rgba(37,99,235,.25);color:#93C5FD}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ═══ Header ═══ */
+.page-header{background:var(--c-surface);border-bottom:1px solid var(--c-gray-200);padding:0 20px;display:flex;align-items:center;min-height:50px;gap:12px}
+.ph-icon{width:28px;height:28px;background:var(--c-primary-l);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:13px}
+.ph-title{font-size:14px;font-weight:700;flex:1}
+.ph-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--c-green-l);color:var(--c-green);border:1px solid #A7F3D0}
+
+/* ═══ Content Area ═══ */
+.content-area{flex:1;display:flex;overflow:hidden}
+
+/* ── Left: Item List ── */
+.item-list{width:260px;border-right:1px solid var(--c-gray-200);background:var(--c-surface);display:flex;flex-direction:column;flex-shrink:0}
+.il-header{padding:10px 12px;border-bottom:1px solid var(--c-gray-200);display:flex;flex-direction:column;gap:8px}
+.il-search{display:flex;align-items:center;gap:6px;border:1.5px solid var(--c-gray-200);border-radius:var(--radius);padding:6px 10px;background:#fff;transition:border-color .15s}
+.il-search:focus-within{border-color:var(--c-primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.il-search input{border:none;outline:none;font-size:12px;flex:1;background:transparent;color:var(--c-gray-700)}
+.il-search .icon{color:var(--c-gray-400);font-size:12px}
+.il-tags{display:flex;gap:4px;flex-wrap:wrap}
+.il-tag{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--c-gray-200);background:#fff;color:var(--c-gray-500);transition:all .12s}
+.il-tag:hover{border-color:var(--c-primary-b);color:var(--c-primary)}
+.il-tag.on{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
+.il-body{flex:1;overflow-y:auto;padding:6px}
+.il-card{padding:10px;border-radius:var(--radius);cursor:pointer;transition:all .12s;border:1.5px solid transparent;margin-bottom:4px}
+.il-card:hover{background:var(--c-gray-50);border-color:var(--c-gray-200)}
+.il-card.active{background:var(--c-primary-l);border-color:var(--c-primary-b)}
+.il-card-title{font-size:12px;font-weight:600;color:var(--c-gray-800);display:flex;align-items:center;gap:5px}
+.il-card-sub{font-size:10px;color:var(--c-gray-500);margin-top:3px;display:flex;gap:8px;align-items:center}
+.il-card-tags{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.il-card-tag{padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:var(--c-purple-l);color:var(--c-purple);border:1px solid #DDD6FE}
+.il-card-memo{font-size:10px;color:var(--c-gray-500);margin-top:4px;padding:4px 6px;background:var(--c-gray-50);border-radius:4px;border-left:2px solid var(--c-amber);display:flex;align-items:start;gap:4px;line-height:1.4}
+
+/* ── Center: System Fields ── */
+.center-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--c-bg)}
+.cp-toolbar{padding:8px 16px;background:var(--c-surface);border-bottom:1px solid var(--c-gray-200);display:flex;align-items:center;gap:8px}
+.cp-breadcrumb{font-size:11px;color:var(--c-gray-500)}
+.cp-breadcrumb strong{color:var(--c-gray-800)}
+.cp-type-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.btn{padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;border:1px solid transparent;font-weight:500;transition:all .12s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--c-primary);color:#fff;border-color:var(--c-primary)}
+.btn-primary:hover{background:var(--c-primary-h)}
+.btn-ghost{background:var(--c-surface);border-color:var(--c-gray-200);color:var(--c-gray-600)}
+.btn-ghost:hover{border-color:var(--c-gray-300);background:var(--c-gray-50)}
+.btn-green{background:var(--c-green);color:#fff;border-color:var(--c-green)}
+.btn-green:hover{background:#047857}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+.cp-body{flex:1;overflow-y:auto;padding:16px}
+.cp-section-label{font-size:10px;font-weight:700;color:var(--c-gray-400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.cp-section-label .dot{width:6px;height:6px;border-radius:50%}
+
+/* Grid table */
+.grid-table{width:100%;border-collapse:collapse;background:var(--c-surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.grid-table th{padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--c-gray-500);background:var(--c-gray-50);border-bottom:1.5px solid var(--c-gray-200)}
+.grid-table td{padding:7px 12px;border-bottom:1px solid var(--c-gray-100);font-size:12px}
+.grid-table tr:last-child td{border-bottom:none}
+.grid-table input,.grid-table select{width:100%;padding:5px 8px;border:1.5px solid var(--c-gray-200);border-radius:var(--radius-sm);font-size:12px;outline:none;transition:border-color .15s;background:#fff}
+.grid-table input:focus,.grid-table select:focus{border-color:var(--c-primary);box-shadow:0 0 0 2px rgba(37,99,235,.08)}
+.grid-table .row-num{font-size:11px;color:var(--c-gray-400);font-weight:600;text-align:center;width:50px}
+.grid-table .cell-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block}
+
+.set-tabs{display:flex;border-bottom:2px solid var(--c-gray-200);margin-bottom:12px}
+.set-tab{padding:8px 16px;font-size:12px;font-weight:500;color:var(--c-gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .12s;display:flex;align-items:center;gap:5px}
+.set-tab:hover{color:var(--c-gray-700)}
+.set-tab.active{color:var(--c-primary);font-weight:700;border-bottom-color:var(--c-primary)}
+.set-tab .dot{width:6px;height:6px;border-radius:50%}
+
+.progress-bar{height:4px;background:var(--c-gray-200);border-radius:2px;overflow:hidden;margin-top:10px}
+.progress-bar .fill{height:100%;border-radius:2px;transition:width .3s}
+.progress-info{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--c-gray-500)}
+
+/* ── Right: Context Panel ── */
+.context-panel{width:320px;border-left:1px solid var(--c-gray-200);background:var(--c-surface);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s}
+.context-panel.collapsed{width:40px;overflow:hidden}
+.ctx-toggle{padding:8px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--c-gray-200);cursor:pointer;color:var(--c-gray-500);font-size:16px;transition:all .12s}
+.ctx-toggle:hover{background:var(--c-gray-50);color:var(--c-gray-700)}
+.ctx-header{padding:10px 14px;border-bottom:1px solid var(--c-gray-200);display:flex;align-items:center;gap:8px}
+.ctx-header-title{font-size:12px;font-weight:700;color:var(--c-gray-800);flex:1}
+.ctx-header .count{font-size:10px;color:var(--c-gray-400)}
+.ctx-body{flex:1;overflow-y:auto;padding:10px}
+.ctx-section{margin-bottom:16px}
+.ctx-section-title{font-size:10px;font-weight:700;color:var(--c-gray-400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+
+/* Note cards */
+.note-card{padding:8px 10px;border-radius:var(--radius-sm);background:var(--c-gray-50);border:1px solid var(--c-gray-100);margin-bottom:6px;transition:all .12s;position:relative}
+.note-card:hover{border-color:var(--c-gray-200)}
+.note-card.pinned{border-left:3px solid var(--c-amber);background:#FFFBF0}
+.note-text{font-size:12px;color:var(--c-gray-700);line-height:1.5;white-space:pre-wrap}
+.note-meta{font-size:10px;color:var(--c-gray-400);margin-top:5px;display:flex;align-items:center;gap:8px}
+.note-pin{position:absolute;top:6px;right:6px;cursor:pointer;font-size:12px;opacity:.4;transition:opacity .12s}
+.note-pin:hover{opacity:1}
+.note-pin.active{opacity:1;color:var(--c-amber)}
+
+.note-input{display:flex;gap:6px;padding:0 0 10px}
+.note-input textarea{flex:1;padding:8px 10px;border:1.5px solid var(--c-gray-200);border-radius:var(--radius);font-size:12px;font-family:var(--font-sans);resize:none;outline:none;transition:border-color .15s;min-height:60px}
+.note-input textarea:focus{border-color:var(--c-primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.note-input button{align-self:flex-end}
+
+/* Tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.ctx-tag{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:default;display:inline-flex;align-items:center;gap:4px}
+.ctx-tag .del{cursor:pointer;opacity:.5;font-size:10px;transition:opacity .12s}
+.ctx-tag .del:hover{opacity:1}
+.tag-add{display:flex;gap:4px}
+.tag-add input{flex:1;padding:4px 8px;border:1.5px solid var(--c-gray-200);border-radius:var(--radius-sm);font-size:11px;outline:none;transition:border-color .15s}
+.tag-add input:focus{border-color:var(--c-primary)}
+
+/* Links */
+.link-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;font-size:12px;color:var(--c-primary)}
+.link-item:hover{background:var(--c-primary-l)}
+.link-item .icon{font-size:12px}
+.link-add{display:flex;gap:4px;margin-top:4px}
+.link-add input{flex:1;padding:4px 8px;border:1.5px solid var(--c-gray-200);border-radius:var(--radius-sm);font-size:11px;outline:none}
+
+/* Toast */
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:9999}
+.toast{padding:8px 16px;border-radius:var(--radius);font-size:12px;font-weight:600;color:#fff;margin-bottom:6px;animation:fadeIn .2s;box-shadow:var(--shadow-lg)}
+.toast.ok{background:#059669}.toast.info{background:var(--c-primary)}.toast.warn{background:var(--c-amber)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Comparison badge */
+.compare-banner{padding:12px 16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1.5px solid var(--c-primary-b);border-radius:var(--radius-lg);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.compare-banner .icon{font-size:20px}
+.compare-banner .text{font-size:12px;color:var(--c-gray-700);line-height:1.5}
+.compare-banner strong{color:var(--c-primary)}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-title">CMS ADMIN</div>
+      <div class="sb-sub">콘텐츠 관리 시스템 — 속성 분리 모델</div>
+    </div>
+    <div class="sb-section">콘텐츠 작업</div>
+    <div class="sb-list" id="sbList"></div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+    <div class="page-header">
+      <div class="ph-icon">📋</div>
+      <div class="ph-title" id="phTitle">콘텐츠 등록</div>
+      <div class="ph-chip" id="phChip">등록 단계</div>
+    </div>
+
+    <div class="content-area">
+      <!-- Left: Item List -->
+      <div class="item-list">
+        <div class="il-header">
+          <div class="il-search">
+            <span class="icon">🔍</span>
+            <input id="searchInput" placeholder="콘텐츠명, 태그로 검색..." oninput="onSearch()">
+          </div>
+          <div class="il-tags" id="tagFilter"></div>
+        </div>
+        <div class="il-body" id="itemList"></div>
+      </div>
+
+      <!-- Center: System Fields -->
+      <div class="center-panel">
+        <div class="cp-toolbar" id="cpToolbar"></div>
+        <div class="cp-body" id="cpBody"></div>
+      </div>
+
+      <!-- Right: Context Panel -->
+      <div class="context-panel" id="ctxPanel">
+        <div class="ctx-toggle" onclick="toggleCtx()" id="ctxToggle" title="컨텍스트 패널 토글">◀</div>
+        <div id="ctxContent">
+          <div class="ctx-header">
+            <div class="ctx-header-title">📝 자유 컨텍스트</div>
+            <span class="count" id="ctxCount"></span>
+          </div>
+          <div class="ctx-body" id="ctxBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ════════════════════════════════════════
+//  ■ DATA MODEL
+// ════════════════════════════════════════
+
+// 시스템 필수 필드 정의 (유형별 고정)
+const DB_COLUMNS = {
+  AN2: [{key:'no',label:'문항번호',w:'70px'},{key:'answer',label:'정답',w:'70px'},{key:'score',label:'배점',w:'60px'},{key:'note',label:'비고',w:'1fr'}],
+  CBT: [{key:'section',label:'섹션',w:'100px'},{key:'content',label:'본문',w:'1fr'},{key:'keyword',label:'핵심어',w:'150px'}],
+  FLC: [{key:'front',label:'앞면',w:'1fr'},{key:'back',label:'뒷면',w:'1fr'},{key:'image',label:'이미지',w:'120px'}],
+  ANS: [{key:'no',label:'문항번호',w:'70px'},{key:'answer',label:'정답',w:'70px'},{key:'explain',label:'해설',w:'1fr'}],
+  VKS: [{key:'file',label:'파일명',w:'1fr'},{key:'duration',label:'재생시간',w:'80px'},{key:'lang',label:'언어',w:'70px'}],
+};
+
+// 콘텐츠 유형 메타
+const TYPE_META = {
+  AN2:{label:'채점',icon:'✅',color:'#1D4ED8',bg:'#DBEAFE',group:'평가/채점'},
+  CBT:{label:'핵심점검 본문',icon:'📖',color:'#7C3AED',bg:'#F5F3FF',group:'핵심점검'},
+  FLC:{label:'플래시카드',icon:'🃏',color:'#D97706',bg:'#FFF7ED',group:'학습카드'},
+  ANS:{label:'해답지·채점·평가',icon:'📝',color:'#2563EB',bg:'#EFF6FF',group:'평가/채점'},
+  VKS:{label:'동요 컨텐츠',icon:'🎵',color:'#7C3AED',bg:'#F5F3FF',group:'영상/음원'},
+};
+
+// 워크플로우 아이템 (콘텐츠 목록)
+const ITEMS = [
+  {id:'wf1_FLC_s1', wfId:'wf1', title:'NE1 1세트 플래시카드', subject:'영어', course:'NE1', set:'1세트', typeCode:'FLC', status:'inprog', assignee:'홍길동', source:'batch',
+    data:[
+      {front:'apple',back:'사과',image:'apple.jpg'},
+      {front:'book',back:'책',image:'book.jpg'},
+      {front:'cat',back:'고양이',image:'cat.jpg'},
+      {front:'',back:'',image:''},
+      {front:'',back:'',image:''},
+      {front:'',back:'',image:''},
+    ]},
+  {id:'wf1_CBT_s1', wfId:'wf1', title:'NE1 1세트 핵심점검', subject:'영어', course:'NE1', set:'1세트', typeCode:'CBT', status:'done', assignee:'홍길동', source:'batch',
+    data:[
+      {section:'Unit 1',content:'Hello! How are you? This is a greeting expression.',keyword:'greeting, hello'},
+      {section:'Unit 2',content:'What is your name? My name is...',keyword:'name, introduce'},
+      {section:'Unit 3',content:'How old are you? Numbers 1-10',keyword:'age, numbers'},
+    ]},
+  {id:'wf1_AN2_s1', wfId:'wf1', title:'NE1 1세트 채점', subject:'영어', course:'NE1', set:'1세트', typeCode:'AN2', status:'idle', assignee:'김철수', source:'batch',
+    data:[
+      {no:'1',answer:'',score:'',note:''},{no:'2',answer:'',score:'',note:''},{no:'3',answer:'',score:'',note:''},
+      {no:'4',answer:'',score:'',note:''},{no:'5',answer:'',score:'',note:''},
+    ]},
+  {id:'wf2_ANS_s1', wfId:'wf2', title:'NE2 1세트 해답지', subject:'영어', course:'NE2', set:'1세트', typeCode:'ANS', status:'review', assignee:'이영희', source:'batch',
+    data:[
+      {no:'1',answer:'③',explain:'주어+동사 순서에 맞는 선택지'},
+      {no:'2',answer:'①',explain:'관사 a/an 사용 규칙'},
+      {no:'3',answer:'④',explain:'복수형 -s 규칙'},
+    ]},
+  {id:'wf3_VKS_s1', wfId:'wf3', title:'기초수학 1세트 동요', subject:'수학', course:'기초수학', set:'1세트', typeCode:'VKS', status:'inprog', assignee:'박민수', source:'batch',
+    data:[
+      {file:'math_song_01.mp3',duration:'2:30',lang:'KO'},
+      {file:'math_song_02.mp3',duration:'3:15',lang:'KO'},
+      {file:'',duration:'',lang:''},
+    ]},
+];
+
+// ═══ 자유 컨텍스트 저장소 (핵심!) ═══
+const CONTEXT_STORE = {
+  'wf1_FLC_s1': {
+    notes: [
+      {id:'n1', text:'3회차 apple 이미지 해상도 낮음 → 디자인팀 요청 완료 (이영희)', author:'홍길동', at:'2026-03-10 14:30', pinned:true},
+      {id:'n2', text:'뒷면 텍스트 한글 맞춤법 전체 검수 필요', author:'김철수', at:'2026-03-11 09:15', pinned:false},
+      {id:'n3', text:'cat 이미지를 실사 → 일러스트로 변경하기로 결정', author:'홍길동', at:'2026-03-11 16:00', pinned:false},
+    ],
+    tags: ['이미지교체', '디자인확인', '맞춤법검수'],
+    links: [{label:'원본 디자인 (Figma)', url:'#'},{label:'기획서 2.3절', url:'#'}],
+  },
+  'wf1_CBT_s1': {
+    notes: [
+      {id:'n1', text:'Unit 3 핵심어에 "counting" 추가 요청 — 교육개발팀', author:'이영희', at:'2026-03-09 11:00', pinned:false},
+    ],
+    tags: ['완료', '핵심어추가'],
+    links: [{label:'영어 교육과정 가이드', url:'#'}],
+  },
+  'wf1_AN2_s1': {
+    notes: [],
+    tags: ['미시작'],
+    links: [],
+  },
+  'wf2_ANS_s1': {
+    notes: [
+      {id:'n1', text:'검수 요청 — 문항 2번 해설 보충 필요하다는 피드백 있었음', author:'이영희', at:'2026-03-12 10:00', pinned:true},
+      {id:'n2', text:'원본 시험지 PDF는 /archive/NE2_exam_v2.pdf 참고', author:'홍길동', at:'2026-03-08 14:00', pinned:false},
+    ],
+    tags: ['검수중', '해설보충'],
+    links: [{label:'원본 시험지 PDF', url:'#'}],
+  },
+  'wf3_VKS_s1': {
+    notes: [
+      {id:'n1', text:'3번 동요 녹음 스케줄: 3/15 스튜디오 예약됨', author:'박민수', at:'2026-03-11 13:00', pinned:true},
+    ],
+    tags: ['녹음예정', '스튜디오'],
+    links: [],
+  },
+};
+
+// ════════════════════════════════════════
+//  ■ STATE
+// ════════════════════════════════════════
+let selectedItemId = ITEMS[0].id;
+let searchQuery = '';
+let filterTag = '';
+let ctxCollapsed = false;
+let _noteId = 100;
+
+// ════════════════════════════════════════
+//  ■ RENDER
+// ════════════════════════════════════════
+
+function render() {
+  renderSidebar();
+  renderItemList();
+  renderCenter();
+  renderContext();
+}
+
+function renderSidebar() {
+  const counts = {};
+  ITEMS.forEach(i => { counts[i.subject] = (counts[i.subject]||0) + 1; });
+  const subjects = [...new Set(ITEMS.map(i=>i.subject))];
+  document.getElementById('sbList').innerHTML =
+    subjects.map(s => `
+      <div class="sb-item active">
+        <span class="icon">📚</span>
+        ${s}
+        <span class="sb-badge">${counts[s]}</span>
+      </div>
+    `).join('') +
+    '<div style="height:1px;background:rgba(255,255,255,.06);margin:8px 2px"></div>' +
+    '<div class="sb-item"><span class="icon">⚙️</span>설정</div>';
+}
+
+function renderItemList() {
+  // Tag filter chips
+  const allTags = {};
+  Object.values(CONTEXT_STORE).forEach(c => c.tags.forEach(t => allTags[t] = (allTags[t]||0)+1));
+  const topTags = Object.entries(allTags).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  document.getElementById('tagFilter').innerHTML =
+    `<div class="il-tag${filterTag===''?' on':''}" onclick="filterTag='';render()">전체</div>` +
+    topTags.map(([t]) =>
+      `<div class="il-tag${filterTag===t?' on':''}" onclick="filterTag='${t}';render()">#${t}</div>`
+    ).join('');
+
+  // Filtered items
+  let items = ITEMS;
+  if(searchQuery) {
+    const q = searchQuery.toLowerCase();
+    items = items.filter(i => {
+      const ctx = CONTEXT_STORE[i.id];
+      return i.title.toLowerCase().includes(q) ||
+        i.typeCode.toLowerCase().includes(q) ||
+        (ctx && ctx.tags.some(t => t.toLowerCase().includes(q))) ||
+        (ctx && ctx.notes.some(n => n.text.toLowerCase().includes(q)));
+    });
+  }
+  if(filterTag) {
+    items = items.filter(i => CONTEXT_STORE[i.id]?.tags.includes(filterTag));
+  }
+
+  document.getElementById('itemList').innerHTML = items.map(item => {
+    const tm = TYPE_META[item.typeCode] || {};
+    const ctx = CONTEXT_STORE[item.id] || {notes:[],tags:[],links:[]};
+    const stColors = {idle:'#9CA3AF',inprog:'#F59E0B',done:'#2563EB',review:'#7C3AED',live:'#059669'};
+    const stLabels = {idle:'미시작',inprog:'작업 중',done:'완료',review:'검수중',live:'서비스 중'};
+    const filledCount = item.data.filter(r => Object.values(r).some(v => v && v.trim && v.trim())).length;
+    const pinnedNote = ctx.notes.find(n => n.pinned);
+    return `
+      <div class="il-card${item.id===selectedItemId?' active':''}" onclick="selectedItemId='${item.id}';render()">
+        <div class="il-card-title">
+          <span style="font-size:13px">${tm.icon||'📄'}</span>
+          ${item.title}
+        </div>
+        <div class="il-card-sub">
+          <span style="display:flex;align-items:center;gap:3px">
+            <span style="width:6px;height:6px;border-radius:50%;background:${stColors[item.status]}"></span>
+            ${stLabels[item.status]}
+          </span>
+          <span>${filledCount}/${item.data.length} 입력</span>
+          <span>👤 ${item.assignee}</span>
+        </div>
+        ${ctx.tags.length ? `<div class="il-card-tags">${ctx.tags.slice(0,3).map(t=>`<span class="il-card-tag">#${t}</span>`).join('')}</div>` : ''}
+        ${pinnedNote ? `<div class="il-card-memo">📌 ${pinnedNote.text.slice(0,50)}${pinnedNote.text.length>50?'...':''}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCenter() {
+  const item = ITEMS.find(i => i.id === selectedItemId);
+  if(!item) return;
+  const tm = TYPE_META[item.typeCode] || {};
+  const cols = DB_COLUMNS[item.typeCode] || [];
+  const stColors = {idle:'#9CA3AF',inprog:'#F59E0B',done:'#2563EB',review:'#7C3AED',live:'#059669'};
+  const stLabels = {idle:'미시작',inprog:'작업 중',done:'완료',review:'검수중',live:'서비스 중'};
+
+  // Toolbar
+  document.getElementById('cpToolbar').innerHTML = `
+    <div class="cp-breadcrumb">${item.subject} › ${item.course} › <strong>${item.set}</strong></div>
+    <div class="cp-type-badge" style="background:${tm.bg};color:${tm.color};border:1px solid ${tm.color}30">
+      ${tm.icon} ${tm.label} [${item.typeCode}]
+    </div>
+    <span style="font-size:10px;padding:3px 8px;border-radius:10px;font-weight:700;color:${stColors[item.status]};background:${stColors[item.status]}15;border:1px solid ${stColors[item.status]}30">${stLabels[item.status]}</span>
+    <span style="margin-left:auto;font-size:10px;color:var(--c-gray-400)">소스: ${item.source==='batch'?'뉴드림스 배치':'직접 등록'}</span>
+    <div style="margin-left:8px;display:flex;gap:4px">
+      <button class="btn btn-ghost btn-sm" onclick="toast('저장되었습니다','ok')">💾 저장</button>
+      <button class="btn btn-primary btn-sm" onclick="toast('검수 요청 완료','info')">📤 검수요청</button>
+    </div>
+  `;
+
+  // Body - system fields
+  const filledCount = item.data.filter(r => Object.values(r).some(v => v && v.trim && v.trim())).length;
+  const pct = Math.round((filledCount / item.data.length) * 100);
+  const barColor = pct === 100 ? '#059669' : pct > 50 ? '#2563EB' : pct > 0 ? '#F59E0B' : '#E5E7EB';
+
+  document.getElementById('cpBody').innerHTML = `
+    <div class="compare-banner">
+      <div class="icon">💡</div>
+      <div class="text">
+        <strong>시스템 필수 필드</strong>만 이 영역에 표시됩니다. 유형 <strong>[${item.typeCode}]</strong>이(가) 요구하는 ${cols.length}개 컬럼만 입력하세요.<br>
+        운영 메모, 태그, 참고 링크 등은 오른쪽 <strong>📝 자유 컨텍스트</strong> 패널에서 관리합니다.
+      </div>
+    </div>
+
+    <div class="cp-section-label">
+      <span class="dot" style="background:${tm.color}"></span>
+      ${tm.icon} ${tm.label} — 시스템 필수 필드 (${cols.length}개 컬럼)
+    </div>
+
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          ${cols.map(c => `<th style="width:${c.w}">${c.label} <span style="color:var(--c-red);font-size:9px">*</span></th>`).join('')}
+          <th style="width:60px">상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${item.data.map((row, ri) => {
+          const filled = Object.values(row).some(v => v && v.trim && v.trim());
+          return `<tr>
+            <td class="row-num">${ri+1}</td>
+            ${cols.map(c => `<td><input value="${row[c.key]||''}" onchange="updateCell('${item.id}',${ri},'${c.key}',this.value)" placeholder="—"></td>`).join('')}
+            <td><span class="cell-status" style="background:${filled?'#ECFDF5':'#FEF2F2'};color:${filled?'#059669':'#DC2626'}">${filled?'✓':'—'}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+
+    <div class="progress-bar" style="margin-top:14px">
+      <div class="fill" style="width:${pct}%;background:${barColor}"></div>
+    </div>
+    <div class="progress-info">
+      <span>${filledCount}/${item.data.length} 행 입력 완료</span>
+      <span style="font-weight:700;color:${barColor}">${pct}%</span>
+    </div>
+  `;
+}
+
+function renderContext() {
+  const item = ITEMS.find(i => i.id === selectedItemId);
+  if(!item) return;
+  const ctx = CONTEXT_STORE[item.id];
+  if(!ctx) return;
+
+  document.getElementById('ctxCount').textContent = `메모 ${ctx.notes.length} · 태그 ${ctx.tags.length}`;
+
+  document.getElementById('ctxBody').innerHTML = `
+    <!-- Notes -->
+    <div class="ctx-section">
+      <div class="ctx-section-title">💬 메모 (${ctx.notes.length})</div>
+      <div class="note-input">
+        <textarea id="noteInput" placeholder="메모를 입력하세요... (작업 맥락, 요청사항, 참고 등)" rows="2"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="addNote()">추가</button>
+      </div>
+      ${ctx.notes.sort((a,b)=> (b.pinned?1:0)-(a.pinned?1:0) || new Date(b.at)-new Date(a.at)).map(n => `
+        <div class="note-card${n.pinned?' pinned':''}">
+          <div class="note-pin${n.pinned?' active':''}" onclick="togglePin('${item.id}','${n.id}')" title="고정/해제">📌</div>
+          <div class="note-text">${n.text}</div>
+          <div class="note-meta">
+            <span>👤 ${n.author}</span>
+            <span>🕐 ${n.at}</span>
+            <span style="margin-left:auto;cursor:pointer;color:var(--c-red);opacity:.4" onclick="delNote('${item.id}','${n.id}')">삭제</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Tags -->
+    <div class="ctx-section">
+      <div class="ctx-section-title">🏷️ 태그</div>
+      <div class="tag-list">
+        ${ctx.tags.map(t => `
+          <span class="ctx-tag" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE">
+            #${t}
+            <span class="del" onclick="delTag('${item.id}','${t}')">✕</span>
+          </span>
+        `).join('')}
+      </div>
+      <div class="tag-add">
+        <input id="tagInput" placeholder="태그 추가 (Enter)" onkeydown="if(event.key==='Enter')addTag()">
+        <button class="btn btn-ghost btn-sm" onclick="addTag()">추가</button>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="ctx-section">
+      <div class="ctx-section-title">🔗 참고 링크 (${ctx.links.length})</div>
+      ${ctx.links.map(l => `
+        <div class="link-item">
+          <span class="icon">📎</span>
+          ${l.label}
+        </div>
+      `).join('')}
+      <div class="link-add">
+        <input id="linkLabel" placeholder="이름" style="max-width:120px">
+        <input id="linkUrl" placeholder="URL" style="flex:1">
+        <button class="btn btn-ghost btn-sm" onclick="addLink()">추가</button>
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════
+//  ■ ACTIONS
+// ════════════════════════════════════════
+
+function updateCell(itemId, rowIdx, key, value) {
+  const item = ITEMS.find(i=>i.id===itemId);
+  if(item) { item.data[rowIdx][key] = value; render(); }
+}
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const ctx = CONTEXT_STORE[selectedItemId];
+  ctx.notes.push({id:'n'+(++_noteId), text, author:'나', at:new Date().toLocaleString('ko-KR'), pinned:false});
+  input.value = '';
+  render();
+  toast('메모가 추가되었습니다','ok');
+}
+
+function delNote(itemId, noteId) {
+  const ctx = CONTEXT_STORE[itemId];
+  ctx.notes = ctx.notes.filter(n=>n.id!==noteId);
+  render();
+}
+
+function togglePin(itemId, noteId) {
+  const ctx = CONTEXT_STORE[itemId];
+  const n = ctx.notes.find(n=>n.id===noteId);
+  if(n) n.pinned = !n.pinned;
+  render();
+}
+
+function addTag() {
+  const input = document.getElementById('tagInput');
+  const tag = input.value.trim();
+  if(!tag) return;
+  const ctx = CONTEXT_STORE[selectedItemId];
+  if(!ctx.tags.includes(tag)) { ctx.tags.push(tag); }
+  input.value = '';
+  render();
+  toast(`태그 #${tag} 추가됨`,'info');
+}
+
+function delTag(itemId, tag) {
+  const ctx = CONTEXT_STORE[itemId];
+  ctx.tags = ctx.tags.filter(t=>t!==tag);
+  render();
+}
+
+function addLink() {
+  const label = document.getElementById('linkLabel').value.trim();
+  const url = document.getElementById('linkUrl').value.trim();
+  if(!label || !url) return;
+  const ctx = CONTEXT_STORE[selectedItemId];
+  ctx.links.push({label, url});
+  render();
+  toast('링크가 추가되었습니다','ok');
+}
+
+function onSearch() {
+  searchQuery = document.getElementById('searchInput').value;
+  render();
+}
+
+function toggleCtx() {
+  ctxCollapsed = !ctxCollapsed;
+  const panel = document.getElementById('ctxPanel');
+  const toggle = document.getElementById('ctxToggle');
+  const content = document.getElementById('ctxContent');
+  if(ctxCollapsed) {
+    panel.classList.add('collapsed');
+    toggle.textContent = '▶';
+    content.style.display = 'none';
+  } else {
+    panel.classList.remove('collapsed');
+    toggle.textContent = '◀';
+    content.style.display = '';
+  }
+}
+
+function toast(msg, type='ok') {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
