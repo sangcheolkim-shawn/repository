@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS 버전업 배포 — 화면 흐름</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root {
+  --c-bg:#F4F5F9; --c-surface:#fff; --c-text:#1D1D1F; --c-sub:#86868B;
+  --c-border:#E5E5EA; --c-blue:#0055B8; --c-blue-bg:#EBF3FF;
+  --c-purple:#AF52DE; --c-purple-bg:#F9F0FF; --c-purple-border:#D9B3F0;
+  --c-green:#1B8A3E; --c-green-bg:#F0FFF4; --c-green-border:#A8E6B8;
+  --c-orange:#B35C00; --c-orange-bg:#FFF8F0; --c-orange-border:#FFD6A0;
+  --c-red:#D32F2F; --c-red-bg:#FFF0F0;
+  --sidebar-w:200px; --topbar-h:44px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--c-bg);color:var(--c-text)}
+
+/* ═══ Document Header ═══ */
+.doc-header{background:linear-gradient(135deg,#1D1D1F,#2C2C34);color:#fff;padding:44px 56px 36px;position:relative;overflow:hidden}
+.doc-header::after{content:'';position:absolute;top:-60px;right:-60px;width:260px;height:260px;border-radius:50%;background:rgba(175,82,222,.12)}
+.doc-header .badge{display:inline-block;padding:3px 12px;border-radius:16px;background:rgba(175,82,222,.25);color:#D9B3F0;font-size:11px;font-weight:600;margin-bottom:12px;letter-spacing:.5px}
+.doc-header h1{font-size:28px;font-weight:800;margin-bottom:6px}
+.doc-header p{font-size:14px;color:rgba(255,255,255,.6);max-width:640px;line-height:1.55}
+.doc-header .meta{margin-top:16px;display:flex;gap:20px;font-size:12px;color:rgba(255,255,255,.4)}
+
+/* ═══ Flow container ═══ */
+.flow-wrap{max-width:1100px;margin:0 auto;padding:40px 32px 80px}
+
+/* ═══ Step label ═══ */
+.step-label{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.step-label .num{width:32px;height:32px;border-radius:50%;background:var(--c-purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.step-label h2{font-size:19px;font-weight:700}
+.step-label .tag{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600}
+.tag-safe{background:var(--c-green-bg);color:var(--c-green);border:1px solid var(--c-green-border)}
+.tag-warn{background:var(--c-orange-bg);color:var(--c-orange);border:1px solid var(--c-orange-border)}
+.tag-critical{background:var(--c-red-bg);color:var(--c-red);border:1px solid #FFCDD2}
+
+/* ═══ Fullscreen CMS mockup ═══ */
+.cms-screen{border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1);border:1px solid #D1D1D6;margin-bottom:14px;background:#fff}
+
+/* top bar */
+.cms-topbar{height:var(--topbar-h);background:#1D1D1F;display:flex;align-items:center;padding:0 16px;gap:12px}
+.cms-topbar .logo{font-size:13px;font-weight:700;color:#fff;letter-spacing:.5px}
+.cms-topbar .env{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+.cms-topbar .spacer{flex:1}
+.cms-topbar .user{font-size:11px;color:rgba(255,255,255,.5)}
+
+/* body = sidebar + main */
+.cms-body{display:flex;min-height:340px;position:relative}
+
+/* sidebar */
+.cms-sidebar{width:var(--sidebar-w);background:#F5F5F7;border-right:1px solid var(--c-border);padding:12px 0;flex-shrink:0;display:flex;flex-direction:column;gap:2px}
+.sb-group{padding:6px 14px 4px;font-size:9px;font-weight:600;color:#AEAEB2;text-transform:uppercase;letter-spacing:.8px;margin-top:6px}
+.sb-item{padding:7px 14px 7px 18px;font-size:12px;color:#636366;cursor:default;display:flex;align-items:center;gap:8px;position:relative;transition:background .1s}
+.sb-item .icon{width:16px;text-align:center;font-size:12px;flex-shrink:0}
+.sb-item.active{background:#fff;color:var(--c-text);font-weight:600;border-left:3px solid var(--c-purple);padding-left:15px}
+.sb-item.active .icon{color:var(--c-purple)}
+.sb-item.dimmed{color:#C7C7CC;font-size:11px}
+
+/* main content */
+.cms-main{flex:1;padding:20px 24px;background:#FAFBFD;overflow:hidden;position:relative}
+.cms-main .view-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.cms-main .view-subtitle{font-size:11px;color:var(--c-sub);margin-bottom:14px}
+
+/* tabs inside main */
+.view-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid #E5E5EA}
+.view-tab{padding:8px 16px;font-size:12px;font-weight:500;color:var(--c-sub);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:default}
+.view-tab.active{color:var(--c-purple);border-bottom-color:var(--c-purple);font-weight:600}
+
+/* ═══ UI elements inside screens ═══ */
+.banner{padding:10px 14px;border-radius:8px;display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:12px}
+.banner-blue{background:var(--c-blue-bg);border:1px solid #B3D4FF;color:var(--c-blue)}
+
+.cur-card{border:1px solid var(--c-border);border-radius:8px;padding:12px 14px;margin-bottom:8px;background:#fff}
+.cur-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cur-card-name{font-size:13px;font-weight:600}
+.cur-card-ver{font-size:10px;color:var(--c-sub)}
+.cur-card-status{font-size:9px;padding:2px 8px;border-radius:4px;font-weight:600}
+.s-done{background:var(--c-green-bg);color:var(--c-green);border:1px solid var(--c-green-border)}
+.s-pend{background:var(--c-orange-bg);color:var(--c-orange);border:1px solid var(--c-orange-border)}
+.cur-card-foot{display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid #F0F0F5;margin-top:6px}
+.cur-card-foot .hint{font-size:10px;color:var(--c-sub);flex:1}
+.bound-badge{font-size:8px;padding:2px 6px;border-radius:3px;background:var(--c-green-bg);color:var(--c-green);font-weight:600;border:1px solid var(--c-green-border)}
+.btn-sm{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;cursor:default;display:inline-flex;align-items:center;gap:3px;border:none}
+.btn-purple{background:var(--c-purple-bg);color:var(--c-purple);border:1px solid var(--c-purple-border)}
+.btn-primary{background:linear-gradient(135deg,#AF52DE,#8944AB);color:#fff}
+.btn-outline{background:#fff;color:var(--c-text);border:1px solid var(--c-border)}
+.btn-blue{background:var(--c-blue-bg);color:var(--c-blue);border:1px solid #B3D4FF}
+
+/* modal overlay on top of cms-body */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:0 0 14px 0}
+.modal-box{background:#fff;border-radius:14px;width:420px;max-width:90%;box-shadow:0 20px 40px rgba(0,0,0,.18)}
+.modal-head{padding:16px 18px 12px;border-bottom:1px solid #F0F0F5}
+.modal-head h4{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.modal-head .desc{font-size:11px;color:var(--c-sub);margin-top:3px}
+.modal-body{padding:14px 18px}
+.modal-foot{padding:10px 18px 14px;display:flex;gap:8px;justify-content:flex-end}
+
+.info-box{padding:9px 12px;border-radius:8px;margin-bottom:8px;font-size:11px}
+.info-green{background:var(--c-green-bg);border:1px solid var(--c-green-border);color:var(--c-green)}
+.info-purple{background:var(--c-purple-bg);border:1px solid var(--c-purple-border);color:var(--c-purple)}
+.info-orange{background:var(--c-orange-bg);border:1px solid var(--c-orange-border);color:var(--c-orange)}
+.info-red{background:var(--c-red-bg);border:1px solid #FFCDD2;color:var(--c-red)}
+
+.code-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;background:#fff;border:1px solid var(--c-purple-border);color:var(--c-purple);font-weight:600;margin:2px}
+
+/* confirm dialog */
+.confirm-box{background:#fff;border-radius:12px;width:380px;max-width:90%;box-shadow:0 20px 40px rgba(0,0,0,.18);padding:18px;font-size:12px;line-height:1.6}
+.confirm-box .title{font-weight:700;font-size:13px;margin-bottom:10px}
+
+/* ═══ Annotations ═══ */
+.annotation{margin-top:12px;margin-bottom:8px;padding:12px 16px;border-radius:8px;background:#FFFDF0;border:1px solid #FFE58F;font-size:12px;line-height:1.6;color:#6B5900}
+.annotation strong{color:#4A3D00}
+.annotation .lbl{display:inline-block;background:#FFE58F;color:#6B5900;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:600;margin-right:4px}
+
+/* ═══ Menu change callout ═══ */
+.menu-change{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:10px;background:linear-gradient(135deg,var(--c-purple-bg),#F3E8FF);border:1px solid var(--c-purple-border);margin:8px 0;font-size:12px;color:var(--c-purple)}
+.menu-change .arrow{font-size:18px}
+.menu-change strong{font-weight:700}
+
+/* ═══ Flow arrow ═══ */
+.flow-arrow{display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px}
+.flow-arrow .line{width:2px;height:28px;background:linear-gradient(180deg,var(--c-purple),var(--c-purple-border))}
+.flow-arrow .label{padding:4px 12px;border-radius:16px;background:var(--c-purple-bg);color:var(--c-purple);font-size:10px;font-weight:600;border:1px solid var(--c-purple-border)}
+.flow-arrow .tri{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--c-purple)}
+
+/* ═══ Highlight pulse for active menu ═══ */
+.sb-item.active::after{content:'';position:absolute;right:8px;width:6px;height:6px;border-radius:50%;background:var(--c-purple);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+/* ═══ Service-bind list ═══ */
+.bind-list{display:flex;flex-direction:column;gap:6px}
+.bind-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:6px;font-size:11px}
+.bind-row.connected{background:var(--c-purple-bg);border:1px solid var(--c-purple-border)}
+.bind-row.available{background:#fff;border:1px solid var(--c-border)}
+.bind-code{font-weight:600;color:var(--c-purple)}
+.bind-mode{font-size:9px;color:var(--c-sub)}
+
+/* ═══ Concepts ═══ */
+.concepts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+.concept{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--c-border);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.concept .ic{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.concept h3{font-size:13px;font-weight:700;margin-bottom:4px}
+.concept p{font-size:11px;color:var(--c-sub);line-height:1.4}
+
+/* ═══ Summary ═══ */
+.summary-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+.summary-tbl th{background:#F5F5F7;padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--c-border)}
+.summary-tbl td{padding:8px 12px;border-bottom:1px solid #F0F0F5}
+.summary-tbl tr:hover td{background:#FAFBFD}
+
+.callout{display:flex;gap:12px;padding:16px 18px;border-radius:10px;margin:20px 0;align-items:flex-start}
+.callout-green{background:var(--c-green-bg);border:1px solid var(--c-green-border)}
+.callout .ci{font-size:20px;flex-shrink:0}
+.callout h4{font-size:13px;font-weight:700;margin-bottom:3px}
+.callout p{font-size:12px;line-height:1.5;color:var(--c-sub)}
+
+/* ═══ Print ═══ */
+@media print{.doc-header{padding:20px 24px}.flow-wrap{padding:20px 16px}.cms-screen{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<!-- ════════════ DOC HEADER ════════════ -->
+<div class="doc-header">
+  <div class="badge">CMS 고도화 프로젝트 v9.9+</div>
+  <h1>버전업 배포 — 화면 흐름</h1>
+  <p>콘텐츠 배포와 서비스 반영(코드 연결)을 분리한 안전 배포 모델.<br>
+  각 화면(메뉴)에서의 사용자 동선과 신규 기능을 풀스크린 레이아웃으로 설명합니다.<br>
+  <span style="font-size:11px;color:#86868B">* 코드 승계 기능은 6/16 PI 회의에서 제외 결정 (구현 에너지 절감)</span></p>
+  <div class="meta">
+    <span>2026-06-16 회의 자료</span><span>|</span>
+    <span>플랫폼기획팀 김상철</span><span>|</span>
+    <span>Release v1.5</span>
+  </div>
+</div>
+
+<div class="flow-wrap">
+
+<!-- ════════════ LESSON → SOLUTION ════════════ -->
+<div style="margin-bottom:44px">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">배경: 지난 회의 교훈 &rarr; 이번 구현</h2>
+
+  <!-- Problem -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div style="background:#fff;border-radius:12px;padding:20px;border-left:4px solid var(--c-red);box-shadow:0 2px 8px rgba(0,0,0,.04)">
+      <div style="font-size:13px;font-weight:700;color:var(--c-red);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="font-size:16px">&#x274C;</span> 회의에서 드러난 문제
+      </div>
+      <div style="font-size:12px;line-height:1.7;color:#444">
+        <div style="margin-bottom:8px"><strong>1. 배포 = 서비스 영향? 혼동</strong><br>
+        콘텐츠 배포와 서비스 반영의 경계가 불명확하여, 담당자가 배포를 주저하거나 잘못된 시점에 코드를 연결하는 상황 발생</div>
+        <div style="margin-bottom:8px"><strong>2. 코드 연결 시 안전장치 부재</strong><br>
+        미배포 콘텐츠가 있는 상태에서 과목코드가 연결되면 불완전한 콘텐츠가 서비스에 노출될 위험</div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:20px;border-left:4px solid var(--c-green);box-shadow:0 2px 8px rgba(0,0,0,.04)">
+      <div style="font-size:13px;font-weight:700;color:var(--c-green);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="font-size:16px">&#x2705;</span> 이번 구현으로 해결
+      </div>
+      <div style="font-size:12px;line-height:1.7;color:#444">
+        <div style="margin-bottom:8px"><strong>1. 안전 배너 도입</strong> <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--c-blue-bg);color:var(--c-blue);font-weight:600">배포 관리</span><br>
+        "콘텐츠 배포는 서비스에 직접 영향을 주지 않습니다" 메시지를 배포 대기 탭 상단에 상시 표시하여 불안감 해소</div>
+        <div><strong>2. 코드 연결 가드레일</strong> <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--c-orange-bg);color:var(--c-orange);font-weight:600">과목코드 연결</span><br>
+        코드 연결 시 미배포 콘텐츠 경고 + "서비스에 즉시 반영됩니다" 확인 다이얼로그로 실수 방지</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Before/After mapping -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid var(--c-border)">
+    <div style="font-size:12px;font-weight:700;color:var(--c-sub);margin-bottom:10px">변경 관리 프로토콜 (L24, 2026-06-10 PI 회의 이후 수립)</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#F5F5F7">
+          <th style="padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--c-border);width:30%">이전 (문제)</th>
+          <th style="padding:8px 12px;text-align:center;font-weight:600;border-bottom:2px solid var(--c-border);width:5%"></th>
+          <th style="padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--c-border);width:35%">이번 (해결)</th>
+          <th style="padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid var(--c-border);width:30%">구현 위치</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-red)">배포 시 서비스 영향 여부 불명확</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;text-align:center">&rarr;</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-green)">안전 배너로 "영향 없음" 명시</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5">배포 관리 &gt; 대기 탭 상단</td>
+        </tr>
+        <!-- 코드 승계 행 제거: 6/16 PI 회의 결정 -->
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-red)">코드 연결 수 파악 불가</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;text-align:center">&rarr;</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-green)">카드에 "코드연결 N개" 뱃지 표시</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5">배포 카드 하단 (bound-badge)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-red)">미배포 콘텐츠에 코드 연결 가능</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;text-align:center">&rarr;</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5;color:var(--c-green)">가드레일: 미배포 경고 + 확인 필수</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #F0F0F5">과목코드 연결 &gt; "+ 연결" 클릭 시</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;color:var(--c-red)">배포/연결 분리 원칙 미인지</td>
+          <td style="padding:8px 12px;text-align:center">&rarr;</td>
+          <td style="padding:8px 12px;color:var(--c-green)">"서비스에 즉시 반영됩니다" 경고문</td>
+          <td style="padding:8px 12px">코드 연결 가드레일 confirm 내</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════ CONCEPTS ════════════ -->
+<div style="margin-bottom:36px">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">핵심 개념</h2>
+  <div class="concepts">
+    <div class="concept">
+      <div class="ic" style="background:var(--c-green-bg)">&#x1F6E1;</div>
+      <h3>콘텐츠 배포 = 안전</h3>
+      <p>콘텐츠를 배포해도 서비스에 직접 영향 없음. 과목코드 연결 전까지 서비스 미노출.</p>
+    </div>
+    <div class="concept">
+      <div class="ic" style="background:var(--c-purple-bg)">&#x1F517;</div>
+      <h3>과목코드 연결</h3>
+      <p>배포된 콘텐츠에 과목코드를 연결하여 서비스에 반영. 과목코드 연결 메뉴에서 직접 수행.</p>
+    </div>
+    <div class="concept">
+      <div class="ic" style="background:var(--c-orange-bg)">&#x26A0;&#xFE0F;</div>
+      <h3>코드 연결 가드레일</h3>
+      <p>과목코드 연결 시 사전 검증 수행. 미배포 콘텐츠가 있으면 경고 표시.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 1: 배포 관리 화면
+     ══════════════════════════════════════════════════════════════ -->
+<div class="step-label">
+  <div class="num">1</div>
+  <h2>배포 관리 — 배포 대기 탭</h2>
+  <span class="tag tag-safe">안전 영역</span>
+</div>
+
+<div class="cms-screen">
+  <!-- Topbar -->
+  <div class="cms-topbar">
+    <span class="logo">NDCM</span>
+    <span class="env">STG</span>
+    <span class="spacer"></span>
+    <span class="user">Shawn</span>
+  </div>
+  <!-- Body -->
+  <div class="cms-body">
+    <!-- Sidebar -->
+    <div class="cms-sidebar">
+      <div class="sb-group">콘텐츠 작업</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4CB;</span>작업 진행 보드</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2699;</span>작업 설정</div>
+      <div class="sb-item dimmed"><span class="icon">&#x270F;</span>콘텐츠 등록</div>
+      <div class="sb-group">검수 & 배포</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2714;</span>검수 관리</div>
+      <div class="sb-item active"><span class="icon">&#x1F680;</span>배포 관리</div>
+      <div class="sb-group">서비스 연결</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F517;</span>과목코드 연결</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4E6;</span>서비스 콘텐츠</div>
+      <div class="sb-group">양식 & 구조</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4DD;</span>입력 양식 관리</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F3D7;</span>커리큘럼 관리</div>
+      <div class="sb-group">부가</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4CA;</span>채점 시뮬레이션</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4E5;</span>외부 수신 현황</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2699;</span>시스템 관리</div>
+    </div>
+    <!-- Main -->
+    <div class="cms-main">
+      <div class="view-title">배포 관리</div>
+      <div class="view-subtitle">콘텐츠 배포 일정 등록 및 현황 관리</div>
+
+      <div class="view-tabs">
+        <div class="view-tab active">배포 대기</div>
+        <div class="view-tab">스케줄</div>
+        <div class="view-tab">배포 이력</div>
+      </div>
+
+      <!-- Safety Banner (NEW) -->
+      <div class="banner banner-blue">
+        <span style="font-size:16px">&#x1F6E1;</span>
+        <div>
+          <div style="font-weight:600">콘텐츠 배포는 서비스에 직접 영향을 주지 않습니다</div>
+          <div style="font-size:10px;color:#3377CC;margin-top:1px">과목코드가 연결된 상태에서만 서비스에 반영됩니다. 안심하고 배포하세요.</div>
+        </div>
+      </div>
+
+      <!-- Curriculum Cards -->
+      <div class="cur-card">
+        <div class="cur-card-top">
+          <div>
+            <div class="cur-card-name">초등 수학 3-1</div>
+            <div class="cur-card-ver">V2.0 &middot; 편집버전</div>
+          </div>
+          <span class="cur-card-status s-done">배포 완료 3건</span>
+        </div>
+        <div class="cur-card-foot">
+          <span class="hint">스케줄 탭에서 배포 일정을 등록하세요</span>
+          <span class="bound-badge">&#10003; 코드연결 2개</span>
+        </div>
+      </div>
+
+      <div class="cur-card">
+        <div class="cur-card-top">
+          <div>
+            <div class="cur-card-name">중등 영어 1-2</div>
+            <div class="cur-card-ver">V1.0 &middot; 신규</div>
+          </div>
+          <span class="cur-card-status s-pend">미배포 1건</span>
+        </div>
+        <div class="cur-card-foot">
+          <span class="hint">스케줄 탭에서 배포 일정을 등록하세요</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annotation">
+  <span class="lbl">NEW</span> <strong>안전 배너</strong> — 배포가 서비스에 직접 영향을 주지 않음을 상단에 안내<br>
+  <span class="lbl">INFO</span> 카드 하단에 <strong>코드연결 N개</strong> 뱃지로 현재 연결 상태 표시<br>
+  <span class="lbl">ACTION</span> 과목코드 연결이 필요하면 사이드바에서 <strong>과목코드 연결</strong> 메뉴로 직접 이동
+</div>
+
+<!-- ═══ Arrow ═══ -->
+<div class="flow-arrow">
+  <div class="line"></div>
+  <div class="label">사이드바에서 과목코드 연결 메뉴로 이동</div>
+  <div class="tri"></div>
+</div>
+
+<!-- STEP 2 (코드 승계 모달) 제거: 6/16 PI 회의 결정 -->
+
+<!-- ═══ Arrow ═══ -->
+<div class="flow-arrow">
+  <div class="line"></div>
+  <div class="label">사이드바에서 과목코드 연결 메뉴로 이동</div>
+  <div class="tri"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 2: 과목코드 연결 화면 + 모달
+     ══════════════════════════════════════════════════════════════ -->
+<div class="step-label">
+  <div class="num">2</div>
+  <h2>과목코드 연결 — 코드 관리 모달</h2>
+  <span class="tag tag-critical">서비스 영향</span>
+</div>
+
+<div class="cms-screen">
+  <div class="cms-topbar">
+    <span class="logo">NDCM</span><span class="env">STG</span><span class="spacer"></span><span class="user">Shawn</span>
+  </div>
+  <div class="cms-body">
+    <!-- Sidebar — NOW service-bind is active! -->
+    <div class="cms-sidebar">
+      <div class="sb-group">콘텐츠 작업</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4CB;</span>작업 진행 보드</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2699;</span>작업 설정</div>
+      <div class="sb-item dimmed"><span class="icon">&#x270F;</span>콘텐츠 등록</div>
+      <div class="sb-group">검수 & 배포</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2714;</span>검수 관리</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F680;</span>배포 관리</div>
+      <div class="sb-group">서비스 연결</div>
+      <div class="sb-item active"><span class="icon">&#x1F517;</span>과목코드 연결</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4E6;</span>서비스 콘텐츠</div>
+      <div class="sb-group">양식 & 구조</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4DD;</span>입력 양식 관리</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F3D7;</span>커리큘럼 관리</div>
+    </div>
+    <!-- Main (dimmed) -->
+    <div class="cms-main" style="opacity:.25;pointer-events:none">
+      <div class="view-title">과목코드 연결</div>
+      <div class="view-subtitle">커리큘럼과 과목코드 연결 관리</div>
+      <div style="margin-top:12px">
+        <div class="cur-card"><div class="cur-card-top"><div><div class="cur-card-name">초등 수학 3-1</div><div class="cur-card-ver">V2.0</div></div><span class="cur-card-status s-done">코드 2개</span></div></div>
+        <div class="cur-card"><div class="cur-card-top"><div><div class="cur-card-name">중등 영어 1-2</div><div class="cur-card-ver">V1.0</div></div><span class="cur-card-status s-pend">코드 0개</span></div></div>
+        <div class="cur-card"><div class="cur-card-top"><div><div class="cur-card-name">초등 국어 2-1</div><div class="cur-card-ver">V3.0</div></div><span class="cur-card-status s-done">코드 3개</span></div></div>
+      </div>
+    </div>
+    <!-- Modal: Code management -->
+    <div class="modal-overlay">
+      <div class="modal-box" style="width:480px">
+        <div class="modal-head">
+          <h4>&#x1F517; 코드 연결 관리 &mdash; 초등 수학 3-1</h4>
+          <div class="desc">V2.0 &middot; 양식 5개 &middot; 버전업 배포 완료</div>
+        </div>
+        <div class="modal-body">
+          <div style="font-size:11px;font-weight:600;color:var(--c-sub);margin-bottom:6px">연결된 코드</div>
+          <div class="bind-list">
+            <div class="bind-row connected">
+              <span class="bind-code">ND-MATH-301</span>
+              <span class="bind-mode">전체 연동</span>
+            </div>
+            <div class="bind-row connected">
+              <span class="bind-code">NH-MATH-301</span>
+              <span class="bind-mode">전체 연동</span>
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--c-sub);margin:12px 0 6px">추가 연결 가능</div>
+          <div class="bind-list">
+            <div class="bind-row available">
+              <span style="font-size:11px">SJ-MATH-301 <span style="font-size:9px;color:var(--c-sub)">(성장판)</span></span>
+              <span class="btn-sm btn-blue" style="font-size:9px;padding:3px 8px">+ 연결</span>
+            </div>
+            <div class="bind-row available">
+              <span style="font-size:11px">NH365-MATH-301 <span style="font-size:9px;color:var(--c-sub)">(눈높이365)</span></span>
+              <span class="btn-sm btn-blue" style="font-size:9px;padding:3px 8px">+ 연결</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <span class="btn-sm btn-outline">닫기</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annotation">
+  <span class="lbl">SCREEN</span> 이제 <strong style="color:var(--c-purple)">과목코드 연결</strong> 메뉴로 전환됨 (사이드바 확인!)<br>
+  <span class="lbl">FLOW</span> 배포 관리에서 자동 이동되어 해당 커리큘럼의 코드 관리 모달이 바로 열림<br>
+  <span class="lbl">ACTION</span> "SJ-MATH-301"의 <strong>"+ 연결"</strong> 클릭 &rarr; 가드레일 발동
+</div>
+
+<!-- ═══ Arrow ═══ -->
+<div class="flow-arrow">
+  <div class="line"></div>
+  <div class="label">"+ 연결" 클릭 &rarr; 사전 검증 가드레일</div>
+  <div class="tri"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STEP 3: 과목코드 연결 + 가드레일 confirm
+     ══════════════════════════════════════════════════════════════ -->
+<div class="step-label">
+  <div class="num">3</div>
+  <h2>과목코드 연결 — 가드레일 검증</h2>
+  <span class="tag tag-critical">서비스 ON/OFF</span>
+</div>
+
+<div class="cms-screen">
+  <div class="cms-topbar">
+    <span class="logo">NDCM</span><span class="env">STG</span><span class="spacer"></span><span class="user">Shawn</span>
+  </div>
+  <div class="cms-body">
+    <!-- Sidebar — still service-bind -->
+    <div class="cms-sidebar">
+      <div class="sb-group">콘텐츠 작업</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4CB;</span>작업 진행 보드</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2699;</span>작업 설정</div>
+      <div class="sb-item dimmed"><span class="icon">&#x270F;</span>콘텐츠 등록</div>
+      <div class="sb-group">검수 & 배포</div>
+      <div class="sb-item dimmed"><span class="icon">&#x2714;</span>검수 관리</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F680;</span>배포 관리</div>
+      <div class="sb-group">서비스 연결</div>
+      <div class="sb-item active"><span class="icon">&#x1F517;</span>과목코드 연결</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4E6;</span>서비스 콘텐츠</div>
+      <div class="sb-group">양식 & 구조</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F4DD;</span>입력 양식 관리</div>
+      <div class="sb-item dimmed"><span class="icon">&#x1F3D7;</span>커리큘럼 관리</div>
+    </div>
+    <!-- Main (fully dimmed) -->
+    <div class="cms-main" style="opacity:.15;pointer-events:none">
+      <div class="view-title">과목코드 연결</div>
+      <div class="view-subtitle">커리큘럼과 과목코드 연결 관리</div>
+    </div>
+    <!-- Confirm overlay -->
+    <div class="modal-overlay">
+      <div class="confirm-box">
+        <div class="title">&#x26A0;&#xFE0F; 과목코드 연결 확인</div>
+        <div style="margin-bottom:8px">
+          <strong>커리큘럼:</strong> 초등 수학 3-1<br>
+          <strong>연결할 코드:</strong> SJ-MATH-301<br>
+          <strong>적용 양식:</strong> 5개
+        </div>
+        <div class="info-box info-red" style="margin-bottom:8px">
+          <strong>&#x274C; 미배포 콘텐츠 1개 존재!</strong>
+          <div style="font-size:11px;color:var(--c-sub);padding-left:14px;margin-top:3px">&bull; 단원평가 양식 (현재: review)</div>
+        </div>
+        <div style="font-size:11px;color:var(--c-sub);margin-bottom:10px">
+          현재 연결된 코드: ND-MATH-301, NH-MATH-301
+        </div>
+        <div class="info-box info-orange" style="font-weight:600;font-size:11px">
+          이 과목코드를 연결하면 서비스에 즉시 반영됩니다.<br>
+          진행하시겠습니까?
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+          <span class="btn-sm btn-outline">취소</span>
+          <span class="btn-sm btn-primary" style="padding:5px 14px">확인 (연결)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="annotation">
+  <span class="lbl">SCREEN</span> 여전히 <strong>과목코드 연결</strong> 메뉴 (사이드바 확인)<br>
+  <span class="lbl">NEW</span> <strong>가드레일 검증 항목:</strong> 커리큘럼명, 연결 코드, 적용 양식 수, 미배포 콘텐츠, 기존 연결 코드<br>
+  <span class="lbl">POINT</span> 미배포 콘텐츠가 있으면 <strong style="color:var(--c-red)">빨간색 경고</strong>로 표시<br>
+  <span class="lbl">POINT</span> <strong>"서비스에 즉시 반영됩니다"</strong> 경고 &rarr; 코드 연결 = 서비스 ON 임을 재확인
+</div>
+
+<!-- ════════════ SUMMARY ════════════ -->
+<div style="margin-top:40px">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:16px">전체 흐름 요약</h2>
+
+  <div class="callout callout-green">
+    <div class="ci">&#x1F6E1;</div>
+    <div>
+      <h4>안전 모델 핵심</h4>
+      <p><strong>콘텐츠 배포</strong>와 <strong>서비스 반영(코드 연결)</strong>이 완전히 분리.<br>
+      콘텐츠를 배포해도 과목코드 연결 전까지 서비스에 노출되지 않습니다.</p>
+    </div>
+  </div>
+
+  <table class="summary-tbl">
+    <thead>
+      <tr><th>#</th><th>단계</th><th>메뉴 위치</th><th>화면 요소</th><th>서비스 영향</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>배포 대기 확인</td>
+        <td style="color:var(--c-blue);font-weight:600">&#x1F680; 배포 관리</td>
+        <td>안전 배너 + 커리큘럼 카드 + 코드연결 뱃지</td>
+        <td><span style="color:var(--c-green);font-weight:600">&#x1F7E2; 없음</span></td>
+      </tr>
+      <tr style="background:#FDF5FF">
+        <td><strong>2</strong></td>
+        <td>과목코드 연결</td>
+        <td style="color:var(--c-purple);font-weight:600">&#x1F517; 과목코드 연결</td>
+        <td>연결된 코드 목록 + 추가 연결 가능 코드</td>
+        <td><span style="color:var(--c-orange);font-weight:600">&#x1F7E1; 주의</span></td>
+      </tr>
+      <tr style="background:#FDF5FF">
+        <td><strong>3</strong></td>
+        <td>가드레일 검증</td>
+        <td style="color:var(--c-purple);font-weight:600">&#x1F517; 과목코드 연결 (confirm)</td>
+        <td>미배포 경고 + 기존 코드 확인 + "즉시 반영" 안내</td>
+        <td><span style="color:var(--c-red);font-weight:600">&#x1F534; 직접 영향</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:20px;padding:14px 18px;border-radius:10px;background:linear-gradient(135deg,var(--c-purple-bg),#F3E8FF);border:1px solid var(--c-purple-border);font-size:12px;color:var(--c-purple)">
+    <strong>&#x2728; 핵심 포인트:</strong> Step 1은 <strong>배포 관리</strong> 메뉴에서 안전하게 진행.
+    Step 2~3은 <strong>과목코드 연결</strong> 메뉴에서 서비스 반영 작업 수행.
+    코드 연결 시 가드레일이 반드시 동작합니다.
+  </div>
+</div>
+
+<!-- ════════════ FOOTER ════════════ -->
+<div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--c-border);text-align:center">
+  <div style="font-size:11px;color:var(--c-sub)">CMS 고도화 프로젝트 &middot; 플랫폼기획팀 &middot; Release v1.5 &middot; 2026-06-15</div>
+</div>
+
+</div>
+</body>
+</html>

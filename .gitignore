@@ -1,5 +1,27 @@
+# OS / 편집기
 .DS_Store
 *.swp
 *.swo
 *~
+
+# AI 작업 캐시
 .claude/
+
+# 개발 패치 스크립트 (공유 제외)
+patch_*.py
+
+# 스킬 export / 작업 폴더
+*.skill
+html-to-figma-skill/
+wireframe-analysis/
+
+# 임시 리포트
+daily_report_*.md
+lessons-archive.md
+
+# 아카이브 — 백업·구버전·옛 산출물 (공유 제외, 로컬 보관)
+archive/backup_*/
+archive/old-diagrams/
+archive/old-docs/
+archive/old-html/
+archive/patches/
